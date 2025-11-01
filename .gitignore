@@ -1,0 +1,19 @@
+# Node
+node_modules/
+
+# pnpm
+.pnpm-store/
+
+# Secrets
+.env
+.env.*
+
+# Expo
+.expo/
+dist/
+
+# Supabase
+.supabase/
+
+# IDE
+.vscode/

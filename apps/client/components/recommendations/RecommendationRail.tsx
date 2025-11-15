@@ -1,7 +1,7 @@
 // apps/client/components/recommendations/RecommendationRail.tsx
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { DbEvent, Suggestion } from '../../hooks/useRecommendations'
-import { recommend } from '../../hooks/useRecommendations'
+import { useRecommendations } from '../../hooks/useRecommendations'
 
 export type RecommendationRailProps = {
   events: DbEvent[]              // your JSON input
@@ -27,18 +27,14 @@ export default function RecommendationRail({
   const [activeChips, setActiveChips] = useState<string[]>(defaultActiveChips)
   const [search, setSearch] = useState('')
   const [k, setK] = useState(defaultK)
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
-
   const queryTerms = useMemo(() => {
     const sTerms = search.split(/\s+/).map(s => s.trim()).filter(Boolean)
     return [...activeChips, ...sTerms]
   }, [activeChips, search])
 
-  useEffect(() => {
-    if (!aStartISO || !aEndISO) { setSuggestions([]); return }
-    const out = recommend({ events, aStartISO, aEndISO, queryTerms, k })
-    setSuggestions(out)
-  }, [events, aStartISO, aEndISO, queryTerms, k])
+  const { suggestions } = useRecommendations({ aStartISO, aEndISO, queryTerms, k, events })
+
+  // suggestions are provided by useRecommendations
 
   const toggleChip = (label: string) => {
     setActiveChips(prev =>

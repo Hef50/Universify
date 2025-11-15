@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
 import { useEvents } from '@/contexts/EventsContext';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useResponsive } from '@/hooks/useResponsive';
@@ -46,7 +47,12 @@ export default function CalendarScreen() {
         <ResizableSidebar position="right" initialWidth={350}>
           <View style={styles.sidebar}>
             <View style={styles.sidebarHeader}>
-              <Text style={styles.sidebarTitle}>Recommendations</Text>
+                <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text style={styles.sidebarTitle}>Recommendations</Text>
+                  <TouchableOpacity onPress={() => router.push('/demo-recs')} style={styles.demoButton}>
+                    <Text style={styles.demoButtonText}>Open Demo</Text>
+                  </TouchableOpacity>
+                </View>
             </View>
             <ScrollView style={styles.sidebarContent}>
               <Text style={styles.comingSoon}>Recommendations coming soon</Text>
@@ -111,6 +117,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#9CA3AF',
     fontStyle: 'italic',
+  },
+  demoButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: '#4ECDC4',
+    borderRadius: 8,
+  },
+  demoButtonText: {
+    color: '#fff',
+    fontWeight: '600',
   },
   eventDetailOverlay: {
     ...StyleSheet.absoluteFillObject,

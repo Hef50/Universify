@@ -116,3 +116,61 @@ export function recommend({
   }
   return out
 }
+
+// React hook wrapper that integrates with the app's EventsContext
+import { useMemo } from 'react'
+import { useEvents } from '../contexts/EventsContext'
+import type { Event as AppEvent } from '../types/event'
+
+export function useRecommendations(opts: {
+  aStartISO?: string
+  aEndISO?: string
+  queryTerms?: string[]
+  k?: number
+  minEventOverlap?: number
+  events?: AppEvent[]
+} = {}) {
+  const { aStartISO, aEndISO, queryTerms = [], k = 5, minEventOverlap = 0.2, events: overrideEvents } = opts
+  const ctx = useEvents()
+  const { events: ctxEvents, isLoading, refreshEvents } = ctx
+
+  const sourceEvents = overrideEvents ?? ctxEvents
+
+  const mapped = useMemo<DbEvent[]>(() => {
+    // sourceEvents may already be in DbEvent shape (e.g., when components pass eventsJson)
+    return sourceEvents.map((e: any) => {
+      if (e && (e.start_ts || e.name)) {
+        // assume already DbEvent-like
+        return {
+          id: e.id,
+          name: e.name || e.title || '',
+          start_ts: e.start_ts || e.startTime || '',
+          end_ts: e.end_ts || e.endTime || '',
+          tags: e.tags || e.categories || [],
+          attendees: e.attendees || [],
+        } as DbEvent
+      }
+      // map from app Event shape
+      return {
+        id: e.id,
+        name: e.title,
+        start_ts: e.startTime,
+        end_ts: e.endTime,
+        tags: e.tags || e.categories || [],
+        attendees: (e.attendees || []).map((a: any) => a.userId),
+      } as DbEvent
+    })
+  }, [sourceEvents])
+
+  const suggestions = useMemo(() => {
+    if (!aStartISO || !aEndISO) return []
+    try {
+      return recommend({ events: mapped, aStartISO, aEndISO, queryTerms, k, minEventOverlap })
+    } catch (err) {
+      console.error('recommend failed', err)
+      return []
+    }
+  }, [mapped, aStartISO, aEndISO, JSON.stringify(queryTerms), k, minEventOverlap])
+
+  return { suggestions, isLoading, refresh: refreshEvents }
+}

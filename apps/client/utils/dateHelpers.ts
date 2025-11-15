@@ -101,6 +101,27 @@ export const calculateEventPosition = (
   return { top: Math.max(0, top), height: Math.max(30, height) };
 };
 
+/**
+ * Calculate event position with column layout support
+ * Returns position including left offset and width for column-based layout
+ */
+export const calculateEventPositionWithColumns = (
+  eventStart: string,
+  eventEnd: string,
+  dayStart: Date,
+  column: number,
+  totalColumns: number,
+  columnWidth: number = 150
+): { top: number; height: number; left: number; width: number } => {
+  const { top, height } = calculateEventPosition(eventStart, eventEnd, dayStart);
+  
+  // Calculate width and left position based on column layout
+  const width = (columnWidth / totalColumns) - 8; // Subtract padding
+  const left = (column * (columnWidth / totalColumns)) + 4; // Add left padding
+  
+  return { top, height, left, width };
+};
+
 export const getTimeSlots = (): string[] => {
   const slots: string[] = [];
   for (let hour = 0; hour < 24; hour++) {

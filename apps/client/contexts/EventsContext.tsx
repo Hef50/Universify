@@ -47,7 +47,16 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     try {
       const storedEvents = await storage.getItem(EVENTS_STORAGE_KEY);
       if (storedEvents) {
-        setEvents(JSON.parse(storedEvents));
+        const parsed = JSON.parse(storedEvents);
+        // Ensure we have events - if localStorage is empty, use mock data
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setEvents(parsed);
+        } else {
+          // Load from mock data + current week events
+          const allEvents = [...(mockEventsData as Event[]), ...(currentWeekEvents as Event[])];
+          setEvents(allEvents);
+          await storage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(allEvents));
+        }
       } else {
         // Load from mock data + current week events
         const allEvents = [...(mockEventsData as Event[]), ...(currentWeekEvents as Event[])];
@@ -56,6 +65,7 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       }
     } catch (error) {
       console.error('Failed to load events:', error);
+      // Always fallback to mock data
       const allEvents = [...(mockEventsData as Event[]), ...(currentWeekEvents as Event[])];
       setEvents(allEvents);
     } finally {

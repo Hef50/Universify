@@ -1,0 +1,215 @@
+[
+  {
+    "id": "user-demo-001",
+    "email": "demo@cmu.edu",
+    "password": "Demo123!",
+    "name": "Demo User",
+    "university": "Carnegie Mellon University",
+    "profilePicture": null,
+    "preferences": {
+      "categoryInterests": ["Tech", "Career", "Social"],
+      "eventTypePreferences": {
+        "clubEvents": true,
+        "socialEvents": true
+      },
+      "defaultRSVPVisibility": "public",
+      "notificationPreferences": {
+        "email": true,
+        "push": true,
+        "eventReminders": true,
+        "newEventsInCategories": true
+      }
+    },
+    "settings": {
+      "theme": "light",
+      "defaultHomePage": "calendar",
+      "calendarViewDays": 7,
+      "colorScheme": "default",
+      "fontSize": "medium",
+      "accessibility": {
+        "highContrast": false,
+        "reduceMotion": false
+      }
+    },
+    "savedEvents": [
+      {
+        "eventId": "evt-001",
+        "rsvpStatus": "going",
+        "savedAt": "2025-10-15T10:00:00Z"
+      },
+      {
+        "eventId": "evt-007",
+        "rsvpStatus": "going",
+        "savedAt": "2025-10-12T10:00:00Z"
+      },
+      {
+        "eventId": "evt-012",
+        "rsvpStatus": "maybe",
+        "savedAt": "2025-10-18T10:00:00Z"
+      }
+    ],
+    "createdEvents": [],
+    "createdAt": "2025-09-01T10:00:00Z",
+    "lastLogin": "2025-10-18T10:00:00Z"
+  },
+  {
+    "id": "user-demo-002",
+    "email": "student@andrew.cmu.edu",
+    "password": "Student123!",
+    "name": "Jane Smith",
+    "university": "Carnegie Mellon University",
+    "profilePicture": null,
+    "preferences": {
+      "categoryInterests": ["Arts", "Food", "Wellness"],
+      "eventTypePreferences": {
+        "clubEvents": true,
+        "socialEvents": true
+      },
+      "defaultRSVPVisibility": "public",
+      "notificationPreferences": {
+        "email": true,
+        "push": false,
+        "eventReminders": true,
+        "newEventsInCategories": false
+      }
+    },
+    "settings": {
+      "theme": "dark",
+      "defaultHomePage": "recommendations",
+      "calendarViewDays": 5,
+      "colorScheme": "default",
+      "fontSize": "medium",
+      "accessibility": {
+        "highContrast": false,
+        "reduceMotion": false
+      }
+    },
+    "savedEvents": [
+      {
+        "eventId": "evt-008",
+        "rsvpStatus": "going",
+        "savedAt": "2025-10-16T10:00:00Z"
+      },
+      {
+        "eventId": "evt-015",
+        "rsvpStatus": "going",
+        "savedAt": "2025-10-17T10:00:00Z"
+      }
+    ],
+    "createdEvents": [],
+    "createdAt": "2025-09-05T10:00:00Z",
+    "lastLogin": "2025-10-17T10:00:00Z"
+  },
+  {
+    "id": "user-001",
+    "email": "alex.chen@cmu.edu",
+    "password": "AlexChen123!",
+    "name": "Alex Chen",
+    "university": "Carnegie Mellon University",
+    "profilePicture": null,
+    "preferences": {
+      "categoryInterests": ["Fun", "Social", "Sports"],
+      "eventTypePreferences": {
+        "clubEvents": false,
+        "socialEvents": true
+      },
+      "defaultRSVPVisibility": "public",
+      "notificationPreferences": {
+        "email": false,
+        "push": true,
+        "eventReminders": true,
+        "newEventsInCategories": false
+      }
+    },
+    "settings": {
+      "theme": "system",
+      "defaultHomePage": "recommendations",
+      "calendarViewDays": 3,
+      "colorScheme": "default",
+      "fontSize": "medium",
+      "accessibility": {
+        "highContrast": false,
+        "reduceMotion": false
+      }
+    },
+    "savedEvents": [],
+    "createdEvents": ["evt-003"],
+    "createdAt": "2025-09-10T10:00:00Z",
+    "lastLogin": "2025-10-15T10:00:00Z"
+  },
+  {
+    "id": "user-demo-003",
+    "email": "test@stanford.edu",
+    "password": "Test123!",
+    "name": "Test User",
+    "university": "Stanford University",
+    "profilePicture": null,
+    "preferences": {
+      "categoryInterests": ["Academic", "Career", "Tech"],
+      "eventTypePreferences": {
+        "clubEvents": true,
+        "socialEvents": false
+      },
+      "defaultRSVPVisibility": "private",
+      "notificationPreferences": {
+        "email": true,
+        "push": true,
+        "eventReminders": true,
+        "newEventsInCategories": true
+      }
+    },
+    "settings": {
+      "theme": "light",
+      "defaultHomePage": "calendar",
+      "calendarViewDays": 7,
+      "colorScheme": "default",
+      "fontSize": "large",
+      "accessibility": {
+        "highContrast": true,
+        "reduceMotion": true
+      }
+    },
+    "savedEvents": [],
+    "createdEvents": [],
+    "createdAt": "2025-10-01T10:00:00Z",
+    "lastLogin": "2025-10-18T10:00:00Z"
+  },
+  {
+    "id": "user-demo-004",
+    "email": "admin@cmu.edu",
+    "password": "Admin123!",
+    "name": "Admin User",
+    "university": "Carnegie Mellon University",
+    "profilePicture": null,
+    "preferences": {
+      "categoryInterests": ["Career", "Networking", "Events", "Academic", "Tech", "Arts"],
+      "eventTypePreferences": {
+        "clubEvents": true,
+        "socialEvents": true
+      },
+      "defaultRSVPVisibility": "public",
+      "notificationPreferences": {
+        "email": true,
+        "push": true,
+        "eventReminders": true,
+        "newEventsInCategories": true
+      }
+    },
+    "settings": {
+      "theme": "system",
+      "defaultHomePage": "calendar",
+      "calendarViewDays": 7,
+      "colorScheme": "default",
+      "fontSize": "medium",
+      "accessibility": {
+        "highContrast": false,
+        "reduceMotion": false
+      }
+    },
+    "savedEvents": [],
+    "createdEvents": [],
+    "createdAt": "2025-08-01T10:00:00Z",
+    "lastLogin": "2025-10-18T10:00:00Z"
+  }
+]
+

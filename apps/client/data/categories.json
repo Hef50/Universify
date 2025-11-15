@@ -1,0 +1,87 @@
+[
+  {
+    "id": "Career",
+    "name": "Career",
+    "color": "#FF6B6B",
+    "icon": "briefcase",
+    "description": "Career fairs, recruiting events, and professional development"
+  },
+  {
+    "id": "Food",
+    "name": "Food",
+    "color": "#FFA07A",
+    "icon": "restaurant",
+    "description": "Food events, dining, and culinary experiences"
+  },
+  {
+    "id": "Fun",
+    "name": "Fun",
+    "color": "#FFD93D",
+    "icon": "happy",
+    "description": "Entertainment, parties, and recreational activities"
+  },
+  {
+    "id": "Afternoon",
+    "name": "Afternoon",
+    "color": "#6BCF7F",
+    "icon": "sunny",
+    "description": "Afternoon activities and events"
+  },
+  {
+    "id": "Events",
+    "name": "Events",
+    "color": "#4ECDC4",
+    "icon": "calendar",
+    "description": "General campus events and gatherings"
+  },
+  {
+    "id": "Academic",
+    "name": "Academic",
+    "color": "#8B7FFF",
+    "icon": "school",
+    "description": "Study groups, lectures, and academic workshops"
+  },
+  {
+    "id": "Networking",
+    "name": "Networking",
+    "color": "#FF6BA8",
+    "icon": "people",
+    "description": "Professional networking and meetups"
+  },
+  {
+    "id": "Social",
+    "name": "Social",
+    "color": "#FF8C94",
+    "icon": "chatbubbles",
+    "description": "Social gatherings and community events"
+  },
+  {
+    "id": "Sports",
+    "name": "Sports",
+    "color": "#95E1D3",
+    "icon": "football",
+    "description": "Athletic events, games, and fitness activities"
+  },
+  {
+    "id": "Arts",
+    "name": "Arts",
+    "color": "#C7A4FF",
+    "icon": "color-palette",
+    "description": "Art exhibitions, performances, and creative workshops"
+  },
+  {
+    "id": "Tech",
+    "name": "Tech",
+    "color": "#5B9BD5",
+    "icon": "laptop",
+    "description": "Technology workshops, hackathons, and tech talks"
+  },
+  {
+    "id": "Wellness",
+    "name": "Wellness",
+    "color": "#A8E6CF",
+    "icon": "fitness",
+    "description": "Health, wellness, and mindfulness activities"
+  }
+]
+

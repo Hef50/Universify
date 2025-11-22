@@ -5,6 +5,8 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { GoogleAuthProvider } from '@/contexts/GoogleAuthContext';
+import { GoogleCalendarProvider } from '@/contexts/GoogleCalendarContext';
 import { EventsProvider } from '@/contexts/EventsContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 
@@ -16,23 +18,27 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <AuthProvider>
-      <SettingsProvider>
-        <EventsProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="settings" options={{ headerShown: false }} />
-          <Stack.Screen name="event/[id]" options={{ presentation: 'modal', title: 'Event Details' }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
-        </EventsProvider>
-      </SettingsProvider>
-    </AuthProvider>
+    <GoogleAuthProvider>
+      <AuthProvider>
+        <GoogleCalendarProvider>
+          <SettingsProvider>
+            <EventsProvider>
+            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+              <Stack>
+                <Stack.Screen name="index" options={{ headerShown: false }} />
+                <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
+                <Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="settings" options={{ headerShown: false }} />
+                <Stack.Screen name="event/[id]" options={{ presentation: 'modal', title: 'Event Details' }} />
+                <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+              </Stack>
+              <StatusBar style="auto" />
+            </ThemeProvider>
+            </EventsProvider>
+          </SettingsProvider>
+        </GoogleCalendarProvider>
+      </AuthProvider>
+    </GoogleAuthProvider>
   );
 }

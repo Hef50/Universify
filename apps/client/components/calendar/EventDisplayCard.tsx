@@ -23,36 +23,48 @@ export const EventDisplayCard: React.FC<EventDisplayCardProps> = ({
 }) => {
   const startDate = new Date(event.startTime);
   const endDate = new Date(event.endTime);
+  const isGoogleEvent = event.id.startsWith('gcal-');
 
   if (isExpanded) {
     return (
       <View style={styles.expandedContainer}>
         <ScrollView style={styles.expandedContent} showsVerticalScrollIndicator>
           <View style={styles.expandedHeader}>
-            <Text style={styles.expandedTitle}>{event.title}</Text>
-            {isScheduled ? (
-              onUnschedule && (
-                <TouchableOpacity
-                  style={styles.iconButton}
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    onUnschedule();
-                  }}
-                >
-                  <Ionicons name="close-circle" size={22} color="#EF4444" />
-                </TouchableOpacity>
-              )
-            ) : (
-              onSchedule && (
-                <TouchableOpacity
-                  style={styles.iconButton}
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    onSchedule();
-                  }}
-                >
-                  <Ionicons name="add-circle" size={22} color="#10B981" />
-                </TouchableOpacity>
+            <View style={styles.titleRow}>
+              <Text style={styles.expandedTitle}>{event.title}</Text>
+              {isGoogleEvent && (
+                <View style={styles.googleBadge}>
+                  <Ionicons name="calendar" size={14} color="#4285F4" />
+                  <Text style={styles.googleBadgeText}>Google</Text>
+                </View>
+              )}
+            </View>
+            {/* Google events are read-only - no schedule/unschedule buttons */}
+            {!isGoogleEvent && (
+              isScheduled ? (
+                onUnschedule && (
+                  <TouchableOpacity
+                    style={styles.iconButton}
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      onUnschedule();
+                    }}
+                  >
+                    <Ionicons name="close-circle" size={22} color="#EF4444" />
+                  </TouchableOpacity>
+                )
+              ) : (
+                onSchedule && (
+                  <TouchableOpacity
+                    style={styles.iconButton}
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      onSchedule();
+                    }}
+                  >
+                    <Ionicons name="add-circle" size={22} color="#10B981" />
+                  </TouchableOpacity>
+                )
               )
             )}
           </View>
@@ -112,32 +124,43 @@ export const EventDisplayCard: React.FC<EventDisplayCardProps> = ({
       activeOpacity={0.7}
     >
       <View style={styles.header}>
-        <Text style={styles.title} numberOfLines={1}>
-          {event.title}
-        </Text>
-        {isScheduled ? (
-          onUnschedule && (
-            <TouchableOpacity
-              style={styles.iconButton}
-              onPress={(e) => {
-                e.stopPropagation();
-                onUnschedule();
-              }}
-            >
-              <Ionicons name="close-circle" size={20} color="#EF4444" />
-            </TouchableOpacity>
-          )
-        ) : (
-          onSchedule && (
-            <TouchableOpacity
-              style={styles.iconButton}
-              onPress={(e) => {
-                e.stopPropagation();
-                onSchedule();
-              }}
-            >
-              <Ionicons name="add-circle" size={20} color="#10B981" />
-            </TouchableOpacity>
+        <View style={styles.titleRow}>
+          <Text style={styles.title} numberOfLines={1}>
+            {event.title}
+          </Text>
+          {isGoogleEvent && (
+            <View style={styles.googleBadge}>
+              <Ionicons name="calendar" size={12} color="#4285F4" />
+              <Text style={styles.googleBadgeText}>Google</Text>
+            </View>
+          )}
+        </View>
+        {/* Google events are read-only - no schedule/unschedule buttons */}
+        {!isGoogleEvent && (
+          isScheduled ? (
+            onUnschedule && (
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  onUnschedule();
+                }}
+              >
+                <Ionicons name="close-circle" size={20} color="#EF4444" />
+              </TouchableOpacity>
+            )
+          ) : (
+            onSchedule && (
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  onSchedule();
+                }}
+              >
+                <Ionicons name="add-circle" size={20} color="#10B981" />
+              </TouchableOpacity>
+            )
           )
         )}
       </View>
@@ -206,7 +229,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1F2937',
     flex: 1,
-    marginRight: 8,
   },
   iconButton: {
     width: 24,
@@ -271,12 +293,32 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 16,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 8,
+    gap: 8,
+  },
   expandedTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#1F2937',
     flex: 1,
-    marginRight: 8,
+  },
+  googleBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F0FE',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    gap: 4,
+  },
+  googleBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#4285F4',
   },
   descriptionSection: {
     marginTop: 16,

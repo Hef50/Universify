@@ -45,29 +45,70 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const loadEvents = async () => {
     try {
+      console.log('EventsContext: Starting to load events...');
+      
+      // Verify JSON imports are working
+      if (!mockEventsData || !Array.isArray(mockEventsData)) {
+        console.error('EventsContext: mockEventsData is not a valid array!', typeof mockEventsData);
+      }
+      if (!currentWeekEvents || !Array.isArray(currentWeekEvents)) {
+        console.error('EventsContext: currentWeekEvents is not a valid array!', typeof currentWeekEvents);
+      }
+      
+      console.log('EventsContext: mockEventsData length:', Array.isArray(mockEventsData) ? mockEventsData.length : 'NOT ARRAY');
+      console.log('EventsContext: currentWeekEvents length:', Array.isArray(currentWeekEvents) ? currentWeekEvents.length : 'NOT ARRAY');
+      
       const storedEvents = await storage.getItem(EVENTS_STORAGE_KEY);
+      console.log('EventsContext: storedEvents exists?', !!storedEvents);
+      
       if (storedEvents) {
         const parsed = JSON.parse(storedEvents);
+        console.log('EventsContext: Parsed stored events, count:', Array.isArray(parsed) ? parsed.length : 'NOT ARRAY');
         // Ensure we have events - if localStorage is empty, use mock data
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setEvents(parsed);
-        } else {
-          // Load from mock data + current week events
-          const allEvents = [...(mockEventsData as Event[]), ...(currentWeekEvents as Event[])];
-          setEvents(allEvents);
-          await storage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(allEvents));
+          // Filter out any Google Calendar events (IDs starting with "gcal-")
+          const filteredEvents = parsed.filter((event: Event) => !event.id.startsWith('gcal-'));
+          console.log('EventsContext: Loaded from localStorage. Count:', filteredEvents.length);
+          setEvents(filteredEvents);
+          return; // Exit early
         }
-      } else {
-        // Load from mock data + current week events
-        const allEvents = [...(mockEventsData as Event[]), ...(currentWeekEvents as Event[])];
-        setEvents(allEvents);
-        await storage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(allEvents));
       }
-    } catch (error) {
-      console.error('Failed to load events:', error);
-      // Always fallback to mock data
+      
+      // If we get here, either no localStorage or it was empty - load from mock data
+      if (!Array.isArray(mockEventsData) || !Array.isArray(currentWeekEvents)) {
+        console.error('EventsContext: Cannot load events - JSON imports failed!');
+        setEvents([]);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Load from mock data + current week events
       const allEvents = [...(mockEventsData as Event[]), ...(currentWeekEvents as Event[])];
-      setEvents(allEvents);
+      console.log('EventsContext: Loading from mock data. Total:', allEvents.length);
+      // Filter out any Google Calendar events (shouldn't be any in mock data, but just in case)
+      const filteredEvents = allEvents.filter((event: Event) => !event.id.startsWith('gcal-'));
+      console.log('EventsContext: After filtering Google events. Count:', filteredEvents.length);
+      setEvents(filteredEvents);
+      await storage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(filteredEvents));
+    } catch (error) {
+      console.error('EventsContext: Failed to load events:', error);
+      // Always fallback to mock data
+      try {
+        if (Array.isArray(mockEventsData) && Array.isArray(currentWeekEvents)) {
+          const allEvents = [...(mockEventsData as Event[]), ...(currentWeekEvents as Event[])];
+          console.log('EventsContext: Fallback to mock data. Total:', allEvents.length);
+          // Filter out any Google Calendar events
+          const filteredEvents = allEvents.filter((event: Event) => !event.id.startsWith('gcal-'));
+          console.log('EventsContext: After filtering Google events. Count:', filteredEvents.length);
+          setEvents(filteredEvents);
+        } else {
+          console.error('EventsContext: Cannot use fallback - JSON imports failed!');
+          setEvents([]);
+        }
+      } catch (fallbackError) {
+        console.error('EventsContext: Even fallback failed:', fallbackError);
+        setEvents([]);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -75,8 +116,10 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const saveEvents = async (updatedEvents: Event[]) => {
     try {
-      await storage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(updatedEvents));
-      setEvents(updatedEvents);
+      // Filter out any Google Calendar events before saving (shouldn't be any, but just in case)
+      const filteredEvents = updatedEvents.filter((event: Event) => !event.id.startsWith('gcal-'));
+      await storage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(filteredEvents));
+      setEvents(filteredEvents);
     } catch (error) {
       console.error('Failed to save events:', error);
     }

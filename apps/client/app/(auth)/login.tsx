@@ -12,11 +12,13 @@ import {
 } from 'react-native';
 import { Link, router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
 import { validateEmail } from '@/utils/validation';
 import { useResponsive } from '@/hooks/useResponsive';
 
 export default function LoginScreen() {
   const { login, isLoading, error, clearError } = useAuth();
+  const { googleSignIn, isLoading: isGoogleLoading, error: googleError } = useGoogleAuth();
   const { isMobile } = useResponsive();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -157,6 +159,36 @@ export default function LoginScreen() {
               <Text style={styles.buttonText}>Sign In</Text>
             )}
           </TouchableOpacity>
+
+          {/* Divider */}
+          <View style={styles.dividerContainer}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>OR</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          {/* Google Sign-In Button */}
+          <TouchableOpacity
+            style={[styles.googleButton, (isGoogleLoading || isLoading) && styles.buttonDisabled]}
+            onPress={googleSignIn}
+            disabled={isGoogleLoading || isLoading}
+          >
+            {isGoogleLoading ? (
+              <ActivityIndicator color="#4285F4" />
+            ) : (
+              <>
+                <Text style={styles.googleIcon}>🔵</Text>
+                <Text style={styles.googleButtonText}>Sign in with Google</Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          {/* Google Error Message */}
+          {googleError && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{googleError}</Text>
+            </View>
+          )}
 
           {/* Demo Accounts Info */}
           <View style={styles.demoInfo}>
@@ -356,6 +388,42 @@ const styles = StyleSheet.create({
   signupLink: {
     fontSize: 14,
     color: '#FF6B6B',
+    fontWeight: '600',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 24,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E5E7EB',
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '500',
+  },
+  googleButton: {
+    height: 48,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  googleIcon: {
+    fontSize: 20,
+    marginRight: 8,
+  },
+  googleButtonText: {
+    color: '#374151',
+    fontSize: 16,
     fontWeight: '600',
   },
 });

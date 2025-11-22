@@ -198,8 +198,12 @@ function FindScreenContent() {
 export default function FindScreen() {
   const { events } = useEvents();
 
+  // Filter out any Google Calendar events (IDs starting with "gcal-")
+  // The events tab should ONLY show Universify public events from mockEvents.json
+  const universifyEvents = events.filter((event) => !event.id.startsWith('gcal-'));
+
   return (
-    <FilterProvider events={events}>
+    <FilterProvider events={universifyEvents}>
       <FindScreenContent />
     </FilterProvider>
   );

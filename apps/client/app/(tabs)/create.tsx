@@ -1,66 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { CreateEventForm } from '@/components/events/CreateEventForm';
 import { useEvents } from '@/contexts/EventsContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { EventFormData } from '@/types/event';
+import { useResponsive } from '@/hooks/useResponsive';
 
 export default function CreateScreen() {
-  const [showForm, setShowForm] = useState(false);
   const { createEvent } = useEvents();
   const { currentUser } = useAuth();
-
-  // Show form when tab is pressed
-  useEffect(() => {
-    setShowForm(true);
-  }, []);
+  const { isDesktop } = useResponsive();
 
   const handleCreateEvent = async (eventData: EventFormData) => {
     if (!currentUser) return;
 
     try {
       await createEvent(eventData, currentUser.id);
-      setShowForm(false);
-      // Navigate to find page with "my events" filter
+      // Navigate to find page with "my events" filter or back to calendar
       router.push({
-        pathname: '/(tabs)/find',
-        params: { filterMyEvents: 'true' },
+        pathname: '/(tabs)/calendar',
       });
     } catch (error) {
       console.error('Failed to create event:', error);
     }
   };
 
-  const handleClose = () => {
-    setShowForm(false);
-    // Navigate back to previous tab
-    router.back();
-  };
-
   return (
     <View style={styles.container}>
-      {!showForm && (
-        <View style={styles.content}>
-          <Text style={styles.icon}>📅</Text>
-          <Text style={styles.title}>Create an Event</Text>
-          <Text style={styles.description}>
-            Share your event with the community
-          </Text>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => setShowForm(true)}
-          >
-            <Text style={styles.buttonText}>Get Started</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      <CreateEventForm
-        visible={showForm}
-        onClose={handleClose}
-        onSubmit={handleCreateEvent}
-      />
+      <View style={[styles.content, isDesktop && styles.contentDesktop]}>
+        <CreateEventForm
+          onSubmit={handleCreateEvent}
+        />
+      </View>
     </View>
   );
 }
@@ -72,37 +44,14 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
+    padding: 24,
+    maxWidth: 800,
+    width: '100%',
+    alignSelf: 'center',
   },
-  icon: {
-    fontSize: 64,
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  description: {
-    fontSize: 16,
-    color: '#6B7280',
-    textAlign: 'center',
-    marginBottom: 32,
-  },
-  button: {
-    backgroundColor: '#FF6B6B',
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 8,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
+  contentDesktop: {
+    padding: 48,
+    // On desktop, maybe add some shadow/card effect if desired, 
+    // but keeping it clean and flat as requested "embedded in the layout".
   },
 });
-

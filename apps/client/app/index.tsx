@@ -8,23 +8,38 @@ import {
   Animated,
   Dimensions,
   Platform,
+  Easing,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { useResponsive } from '@/hooks/useResponsive';
+import { Ionicons } from '@expo/vector-icons';
 
+// Get screen dimensions to use in calculations
 const { width, height } = Dimensions.get('window');
 
+/**
+ * LandingPage Component
+ * 
+ * This is the main entry point for unauthenticated users.
+ * It displays a marketing landing page with:
+ * 1. Hero Section (Logo, Headline, CTAs)
+ * 2. Features Grid (List of app capabilities)
+ * 3. Stats Section (Social proof)
+ * 4. Final Call to Action
+ */
 export default function LandingPage() {
   const { isAuthenticated, isLoading } = useAuth();
   const { isMobile, isDesktop } = useResponsive();
 
+  // Effect: Redirect to main app if already logged in
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
       router.replace('/(tabs)');
     }
   }, [isAuthenticated, isLoading]);
 
+  // Show loading spinner while checking auth status
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -33,33 +48,34 @@ export default function LandingPage() {
     );
   }
 
+  // Don't render anything if authenticated (will redirect)
   if (isAuthenticated) {
     return null;
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      {/* Gradient Background */}
+      {/* Gradient Background & Animated Blobs */}
       <View style={styles.gradientBackground}>
         <AnimatedBlobs />
       </View>
 
-      {/* Hero Section */}
+      {/* Hero Section: The top part with "Welcome to CMUnify" */}
       <View style={styles.hero}>
         <AnimatedHero isMobile={isMobile} />
       </View>
 
-      {/* Features Section */}
+      {/* Features Section: Grid of cards explaining what the app does */}
       <View style={styles.featuresSection}>
         <FeaturesGrid isDesktop={isDesktop} />
       </View>
 
-      {/* Stats Section */}
+      {/* Stats Section: Numbers showing usage/trust */}
       <View style={styles.statsSection}>
         <StatsDisplay />
       </View>
 
-      {/* CTA Section */}
+      {/* CTA Section: Bottom "Get Started" button */}
       <View style={styles.ctaSection}>
         <FinalCTA />
       </View>
@@ -67,100 +83,80 @@ export default function LandingPage() {
   );
 }
 
-const StarLogo = () => {
+/**
+ * SpinningPetalLogo Component
+ * 
+ * Replaces the old StarLogo.
+ * This creates a flower/star shape using 3 overlapping ellipses rotated at different angles.
+ */
+const SpinningPetalLogo = () => {
   return (
-    <View style={styles.starContainer}>
-      <View style={[styles.starPetal, styles.starPetalTop]} />
-      <View style={[styles.starPetal, styles.starPetalRight]} />
-      <View style={[styles.starPetal, styles.starPetalBottom]} />
-      <View style={[styles.starPetal, styles.starPetalLeft]} />
-      <View style={styles.starCenter} />
+    <View style={styles.petalLogoContainer}>
+       {/* First Ellipse - Vertical */}
+       <View style={[styles.petalEllipse, styles.petalVertical]} />
+       {/* Second Ellipse - Rotated 60 degrees */}
+       <View style={[styles.petalEllipse, styles.petalRotated1]} />
+       {/* Third Ellipse - Rotated -60 degrees */}
+       <View style={[styles.petalEllipse, styles.petalRotated2]} />
     </View>
   );
 };
 
+
+/**
+ * AnimatedBlobs Component
+ * 
+ * These are the large moving background shapes (the "side thing").
+ * NOW UPDATED: To mimic the spinning petal logo style but large and in the background.
+ * It uses 3 large ellipses that rotate slowly.
+ */
 const AnimatedBlobs = () => {
-  const blob1Anim = useRef(new Animated.Value(0)).current;
-  const blob2Anim = useRef(new Animated.Value(0)).current;
+  // Animation for rotation
+  const spinAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const createBlobAnimation = (animValue: Animated.Value, duration: number) => {
-      return Animated.loop(
-        Animated.sequence([
-          Animated.timing(animValue, {
-            toValue: 1,
-            duration,
-            useNativeDriver: true,
-          }),
-          Animated.timing(animValue, {
-            toValue: 0,
-            duration,
-            useNativeDriver: true,
-          }),
-        ])
-      );
-    };
-
-    Animated.parallel([
-      createBlobAnimation(blob1Anim, 8000),
-      createBlobAnimation(blob2Anim, 10000),
-    ]).start();
+    // Infinite rotation loop
+    Animated.loop(
+      Animated.timing(spinAnim, {
+        toValue: 1,
+        duration: 30000, // 30 seconds for full rotation
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start();
   }, []);
 
-  const blob1TranslateY = blob1Anim.interpolate({
+  // Interpolate 0-1 to 0-360deg
+  const spin = spinAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, -50],
-  });
-
-  const blob2TranslateY = blob2Anim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 40],
-  });
-
-  const blob1Scale = blob1Anim.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [1, 1.1, 1],
-  });
-
-  const blob2Scale = blob2Anim.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [1, 0.95, 1],
+    outputRange: ['0deg', '360deg'],
   });
 
   return (
-    <>
-      <Animated.View
-        style={[
-          styles.blob,
-          styles.blob1,
-          {
-            transform: [
-              { translateY: blob1TranslateY },
-              { scale: blob1Scale },
-            ],
-          },
-        ]}
-      />
-      <Animated.View
-        style={[
-          styles.blob,
-          styles.blob2,
-          {
-            transform: [
-              { translateY: blob2TranslateY },
-              { scale: blob2Scale },
-            ],
-          },
-        ]}
-      />
-    </>
+    <View style={styles.blobContainer}>
+      {/* The spinning container holding the petals */}
+      <Animated.View style={[styles.blobSpinner, { transform: [{ rotate: spin }] }]}>
+         {/* Petal 1 */}
+         <View style={[styles.blobPetal, styles.blobPetal1]} />
+         {/* Petal 2 */}
+         <View style={[styles.blobPetal, styles.blobPetal2]} />
+         {/* Petal 3 */}
+         <View style={[styles.blobPetal, styles.blobPetal3]} />
+      </Animated.View>
+    </View>
   );
 };
 
+/**
+ * AnimatedHero Component
+ * 
+ * Displays the main welcome message and logo with entrance animations.
+ */
 const AnimatedHero: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
+  // Run entrance animation on mount
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -189,10 +185,10 @@ const AnimatedHero: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
         },
       ]}
     >
-      {/* Logo */}
+      {/* Logo Section */}
       <View style={styles.logoSection}>
         <View style={styles.logoIcon}>
-          <StarLogo />
+          <SpinningPetalLogo />
         </View>
       </View>
 
@@ -201,7 +197,7 @@ const AnimatedHero: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
         Welcome to
       </Text>
       <Text style={[styles.brandHeadline, isMobile && styles.brandHeadlineMobile]}>
-        Universify
+        CMUnify
       </Text>
 
       {/* Subheadline */}
@@ -248,40 +244,45 @@ const AnimatedHero: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   );
 };
 
+/**
+ * FeaturesGrid Component
+ * 
+ * Renders the list of features (Calendar, Discovery, etc.)
+ */
 const FeaturesGrid: React.FC<{ isDesktop: boolean }> = ({ isDesktop }) => {
   const features = [
     {
-      icon: '📅',
+      iconName: 'calendar-outline',
       title: 'Unified Calendar',
       description: 'All campus events in one beautiful calendar view',
       gradient: ['#FF6B6B', '#FF8E8E'],
     },
     {
-      icon: '🔍',
+      iconName: 'search-outline',
       title: 'Smart Discovery',
       description: 'AI-powered search to find exactly what you need',
       gradient: ['#8B7FFF', '#A89FFF'],
     },
     {
-      icon: '🎉',
+      iconName: 'people-outline',
       title: 'Social Events',
       description: 'Create and join casual meetups instantly',
       gradient: ['#FF6BA8', '#FF8EBF'],
     },
     {
-      icon: '🏛️',
+      iconName: 'business-outline',
       title: 'Club Hub',
       description: 'Stay connected with all your organizations',
       gradient: ['#4ECDC4', '#6FD9D1'],
     },
     {
-      icon: '🔔',
+      iconName: 'notifications-outline',
       title: 'Smart Alerts',
       description: 'Get notified about events you care about',
       gradient: ['#FFD93D', '#FFE066'],
     },
     {
-      icon: '📱',
+      iconName: 'phone-portrait-outline',
       title: 'Cross-Platform',
       description: 'Access from web, iOS, or Android seamlessly',
       gradient: ['#95E1D3', '#ADE8DC'],
@@ -304,13 +305,18 @@ const FeaturesGrid: React.FC<{ isDesktop: boolean }> = ({ isDesktop }) => {
   );
 };
 
+/**
+ * FeatureCard Component
+ * 
+ * Individual card for a feature with staggered entrance animation.
+ */
 const FeatureCard: React.FC<{
-  icon: string;
+  iconName: string;
   title: string;
   description: string;
   gradient: string[];
   index: number;
-}> = ({ icon, title, description, gradient, index }) => {
+}> = ({ iconName, title, description, gradient, index }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
@@ -343,7 +349,7 @@ const FeatureCard: React.FC<{
       ]}
     >
       <View style={[styles.featureIconWrapper, { backgroundColor: gradient[0] + '15' }]}>
-        <Text style={styles.featureIcon}>{icon}</Text>
+        <Ionicons name={iconName as any} size={36} color={gradient[0]} />
       </View>
       <Text style={styles.featureTitle}>{title}</Text>
       <Text style={styles.featureDescription}>{description}</Text>
@@ -351,6 +357,11 @@ const FeatureCard: React.FC<{
   );
 };
 
+/**
+ * StatsDisplay Component
+ * 
+ * Section showing usage stats.
+ */
 const StatsDisplay = () => {
   const stats = [
     { value: '1,000+', label: 'Active Students' },
@@ -382,7 +393,7 @@ const AnimatedStat: React.FC<{
       tension: 40,
       friction: 7,
       useNativeDriver: true,
-    }).start();
+      }).start();
   }, []);
 
   return (
@@ -407,7 +418,7 @@ const FinalCTA = () => {
         Ready to transform your campus experience?
       </Text>
       <Text style={styles.finalCTASubtitle}>
-        Join thousands of students already using Universify
+        Join thousands of students already using CMUnify
       </Text>
       <TouchableOpacity
         style={styles.finalCTAButton}
@@ -417,16 +428,21 @@ const FinalCTA = () => {
         <Text style={styles.finalCTAButtonText}>Get Started Free</Text>
       </TouchableOpacity>
       <Text style={styles.footer}>
-        Made with ❤️ for students • © 2025 Universify
+        Made with ❤️ for students • © 2025 CMUnify
       </Text>
     </View>
   );
 };
 
+/**
+ * Styles Definitions
+ * 
+ * Modify colors, sizes, and layout here.
+ */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E8E4F3',
+    backgroundColor: '#E8E4F3', // Main background color
   },
   scrollContent: {
     flexGrow: 1,
@@ -445,26 +461,49 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#E8E4F3',
   },
-  blob: {
+  
+  // --- NEW BLOB ANIMATION STYLES ---
+  blobContainer: {
     position: 'absolute',
-    borderRadius: 1000,
-  },
-  blob1: {
-    width: 800,
-    height: 800,
-    backgroundColor: '#FF7A6B',
-    opacity: 0.7,
-    top: -100,
+    top: -300, // Position partly off-screen to the top-left
     left: -300,
+    width: 1000,
+    height: 1000,
+    justifyContent: 'center',
+    alignItems: 'center',
+    opacity: 0.6, // Make it subtle
   },
-  blob2: {
-    width: 700,
-    height: 700,
-    backgroundColor: '#FF9B8F',
-    opacity: 0.6,
-    top: 100,
-    left: -200,
+  blobSpinner: {
+    width: 1000,
+    height: 1000,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+  blobPetal: {
+    position: 'absolute',
+    width: 300,
+    height: 900, // Long oval
+    backgroundColor: '#FF6B6B', // Brand Red/Pink
+    borderRadius: 500, // Fully rounded
+  },
+  blobPetal1: {
+    // Vertical
+    opacity: 0.5,
+    backgroundColor: '#FF6B6B',
+  },
+  blobPetal2: {
+    // Rotated 60 deg
+    transform: [{ rotate: '60deg' }],
+    opacity: 0.5,
+    backgroundColor: '#FF8E8E',
+  },
+  blobPetal3: {
+    // Rotated -60 deg (or 120)
+    transform: [{ rotate: '-60deg' }],
+    opacity: 0.5,
+    backgroundColor: '#FF7A6B',
+  },
+
   hero: {
     minHeight: height * 0.85,
     justifyContent: 'center',
@@ -482,50 +521,41 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   logoIcon: {
-    width: 64,
-    height: 64,
+    width: 100,
+    height: 100,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  starContainer: {
-    width: 64,
-    height: 64,
-    justifyContent: 'center',
-    alignItems: 'center',
+  
+  // --- NEW LOGO STYLES ---
+  petalLogoContainer: {
+    width: 80,
+    height: 80,
     position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  starPetal: {
+  petalEllipse: {
     position: 'absolute',
-    width: 28,
-    height: 28,
+    width: 30,
+    height: 80,
+    borderRadius: 40,
     backgroundColor: '#FF6B6B',
-    borderRadius: 14,
+    opacity: 0.9,
   },
-  starPetalTop: {
-    top: 0,
-    left: 18,
+  petalVertical: {
+    // Default vertical
   },
-  starPetalRight: {
-    top: 18,
-    right: 0,
-  },
-  starPetalBottom: {
-    bottom: 0,
-    left: 18,
-  },
-  starPetalLeft: {
-    top: 18,
-    left: 0,
-  },
-  starCenter: {
-    width: 20,
-    height: 20,
+  petalRotated1: {
+    transform: [{ rotate: '60deg' }],
     backgroundColor: '#FF6B6B',
-    borderRadius: 10,
-    position: 'absolute',
-    top: 22,
-    left: 22,
   },
+  petalRotated2: {
+    transform: [{ rotate: '-60deg' }],
+    backgroundColor: '#FF6B6B',
+  },
+
+
   headline: {
     fontSize: 72,
     fontWeight: '800',

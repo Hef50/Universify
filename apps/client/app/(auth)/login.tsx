@@ -15,6 +15,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { validateEmail } from '@/utils/validation';
 import { useResponsive } from '@/hooks/useResponsive';
 
+// TOGGLE THIS VARIABLE TO ENABLE/DISABLE AUTO-LOGIN BUTTON
+const SHOW_AUTO_LOGIN = true;
+
 export default function LoginScreen() {
   const { login, isLoading, error, clearError } = useAuth();
   const { isMobile } = useResponsive();
@@ -54,6 +57,14 @@ export default function LoginScreen() {
       router.replace('/(tabs)');
     }
   };
+
+  const handleAutoLogin = async () => {
+      const success = await login({ email: 'demo@cmu.edu', password: 'Demo123!' });
+      if (success) {
+          router.replace('/(tabs)');
+      }
+  };
+
 
   return (
     <KeyboardAvoidingView
@@ -157,6 +168,17 @@ export default function LoginScreen() {
               <Text style={styles.buttonText}>Sign In</Text>
             )}
           </TouchableOpacity>
+
+          {/* Auto Login Button (For Testing) */}
+          {SHOW_AUTO_LOGIN && (
+            <TouchableOpacity
+              style={[styles.secondaryButton, isLoading && styles.buttonDisabled]}
+              onPress={handleAutoLogin}
+              disabled={isLoading}
+            >
+               <Text style={styles.secondaryButtonText}>Auto Login (Demo)</Text>
+            </TouchableOpacity>
+          )}
 
           {/* Demo Accounts Info */}
           <View style={styles.demoInfo}>
@@ -327,6 +349,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  secondaryButton: {
+    height: 48,
+    backgroundColor: 'transparent',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FF6B6B',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  secondaryButtonText: {
+      color: '#FF6B6B',
+      fontSize: 16,
+      fontWeight: '600',
+  },
   demoInfo: {
     backgroundColor: '#F3F4F6',
     borderRadius: 8,
@@ -359,4 +396,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

@@ -39,6 +39,18 @@ export interface ColorScheme {
   text: string;
 }
 
+export interface UserSettings {
+  theme: 'light' | 'dark' | 'system';
+  defaultHomePage: 'index' | 'calendar' | 'find' | 'explore';
+  calendarViewDays: number; // 1, 3, 7, or custom
+  colorScheme: string;
+  fontSize: 'small' | 'medium' | 'large';
+  accessibility: {
+    highContrast: boolean;
+    reduceMotion: boolean;
+  };
+}
+
 export interface AppSettings {
   version: string;
   apiEndpoint?: string;
@@ -49,4 +61,3 @@ export interface AppSettings {
     instagramScraping: boolean;
   };
 }
-

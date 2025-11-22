@@ -2,6 +2,7 @@
 import { useMemo, useState } from 'react'
 import type { DbEvent, Suggestion } from '../../hooks/useRecommendations'
 import { useRecommendations } from '../../hooks/useRecommendations'
+import useUserInterests from '../../hooks/useUserInterests'
 
 export type RecommendationRailProps = {
   events: DbEvent[]              // your JSON input
@@ -27,10 +28,16 @@ export default function RecommendationRail({
   const [activeChips, setActiveChips] = useState<string[]>(defaultActiveChips)
   const [search, setSearch] = useState('')
   const [k, setK] = useState(defaultK)
+  const interests = useUserInterests({ events, startISO: aStartISO, endISO: aEndISO })
   const queryTerms = useMemo(() => {
     const sTerms = search.split(/\s+/).map(s => s.trim()).filter(Boolean)
+    // if user hasn't entered chips or search terms, auto-populate with top tags from interests for the selected window
+    if (!sTerms.length && activeChips.length === 0 && aStartISO && aEndISO) {
+      const auto = (interests?.tags || []).slice(0, 5).map(t => t.label)
+      return [...activeChips, ...sTerms, ...auto]
+    }
     return [...activeChips, ...sTerms]
-  }, [activeChips, search])
+  }, [activeChips, search, interests, aStartISO, aEndISO])
 
   const { suggestions } = useRecommendations({ aStartISO, aEndISO, queryTerms, k, events })
 

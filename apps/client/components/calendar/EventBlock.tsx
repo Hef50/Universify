@@ -8,6 +8,7 @@ interface EventBlockProps {
   top: number;
   height: number;
   onPress: () => void;
+  isSuggested?: boolean;
 }
 
 export const EventBlock: React.FC<EventBlockProps> = ({
@@ -15,6 +16,7 @@ export const EventBlock: React.FC<EventBlockProps> = ({
   top,
   height,
   onPress,
+  isSuggested = false,
 }) => {
   const showDetails = height > 40;
 
@@ -22,10 +24,11 @@ export const EventBlock: React.FC<EventBlockProps> = ({
     <TouchableOpacity
       style={[
         styles.container,
+        isSuggested && styles.suggestedContainer,
         {
           top,
           height,
-          backgroundColor: event.color,
+          backgroundColor: isSuggested ? '#FFD93D' : event.color,
         },
       ]}
       onPress={onPress}
@@ -84,6 +87,11 @@ const styles = StyleSheet.create({
   location: {
     fontSize: 10,
     color: 'rgba(255, 255, 255, 0.9)',
+  },
+  suggestedContainer: {
+    borderLeftColor: 'rgba(0, 0, 0, 0.3)',
+    borderStyle: 'dashed',
+    borderWidth: 2,
   },
 });
 

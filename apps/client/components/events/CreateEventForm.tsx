@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   Switch,
+  ScrollView,
 } from 'react-native';
-import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { CategoryPill } from '@/components/ui/CategoryPill';
+import { DateTimePicker } from '@/components/ui/DateTimePicker';
 import { EventFormData, EventCategory } from '@/types/event';
 import {
   validateEventTitle,
@@ -19,10 +19,12 @@ import {
   validateTimeRange,
 } from '@/utils/validation';
 
+// TOGGLE FOR AUTO-FILL BUTTON
+const SHOW_AUTO_FILL = true;
+
 interface CreateEventFormProps {
-  visible: boolean;
-  onClose: () => void;
   onSubmit: (eventData: EventFormData) => Promise<void>;
+  isSubmitting?: boolean;
 }
 
 const ALL_CATEGORIES: EventCategory[] = [
@@ -56,11 +58,9 @@ const COLOR_OPTIONS = [
 ];
 
 export const CreateEventForm: React.FC<CreateEventFormProps> = ({
-  visible,
-  onClose,
   onSubmit,
+  isSubmitting = false,
 }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Form state
@@ -80,22 +80,26 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
   const [selectedColor, setSelectedColor] = useState(COLOR_OPTIONS[0]);
   const [tags, setTags] = useState('');
 
-  const resetForm = () => {
-    setTitle('');
-    setDescription('');
-    setStartDate('');
-    setStartTime('');
-    setEndDate('');
-    setEndTime('');
-    setLocation('');
-    setSelectedCategories([]);
-    setIsClubEvent(false);
+  const autoFillForm = () => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    setTitle('Demo Event: React Workshop');
+    setDescription('Join us for an interactive workshop on React Native development. Free pizza provided!');
+    setStartDate(today.toISOString().split('T')[0]);
+    setStartTime('18:00');
+    setEndDate(today.toISOString().split('T')[0]);
+    setEndTime('20:00');
+    setLocation('Gates Hillman 4401');
+    setSelectedCategories(['Tech', 'Academic', 'Food']);
+    setIsClubEvent(true);
     setIsSocialEvent(true);
-    setCapacity('');
+    setCapacity('50');
     setRsvpEnabled(true);
     setAttendeeVisibility('public');
-    setSelectedColor(COLOR_OPTIONS[0]);
-    setTags('');
+    setSelectedColor('#FF6B6B');
+    setTags('coding, react, workshop');
     setErrors({});
   };
 
@@ -120,21 +124,10 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
       newErrors.description = descriptionValidation.error!;
     }
 
-    if (!startDate) {
-      newErrors.startDate = 'Start date is required';
-    }
-
-    if (!startTime) {
-      newErrors.startTime = 'Start time is required';
-    }
-
-    if (!endDate) {
-      newErrors.endDate = 'End date is required';
-    }
-
-    if (!endTime) {
-      newErrors.endTime = 'End time is required';
-    }
+    if (!startDate) newErrors.startDate = 'Start date is required';
+    if (!startTime) newErrors.startTime = 'Start time is required';
+    if (!endDate) newErrors.endDate = 'End date is required';
+    if (!endTime) newErrors.endTime = 'End time is required';
 
     if (startDate && startTime && endDate && endTime) {
       if (!validateTimeRange(startDate, startTime, endDate, endTime)) {
@@ -164,297 +157,294 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const eventData: EventFormData = {
-        title,
-        description,
-        startDate,
-        startTime,
-        endDate,
-        endTime,
-        location,
-        categories: selectedCategories,
-        isClubEvent,
-        isSocialEvent,
-        capacity: capacity ? Number(capacity) : undefined,
-        rsvpEnabled,
-        attendeeVisibility,
-        color: selectedColor,
-        tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
-      };
+    const eventData: EventFormData = {
+      title,
+      description,
+      startDate,
+      startTime,
+      endDate,
+      endTime,
+      location,
+      categories: selectedCategories,
+      isClubEvent,
+      isSocialEvent,
+      capacity: capacity ? Number(capacity) : undefined,
+      rsvpEnabled,
+      attendeeVisibility,
+      color: selectedColor,
+      tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
+    };
 
-      await onSubmit(eventData);
-      resetForm();
-      onClose();
-    } catch (error) {
-      console.error('Failed to create event:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleClose = () => {
-    resetForm();
-    onClose();
+    await onSubmit(eventData);
   };
 
   return (
-    <Modal
-      visible={visible}
-      onClose={handleClose}
-      title="Create Event"
-      fullScreen
-      footer={
-        <View style={styles.footerButtons}>
-          <Button
-            title="Cancel"
-            onPress={handleClose}
-            variant="outline"
-            size="large"
-            style={{ flex: 1 }}
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Create Event</Text>
+        {SHOW_AUTO_FILL && (
+          <TouchableOpacity onPress={autoFillForm} style={styles.autoFillButton}>
+            <Text style={styles.autoFillText}>Auto-fill (Demo)</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        {/* Basic Info Section */}
+        <View style={[styles.section, styles.shadow]}>
+          <Text style={styles.sectionTitle}>Basic Information</Text>
+          <Input
+            label="Event Title *"
+            value={title}
+            onChangeText={setTitle}
+            placeholder="e.g., Poker Night @ Wiegand"
+            error={errors.title}
+            style={styles.input}
           />
+
+          <Input
+            label="Description *"
+            value={description}
+            onChangeText={setDescription}
+            placeholder="Describe your event..."
+            multiline
+            numberOfLines={4}
+            style={[styles.input, styles.textArea]}
+            error={errors.description}
+          />
+        </View>
+
+        {/* Date & Time Section */}
+        <View style={[styles.section, styles.shadow]}>
+          <Text style={styles.sectionTitle}>Date & Time</Text>
+          <View style={styles.row}>
+            <View style={{ flex: 1 }}>
+              <DateTimePicker
+                label="Start Date *"
+                type="date"
+                value={startDate}
+                onChange={setStartDate}
+                placeholder="YYYY-MM-DD"
+                error={errors.startDate}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <DateTimePicker
+                label="Start Time *"
+                type="time"
+                value={startTime}
+                onChange={setStartTime}
+                placeholder="HH:MM"
+                error={errors.startTime}
+              />
+            </View>
+          </View>
+
+          <View style={styles.row}>
+            <View style={{ flex: 1 }}>
+              <DateTimePicker
+                label="End Date *"
+                type="date"
+                value={endDate}
+                onChange={setEndDate}
+                placeholder="YYYY-MM-DD"
+                error={errors.endDate}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <DateTimePicker
+                label="End Time *"
+                type="time"
+                value={endTime}
+                onChange={setEndTime}
+                placeholder="HH:MM"
+                error={errors.endTime}
+              />
+            </View>
+          </View>
+        </View>
+
+        {/* Location Section */}
+        <View style={[styles.section, styles.shadow]}>
+          <Text style={styles.sectionTitle}>Location</Text>
+          <Input
+            label="Location *"
+            value={location}
+            onChangeText={setLocation}
+            placeholder="e.g., Wiegand Gym Lounge"
+            error={errors.location}
+            style={styles.input}
+          />
+        </View>
+
+        {/* Categories Section */}
+        <View style={[styles.section, styles.shadow]}>
+          <Text style={styles.sectionTitle}>Categories *</Text>
+          <View style={styles.categoryGrid}>
+            {ALL_CATEGORIES.map((category) => (
+              <CategoryPill
+                key={category}
+                category={category}
+                active={selectedCategories.includes(category)}
+                onPress={() => toggleCategory(category)}
+                size="medium"
+              />
+            ))}
+          </View>
+          {errors.categories && (
+            <Text style={styles.errorText}>{errors.categories}</Text>
+          )}
+        </View>
+
+        {/* Event Type & Settings */}
+        <View style={[styles.section, styles.shadow]}>
+          <Text style={styles.sectionTitle}>Settings</Text>
+          
+          <View style={styles.switchRow}>
+            <View style={styles.switchLabel}>
+              <Text style={styles.switchText}>Club Event</Text>
+              <Text style={styles.switchSubtext}>Official event organized by a club</Text>
+            </View>
+            <Switch
+              value={isClubEvent}
+              onValueChange={setIsClubEvent}
+              trackColor={{ false: '#E5E7EB', true: '#FF6B6B' }} // Changed false to lighter gray
+              thumbColor="#FFFFFF" // Explicitly white to fix "green on orange"
+            />
+          </View>
+
+          <View style={styles.switchRow}>
+            <View style={styles.switchLabel}>
+              <Text style={styles.switchText}>Social Event</Text>
+              <Text style={styles.switchSubtext}>Casual event open to everyone</Text>
+            </View>
+            <Switch
+              value={isSocialEvent}
+              onValueChange={setIsSocialEvent}
+              trackColor={{ false: '#E5E7EB', true: '#FF6B6B' }}
+              thumbColor="#FFFFFF"
+            />
+          </View>
+
+          <Input
+            label="Capacity (Optional)"
+            value={capacity}
+            onChangeText={setCapacity}
+            placeholder="Leave empty for unlimited"
+            keyboardType="numeric"
+            error={errors.capacity}
+            containerStyle={{ marginTop: 16 }}
+          />
+        </View>
+
+        {/* Color Section */}
+        <View style={[styles.section, styles.shadow]}>
+          <Text style={styles.sectionTitle}>Event Color</Text>
+          <View style={styles.colorGrid}>
+            {COLOR_OPTIONS.map((color) => (
+              <TouchableOpacity
+                key={color}
+                style={[
+                  styles.colorOption,
+                  { backgroundColor: color },
+                  selectedColor === color && styles.colorOptionSelected,
+                ]}
+                onPress={() => setSelectedColor(color)}
+              >
+                {selectedColor === color && (
+                  <Text style={styles.colorCheckmark}>✓</Text>
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Submit Button */}
+        <View style={styles.footer}>
           <Button
             title="Create Event"
             onPress={handleSubmit}
             variant="primary"
             size="large"
             loading={isSubmitting}
-            style={{ flex: 1 }}
+            style={styles.submitButton}
           />
         </View>
-      }
-    >
-      <View style={styles.form}>
-        {/* Basic Info Section */}
-        <Text style={styles.sectionTitle}>Basic Information</Text>
-
-        <Input
-          label="Event Title *"
-          value={title}
-          onChangeText={setTitle}
-          placeholder="e.g., Poker Night @ Wiegand"
-          error={errors.title}
-        />
-
-        <Input
-          label="Description *"
-          value={description}
-          onChangeText={setDescription}
-          placeholder="Describe your event..."
-          multiline
-          numberOfLines={4}
-          style={{ height: 100, textAlignVertical: 'top' }}
-          error={errors.description}
-        />
-
-        {/* Date & Time Section */}
-        <Text style={styles.sectionTitle}>Date & Time</Text>
-
-        <View style={styles.row}>
-          <Input
-            label="Start Date *"
-            value={startDate}
-            onChangeText={setStartDate}
-            placeholder="YYYY-MM-DD"
-            containerStyle={{ flex: 1 }}
-            error={errors.startDate}
-          />
-          <Input
-            label="Start Time *"
-            value={startTime}
-            onChangeText={setStartTime}
-            placeholder="HH:MM"
-            containerStyle={{ flex: 1 }}
-            error={errors.startTime}
-          />
-        </View>
-
-        <View style={styles.row}>
-          <Input
-            label="End Date *"
-            value={endDate}
-            onChangeText={setEndDate}
-            placeholder="YYYY-MM-DD"
-            containerStyle={{ flex: 1 }}
-            error={errors.endDate}
-          />
-          <Input
-            label="End Time *"
-            value={endTime}
-            onChangeText={setEndTime}
-            placeholder="HH:MM"
-            containerStyle={{ flex: 1 }}
-            error={errors.endTime}
-          />
-        </View>
-
-        {/* Location Section */}
-        <Text style={styles.sectionTitle}>Location</Text>
-
-        <Input
-          label="Location *"
-          value={location}
-          onChangeText={setLocation}
-          placeholder="e.g., Wiegand Gym Lounge"
-          error={errors.location}
-        />
-
-        {/* Categories Section */}
-        <Text style={styles.sectionTitle}>Categories *</Text>
-        <View style={styles.categoryGrid}>
-          {ALL_CATEGORIES.map((category) => (
-            <CategoryPill
-              key={category}
-              category={category}
-              active={selectedCategories.includes(category)}
-              onPress={() => toggleCategory(category)}
-              size="medium"
-            />
-          ))}
-        </View>
-        {errors.categories && (
-          <Text style={styles.errorText}>{errors.categories}</Text>
-        )}
-
-        {/* Event Type Section */}
-        <Text style={styles.sectionTitle}>Event Type</Text>
-
-        <View style={styles.switchRow}>
-          <View style={styles.switchLabel}>
-            <Text style={styles.switchText}>Club Event</Text>
-            <Text style={styles.switchSubtext}>
-              Official event organized by a club
-            </Text>
-          </View>
-          <Switch
-            value={isClubEvent}
-            onValueChange={setIsClubEvent}
-            trackColor={{ false: '#D1D5DB', true: '#FF6B6B' }}
-            thumbColor="#FFFFFF"
-          />
-        </View>
-
-        <View style={styles.switchRow}>
-          <View style={styles.switchLabel}>
-            <Text style={styles.switchText}>Social Event</Text>
-            <Text style={styles.switchSubtext}>
-              Casual event open to everyone
-            </Text>
-          </View>
-          <Switch
-            value={isSocialEvent}
-            onValueChange={setIsSocialEvent}
-            trackColor={{ false: '#D1D5DB', true: '#FF6B6B' }}
-            thumbColor="#FFFFFF"
-          />
-        </View>
-
-        {/* Capacity Section */}
-        <Text style={styles.sectionTitle}>Capacity (Optional)</Text>
-
-        <Input
-          label="Maximum Attendees"
-          value={capacity}
-          onChangeText={setCapacity}
-          placeholder="Leave empty for unlimited"
-          keyboardType="numeric"
-          error={errors.capacity}
-        />
-
-        {/* RSVP Settings Section */}
-        <Text style={styles.sectionTitle}>RSVP Settings</Text>
-
-        <View style={styles.switchRow}>
-          <View style={styles.switchLabel}>
-            <Text style={styles.switchText}>Enable RSVP</Text>
-            <Text style={styles.switchSubtext}>
-              Allow people to RSVP to your event
-            </Text>
-          </View>
-          <Switch
-            value={rsvpEnabled}
-            onValueChange={setRsvpEnabled}
-            trackColor={{ false: '#D1D5DB', true: '#FF6B6B' }}
-            thumbColor="#FFFFFF"
-          />
-        </View>
-
-        {rsvpEnabled && (
-          <View style={styles.switchRow}>
-            <View style={styles.switchLabel}>
-              <Text style={styles.switchText}>Public Attendee List</Text>
-              <Text style={styles.switchSubtext}>
-                Show who's attending this event
-              </Text>
-            </View>
-            <Switch
-              value={attendeeVisibility === 'public'}
-              onValueChange={(value) =>
-                setAttendeeVisibility(value ? 'public' : 'private')
-              }
-              trackColor={{ false: '#D1D5DB', true: '#FF6B6B' }}
-              thumbColor="#FFFFFF"
-            />
-          </View>
-        )}
-
-        {/* Color Section */}
-        <Text style={styles.sectionTitle}>Event Color</Text>
-
-        <View style={styles.colorGrid}>
-          {COLOR_OPTIONS.map((color) => (
-            <TouchableOpacity
-              key={color}
-              style={[
-                styles.colorOption,
-                { backgroundColor: color },
-                selectedColor === color && styles.colorOptionSelected,
-              ]}
-              onPress={() => setSelectedColor(color)}
-            >
-              {selectedColor === color && (
-                <Text style={styles.colorCheckmark}>✓</Text>
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Tags Section */}
-        <Text style={styles.sectionTitle}>Tags (Optional)</Text>
-
-        <Input
-          label="Tags"
-          value={tags}
-          onChangeText={setTags}
-          placeholder="e.g., poker, games, social (comma-separated)"
-          helperText="Separate tags with commas"
-        />
-      </View>
-    </Modal>
+        
+        <View style={{ height: 40 }} /> 
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  form: {
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+    paddingHorizontal: 4,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#1F2937',
+  },
+  autoFillButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+  },
+  autoFillText: {
+    fontSize: 13,
+    color: '#6B7280',
+    fontWeight: '600',
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  section: {
+    marginBottom: 32,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+  },
+  shadow: {
+    // Soft shadow for professional look
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 2,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     color: '#1F2937',
-    marginTop: 16,
-    marginBottom: 8,
+    marginBottom: 20,
+  },
+  input: {
+    backgroundColor: '#FFFFFF',
+  },
+  textArea: {
+    height: 100, 
+    textAlignVertical: 'top',
   },
   row: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 16,
   },
   categoryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginBottom: 8,
   },
   errorText: {
     fontSize: 12,
@@ -465,9 +455,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: '#F3F4F6',
   },
   switchLabel: {
     flex: 1,
@@ -481,18 +471,17 @@ const styles = StyleSheet.create({
   switchSubtext: {
     fontSize: 13,
     color: '#6B7280',
-    marginTop: 2,
+    marginTop: 4,
   },
   colorGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
-    marginBottom: 8,
+    gap: 16,
   },
   colorOption: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
@@ -500,16 +489,19 @@ const styles = StyleSheet.create({
   },
   colorOptionSelected: {
     borderColor: '#1F2937',
-    borderWidth: 3,
+    transform: [{ scale: 1.1 }],
   },
   colorCheckmark: {
-    fontSize: 24,
+    fontSize: 22,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
-  footerButtons: {
-    flexDirection: 'row',
-    gap: 12,
+  footer: {
+    marginTop: 24,
+  },
+  submitButton: {
+    width: '100%',
+    height: 56,
+    borderRadius: 12,
   },
 });
-

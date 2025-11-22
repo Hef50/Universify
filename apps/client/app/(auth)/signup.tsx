@@ -130,6 +130,9 @@ export default function SignupScreen() {
             <TextInput
               style={[styles.input, errors.name && styles.inputError]}
               placeholder="John Doe"
+              // To modify placeholder opacity/color manually, use placeholderTextColor prop
+              // Use a hex color with lower opacity or a lighter gray
+              placeholderTextColor="#9CA3AF" // Example: Tailwind gray-400
               value={name}
               onChangeText={(text) => {
                 setName(text);
@@ -149,6 +152,7 @@ export default function SignupScreen() {
             <TextInput
               style={[styles.input, errors.email && styles.inputError]}
               placeholder="your.email@university.edu"
+              placeholderTextColor="#9CA3AF"
               value={email}
               onChangeText={(text) => {
                 setEmail(text);
@@ -170,6 +174,7 @@ export default function SignupScreen() {
             <TextInput
               style={[styles.input, errors.university && styles.inputError]}
               placeholder="Carnegie Mellon University"
+              placeholderTextColor="#9CA3AF"
               value={university}
               onChangeText={(text) => {
                 setUniversity(text);
@@ -189,6 +194,7 @@ export default function SignupScreen() {
             <TextInput
               style={[styles.input, errors.password && styles.inputError]}
               placeholder="Create a strong password"
+              placeholderTextColor="#9CA3AF"
               value={password}
               onChangeText={(text) => {
                 setPassword(text);
@@ -231,6 +237,7 @@ export default function SignupScreen() {
             <TextInput
               style={[styles.input, errors.confirmPassword && styles.inputError]}
               placeholder="Re-enter your password"
+              placeholderTextColor="#9CA3AF"
               value={confirmPassword}
               onChangeText={(text) => {
                 setConfirmPassword(text);
@@ -533,4 +540,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

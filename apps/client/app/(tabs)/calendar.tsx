@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, ActivityIndicator, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { useEvents } from '@/contexts/EventsContext';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useResponsive } from '@/hooks/useResponsive';
@@ -18,33 +18,39 @@ import {
 
 export default function CalendarScreen() {
   const { events, isLoading } = useEvents();
-  const { settings } = useSettings();
+  const { settings, updateSettings } = useSettings();
   const { isMobile, isDesktop } = useResponsive();
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [scheduledEventIds, setScheduledEventIds] = useState<string[]>([]);
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
   const [isLoadingScheduled, setIsLoadingScheduled] = useState(true);
+  const [customDays, setCustomDays] = useState(settings.calendarViewDays.toString());
 
-  const calendar = useCalendar(isMobile ? 3 : settings.calendarViewDays);
+  // Use view days from settings
+  const viewDays = settings.calendarViewDays;
+
+  const calendar = useCalendar(isMobile ? 3 : viewDays);
   const weekKey = getWeekKey(calendar.currentDate);
 
-  // Get week days for date adjustment (always 7 days for week view)
-  // Matches CalFrontend getWeekDays logic exactly
-  const weekDays = useMemo(() => {
-    const date = new Date(calendar.currentDate);
-    const day = date.getDay();
-    const diff = date.getDate() - day;
-    const sunday = new Date(date.setDate(diff));
+  // Get days to display based on view mode
+  const displayDays = useMemo(() => {
+    const days = [];
+    const startDate = new Date(calendar.currentDate);
     
-    return Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(sunday);
-      d.setDate(sunday.getDate() + i);
-      return d;
-    });
-  }, [calendar.currentDate]);
+    // For 7-day view (week view), align to Sunday
+    if (viewDays === 7) {
+      const day = startDate.getDay();
+      const diff = startDate.getDate() - day;
+      startDate.setDate(diff);
+    }
 
-  // Use weekDays for calendar grid (always 7 days)
-  const displayDays = weekDays;
+    for (let i = 0; i < viewDays; i++) {
+      const d = new Date(startDate);
+      d.setDate(startDate.getDate() + i);
+      days.push(d);
+    }
+    return days;
+  }, [calendar.currentDate, viewDays]);
 
   // Load scheduled events for current week (synchronous for web)
   useEffect(() => {
@@ -54,36 +60,16 @@ export default function CalendarScreen() {
     setIsLoadingScheduled(false);
   }, [weekKey]);
 
-  // Get events scheduled for the current week (adjusted to current week dates)
-  // Matches CalFrontend weekEvents logic exactly
+  // Get events to display in the calendar
+  // We only show events that are in the scheduled list for this week
   const weekEvents = useMemo(() => {
     if (scheduledEventIds.length === 0) return [];
     
-    return events
-      .filter((event) => scheduledEventIds.includes(event.id))
-      .map((event) => {
-        // Adjust event dates to the current week (preserve day of week and time)
-        const eventStart = new Date(event.startTime);
-        const eventDayOfWeek = eventStart.getDay();
-        const currentWeekDay = weekDays[eventDayOfWeek];
-        const timeDiff = new Date(event.endTime).getTime() - eventStart.getTime();
-        
-        const newStartTime = new Date(currentWeekDay);
-        newStartTime.setHours(eventStart.getHours(), eventStart.getMinutes(), 0, 0);
-        
-        const newEndTime = new Date(newStartTime.getTime() + timeDiff);
-        
-        // Preserve all event properties including location, categories, color
-        return {
-          ...event,
-          startTime: newStartTime.toISOString(),
-          endTime: newEndTime.toISOString(),
-          location: event.location,
-          categories: event.categories,
-          color: event.color,
-        };
-      });
-  }, [events, scheduledEventIds, weekDays]);
+    return events.filter((event) => scheduledEventIds.includes(event.id));
+    // Note: We NO LONGER shift dates. We trust the event's actual start/end time.
+    // This prevents "mysterious" shifting of one-off events.
+    // If an event is scheduled for this week, it should have the correct date.
+  }, [events, scheduledEventIds]);
 
   // Get all events for sidebar (sorted by date)
   const sortedEvents = useMemo(() => {
@@ -92,75 +78,99 @@ export default function CalendarScreen() {
     );
   }, [events]);
 
-  // Helper to get adjusted event for display
-  // Matches CalFrontend getAdjustedEvent logic exactly
-  const getAdjustedEvent = (event: Event): Event => {
-    // Use state to check if scheduled for immediate updates
-    if (!scheduledEventIds.includes(event.id)) {
-      return event; // Return original if not scheduled
-    }
-    
-    // Adjust event dates to the current week (same logic as weekEvents)
-    const eventStart = new Date(event.startTime);
-    const eventDayOfWeek = eventStart.getDay();
-    const currentWeekDay = weekDays[eventDayOfWeek];
-    const timeDiff = new Date(event.endTime).getTime() - eventStart.getTime();
-    
-    const newStartTime = new Date(currentWeekDay);
-    newStartTime.setHours(eventStart.getHours(), eventStart.getMinutes(), 0, 0);
-    
-    const newEndTime = new Date(newStartTime.getTime() + timeDiff);
-    
-    return {
-      ...event,
-      startTime: newStartTime.toISOString(),
-      endTime: newEndTime.toISOString(),
-    };
-  };
-
   const handleEventPress = (event: Event) => {
-    setSelectedEvent(event);
+    if (isDesktop) {
+      // Toggle expansion
+      setExpandedCardId(prevId => prevId === event.id ? null : event.id);
+    } else {
+      setSelectedEvent(event);
+    }
   };
 
   const handleScheduleEvent = (event: Event) => {
-    // Schedule the event
     scheduleEvent(event.id, weekKey);
-    // Immediately update state to trigger re-render
     const updatedIds = getScheduledEventIds(weekKey);
-    setScheduledEventIds([...updatedIds]); // Create new array to ensure state update
+    setScheduledEventIds([...updatedIds]); 
   };
 
   const handleUnscheduleEvent = (event: Event) => {
-    // Unschedule the event
     unscheduleEvent(event.id, weekKey);
-    // Immediately update state to trigger re-render
     const updatedIds = getScheduledEventIds(weekKey);
-    setScheduledEventIds([...updatedIds]); // Create new array to ensure state update
+    setScheduledEventIds([...updatedIds]);
   };
 
-  // Week navigation handlers
-  const handlePrevWeek = () => {
+  // Navigation handlers
+  const handlePrev = () => {
     const newDate = new Date(calendar.currentDate);
-    newDate.setDate(calendar.currentDate.getDate() - 7);
+    newDate.setDate(calendar.currentDate.getDate() - viewDays);
     calendar.goToDate(newDate);
   };
 
-  const handleNextWeek = () => {
+  const handleNext = () => {
     const newDate = new Date(calendar.currentDate);
-    newDate.setDate(calendar.currentDate.getDate() + 7);
+    newDate.setDate(calendar.currentDate.getDate() + viewDays);
     calendar.goToDate(newDate);
+  };
+
+  const handleViewChange = (days: number) => {
+      updateSettings({ calendarViewDays: days });
+      setCustomDays(days.toString());
+  };
+
+  const handleCustomDaysChange = (text: string) => {
+      setCustomDays(text);
+      const days = parseInt(text, 10);
+      if (!isNaN(days) && days > 0 && days <= 16) {
+          updateSettings({ calendarViewDays: days });
+      }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.calendarSection}>
-          <CalendarHeader
-            currentDate={calendar.currentDate}
-            onToday={calendar.goToToday}
-            onPrevWeek={handlePrevWeek}
-            onNextWeek={handleNextWeek}
-          />
+          <View style={styles.controlsRow}>
+              <CalendarHeader
+                currentDate={calendar.currentDate}
+                onToday={calendar.goToToday}
+                onPrevWeek={handlePrev}
+                onNextWeek={handleNext}
+              />
+              
+              {/* View Toggles */}
+              <View style={styles.viewControls}>
+                  <TouchableOpacity 
+                    style={[styles.viewButton, viewDays === 1 && styles.viewButtonActive]}
+                    onPress={() => handleViewChange(1)}
+                  >
+                      <Text style={[styles.viewButtonText, viewDays === 1 && styles.viewButtonTextActive]}>Day</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[styles.viewButton, viewDays === 3 && styles.viewButtonActive]}
+                    onPress={() => handleViewChange(3)}
+                  >
+                      <Text style={[styles.viewButtonText, viewDays === 3 && styles.viewButtonTextActive]}>3 Day</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[styles.viewButton, viewDays === 7 && styles.viewButtonActive]}
+                    onPress={() => handleViewChange(7)}
+                  >
+                      <Text style={[styles.viewButtonText, viewDays === 7 && styles.viewButtonTextActive]}>Week</Text>
+                  </TouchableOpacity>
+                  
+                  <View style={styles.customDaysContainer}>
+                      <TextInput 
+                        style={styles.customDaysInput}
+                        value={customDays}
+                        onChangeText={handleCustomDaysChange}
+                        keyboardType="number-pad"
+                        maxLength={2}
+                      />
+                      <Text style={styles.customDaysLabel}>Days</Text>
+                  </View>
+              </View>
+          </View>
+
           {isLoading ? (
             <View style={styles.calendarLoadingContainer}>
               <ActivityIndicator size="large" color="#FF6B6B" />
@@ -168,7 +178,9 @@ export default function CalendarScreen() {
             </View>
           ) : (
             <WeekView
-              key={`calendar-${weekKey}-${scheduledEventIds.join(',')}`}
+              // Use a key that changes when the week or view changes to force proper re-rendering
+              // but NOT when events change to prevent scroll jumping
+              key={`calendar-${weekKey}-${viewDays}`} 
               weekDays={displayDays}
               events={weekEvents}
               onEventPress={handleEventPress}
@@ -194,12 +206,11 @@ export default function CalendarScreen() {
                 {expandedCardId && (() => {
                   const expandedEvent = sortedEvents.find(e => e.id === expandedCardId);
                   if (!expandedEvent) return null;
-                  // Use state to determine if scheduled for immediate UI update
                   const isScheduled = scheduledEventIds.includes(expandedEvent.id);
                   return (
                     <EventDisplayCard
                       key={`expanded-${expandedEvent.id}-${isScheduled}`}
-                      event={getAdjustedEvent(expandedEvent)}
+                      event={expandedEvent} // Pass original event without adjustment
                       isScheduled={isScheduled}
                       isExpanded={true}
                       onSchedule={() => handleScheduleEvent(expandedEvent)}
@@ -218,13 +229,12 @@ export default function CalendarScreen() {
                   showsVerticalScrollIndicator
                 >
                   {sortedEvents.map((event) => {
-                    // Use state to determine if scheduled for immediate UI update
                     const isScheduled = scheduledEventIds.includes(event.id);
                     const isExpanded = expandedCardId === event.id;
                     return (
                       <EventDisplayCard
                         key={`${event.id}-${isScheduled}`}
-                        event={getAdjustedEvent(event)}
+                        event={event} // Pass original event
                         isScheduled={isScheduled}
                         isExpanded={false}
                         onSchedule={() => handleScheduleEvent(event)}
@@ -279,6 +289,58 @@ const styles = StyleSheet.create({
   },
   calendarSection: {
     flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  controlsRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+  },
+  viewControls: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+  },
+  viewButton: {
+      paddingVertical: 6,
+      paddingHorizontal: 12,
+      borderRadius: 6,
+      backgroundColor: '#F3F4F6',
+  },
+  viewButtonActive: {
+      backgroundColor: '#FF6B6B',
+  },
+  viewButtonText: {
+      fontSize: 13,
+      fontWeight: '500',
+      color: '#6B7280',
+  },
+  viewButtonTextActive: {
+      color: '#FFFFFF',
+  },
+  customDaysContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      marginLeft: 8,
+      backgroundColor: '#FFFFFF',
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: '#E5E7EB',
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+  },
+  customDaysInput: {
+      width: 24,
+      fontSize: 13,
+      textAlign: 'center',
+      padding: 0,
+  },
+  customDaysLabel: {
+      fontSize: 12,
+      color: '#6B7280',
   },
   sidebar: {
     flex: 1,
@@ -305,11 +367,6 @@ const styles = StyleSheet.create({
   eventsListHidden: {
     opacity: 0,
     pointerEvents: 'none',
-  },
-  comingSoon: {
-    fontSize: 14,
-    color: '#9CA3AF',
-    fontStyle: 'italic',
   },
   loadingContainer: {
     flex: 1,
@@ -377,5 +434,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-
-

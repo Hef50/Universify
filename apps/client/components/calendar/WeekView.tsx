@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useRef } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Event } from '@/types/event';
 import { layoutEvents, EventWithLayout } from '@/utils/eventLayout';
 import { getEventsByDay } from '@/utils/eventHelpers';
@@ -25,10 +25,11 @@ const generateTimeSlots = () => {
 const timeSlots = generateTimeSlots();
 const START_HOUR = 0; // Start from 12 AM (0:00)
 const HOUR_HEIGHT = 64; // Height of each hour slot in pixels (4rem equivalent)
+const TIME_COLUMN_WIDTH = 60;
+const MIN_DAY_WIDTH = 140; // Increased min width for better readability
 
 export const WeekView: React.FC<WeekViewProps> = ({ weekDays, events, onEventPress }) => {
-  const [dayColumnWidth, setDayColumnWidth] = useState(100); // Default width
-  const dayCellRef = useRef<View>(null);
+  const [dayColumnWidth, setDayColumnWidth] = useState(MIN_DAY_WIDTH);
   
   // Pre-calculate event layouts for each day
   const eventsByDay = useMemo(() => {
@@ -42,7 +43,7 @@ export const WeekView: React.FC<WeekViewProps> = ({ weekDays, events, onEventPre
     return dayMap;
   }, [weekDays, events]);
 
-  const getEventStyle = (event: EventWithLayout, day: Date) => {
+  const getEventStyle = (event: EventWithLayout) => {
     const eventStart = new Date(event.startTime);
     const eventEnd = new Date(event.endTime);
     
@@ -56,14 +57,16 @@ export const WeekView: React.FC<WeekViewProps> = ({ weekDays, events, onEventPre
     const duration = ((endHour - startHour) * 60 + (endMinute - startMinute)) / 60;
     
     // Calculate width and left position based on column layout
-    const columnWidth = dayColumnWidth / event.totalColumns;
+    // Use the actual measured width if available, otherwise min width
+    const effectiveWidth = Math.max(dayColumnWidth, MIN_DAY_WIDTH); 
+    const columnWidth = effectiveWidth / event.totalColumns;
     const left = event.column * columnWidth;
-    const width = columnWidth - 8; // Subtract padding
+    const width = columnWidth - 4; // Subtract padding
     
     return {
       top: topPosition * HOUR_HEIGHT,
       height: duration * HOUR_HEIGHT,
-      left: left + 4, // Add left padding
+      left: left + 2, // Add left padding
       width: width,
     };
   };
@@ -74,79 +77,93 @@ export const WeekView: React.FC<WeekViewProps> = ({ weekDays, events, onEventPre
 
   return (
     <View style={styles.container}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
+      {/* 
+         Structure:
+         Outer Horizontal ScrollView -> Inner Vertical ScrollView
+         Inner Vertical ScrollView has stickyHeaderIndices={[0]} for the Header Row.
+         This ensures:
+         1. Header scrolls horizontally with content (perfect alignment)
+         2. Header stays fixed at top when scrolling vertically
+         3. Time column moves with horizontal scroll (user can scroll back to see time)
+      */}
+      <ScrollView 
+        horizontal 
         style={styles.horizontalScroll}
+        contentContainerStyle={{ flexGrow: 1 }}
       >
-        <ScrollView
-          showsVerticalScrollIndicator={true}
+        <ScrollView 
+          vertical 
           style={styles.verticalScroll}
-          contentContainerStyle={styles.verticalContent}
+          stickyHeaderIndices={[0]}
+          showsVerticalScrollIndicator={true}
         >
-          {/* Header row */}
+          {/* Sticky Header Row */}
           <View style={styles.headerRow}>
-            <View style={styles.timeColumnHeader} />
-            {weekDays.map((day, index) => (
-              <View key={index} style={styles.dayHeader}>
-                <Text style={styles.dayName}>
-                  {day.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}
-                </Text>
-                <Text style={styles.dayNumber}>{day.getDate()}</Text>
+             <View style={styles.timeColumnHeader} />
+             {weekDays.map((day, index) => (
+               <View key={index} style={styles.dayHeader}>
+                 <Text style={styles.dayName}>
+                   {day.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}
+                 </Text>
+                 <Text style={styles.dayNumber}>{day.getDate()}</Text>
+               </View>
+             ))}
+          </View>
+
+          {/* Body Grid */}
+          <View style={styles.gridBody}>
+            {timeSlots.map((time, timeIndex) => (
+              <View key={timeIndex} style={styles.timeRow}>
+                {/* Time Label */}
+                <View style={styles.timeSlot}>
+                  <Text style={styles.timeText}>{time}</Text>
+                </View>
+
+                {/* Day Cells */}
+                {weekDays.map((day, dayIndex) => (
+                  <View
+                    key={`${timeIndex}-${dayIndex}`}
+                    style={styles.dayCell}
+                    onLayout={timeIndex === 0 && dayIndex === 0 ? (e) => {
+                      const { width } = e.nativeEvent.layout;
+                      if (width > 0) {
+                        setDayColumnWidth(width);
+                      }
+                    } : undefined}
+                  >
+                    {/* Render events ONLY in the first time slot (they are absolute positioned) */}
+                    {timeIndex === 0 && getEventForDay(dayIndex).map((event) => {
+                        const eventStyle = getEventStyle(event);
+                        return (
+                          <TouchableOpacity
+                            key={event.id}
+                            style={[
+                              styles.eventBlock,
+                              {
+                                top: eventStyle.top,
+                                height: eventStyle.height,
+                                left: eventStyle.left,
+                                width: eventStyle.width,
+                                backgroundColor: event.color,
+                              },
+                            ]}
+                            onPress={() => onEventPress?.(event)}
+                            activeOpacity={0.8}
+                          >
+                            <Text style={styles.eventTitle} numberOfLines={1}>
+                              {event.title}
+                            </Text>
+                            <Text style={styles.eventTime} numberOfLines={1}>
+                              {formatTime(event.startTime)} - {formatTime(event.endTime)}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                  </View>
+                ))}
               </View>
             ))}
           </View>
-
-          {/* Time slots */}
-          {timeSlots.map((time, timeIndex) => (
-            <View key={timeIndex} style={styles.timeRow}>
-              <View style={styles.timeSlot}>
-                <Text style={styles.timeText}>{time}</Text>
-              </View>
-              {weekDays.map((day, dayIndex) => (
-                <View
-                  key={`${timeIndex}-${dayIndex}`}
-                  style={styles.dayCell}
-                  ref={timeIndex === 0 && dayIndex === 0 ? dayCellRef : undefined}
-                  onLayout={timeIndex === 0 && dayIndex === 0 ? (e) => {
-                    const { width } = e.nativeEvent.layout;
-                    if (width > 0) {
-                      setDayColumnWidth(width);
-                    }
-                  } : undefined}
-                >
-                  {/* Render events only in the first time slot row, but they span across all rows */}
-                  {timeIndex === 0 && getEventForDay(dayIndex).map((event) => {
-                      const eventStyle = getEventStyle(event, day);
-                      return (
-                        <TouchableOpacity
-                          key={event.id}
-                          style={[
-                            styles.eventBlock,
-                            {
-                              top: eventStyle.top,
-                              height: eventStyle.height,
-                              left: eventStyle.left,
-                              width: eventStyle.width,
-                              backgroundColor: event.color,
-                            },
-                          ]}
-                          onPress={() => onEventPress?.(event)}
-                          activeOpacity={0.8}
-                        >
-                          <Text style={styles.eventTitle} numberOfLines={1}>
-                            {event.title}
-                          </Text>
-                          <Text style={styles.eventTime} numberOfLines={1}>
-                            {formatTime(event.startTime)} - {formatTime(event.endTime)}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                </View>
-              ))}
-            </View>
-          ))}
         </ScrollView>
       </ScrollView>
     </View>
@@ -168,28 +185,37 @@ const styles = StyleSheet.create({
   verticalScroll: {
     flex: 1,
   },
-  verticalContent: {
-    minWidth: 700,
-  },
   headerRow: {
     flexDirection: 'row',
+    backgroundColor: '#FFFFFF', // Must have background to hide scrolling content
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
-    backgroundColor: '#FFFFFF',
+    zIndex: 100,
+    ...Platform.select({
+        web: {
+          boxShadow: '0 1px 2px rgba(0,0,0,0.05)', // Subtle shadow for depth
+        },
+        default: {
+          elevation: 2,
+        }
+    })
   },
   timeColumnHeader: {
-    width: 80,
+    width: TIME_COLUMN_WIDTH,
     borderRightWidth: 1,
     borderRightColor: '#E5E7EB',
+    backgroundColor: '#FAFAFA',
   },
   dayHeader: {
     flex: 1,
+    minWidth: MIN_DAY_WIDTH,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
-    paddingHorizontal: 8,
+    paddingHorizontal: 4,
     borderRightWidth: 1,
     borderRightColor: '#E5E7EB',
+    backgroundColor: '#FFFFFF',
   },
   dayName: {
     fontSize: 11,
@@ -203,13 +229,16 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     color: '#1F2937',
   },
+  gridBody: {
+    flexDirection: 'column',
+  },
   timeRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
   timeSlot: {
-    width: 80,
+    width: TIME_COLUMN_WIDTH,
     height: HOUR_HEIGHT,
     justifyContent: 'flex-start',
     paddingTop: 4,
@@ -217,6 +246,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     borderRightWidth: 1,
     borderRightColor: '#E5E7EB',
+    backgroundColor: '#FAFAFA',
   },
   timeText: {
     fontSize: 11,
@@ -225,8 +255,8 @@ const styles = StyleSheet.create({
   },
   dayCell: {
     flex: 1,
-    minWidth: 100,
-    height: HOUR_HEIGHT,
+    minWidth: MIN_DAY_WIDTH,
+    height: HOUR_HEIGHT, // Must match timeSlot height
     borderRightWidth: 1,
     borderRightColor: '#E5E7EB',
     position: 'relative',
@@ -235,24 +265,23 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderRadius: 4,
     padding: 6,
-    marginLeft: 4,
-    marginRight: 4,
     zIndex: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+    overflow: 'hidden',
   },
   eventTitle: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#FFFFFF',
     marginBottom: 2,
   },
   eventTime: {
     fontSize: 10,
     color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: '500',
   },
 });
-

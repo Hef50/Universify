@@ -4,6 +4,9 @@ import { useEvents } from '@/contexts/EventsContext';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useResponsive } from '@/hooks/useResponsive';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useGoogleCalendar } from '@/contexts/GoogleCalendarContext';
+import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
+import { supabase } from '@/lib/supabase';
 import { CalendarHeader } from '@/components/calendar/CalendarHeader';
 import { WeekView } from '@/components/calendar/WeekView';
 import { ResizableSidebar } from '@/components/layout/ResizableSidebar';
@@ -20,6 +23,9 @@ export default function CalendarScreen() {
   const { events, isLoading } = useEvents();
   const { settings, updateSettings } = useSettings();
   const { isMobile, isDesktop } = useResponsive();
+  const { googleEvents, isLoading: isGoogleLoading } = useGoogleCalendar();
+  const { isGoogleAuthenticated, googleSession, providerToken, refreshSession } = useGoogleAuth();
+  
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [scheduledEventIds, setScheduledEventIds] = useState<string[]>([]);
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
@@ -60,18 +66,31 @@ export default function CalendarScreen() {
     setIsLoadingScheduled(false);
   }, [weekKey]);
 
-  // Get events to display in the calendar
-  // We only show events that are in the scheduled list for this week
-  const weekEvents = useMemo(() => {
-    if (scheduledEventIds.length === 0) return [];
+  // Filter Google events for the current view
+  const googleViewEvents = useMemo(() => {
+    if (displayDays.length === 0) return [];
+    const viewStart = new Date(displayDays[0]);
+    viewStart.setHours(0,0,0,0);
+    const viewEnd = new Date(displayDays[displayDays.length - 1]);
+    viewEnd.setHours(23,59,59,999);
     
-    return events.filter((event) => scheduledEventIds.includes(event.id));
-    // Note: We NO LONGER shift dates. We trust the event's actual start/end time.
-    // This prevents "mysterious" shifting of one-off events.
-    // If an event is scheduled for this week, it should have the correct date.
-  }, [events, scheduledEventIds]);
+    return googleEvents.filter(event => {
+         const eventStart = new Date(event.startTime);
+         const eventEnd = new Date(event.endTime);
+         return eventStart <= viewEnd && eventEnd >= viewStart;
+    });
+  }, [googleEvents, displayDays]);
+
+  // Get events to display in the calendar
+  // Merge local scheduled events with Google events
+  const weekEvents = useMemo(() => {
+    // Local events: only show if scheduled
+    const local = events.filter((event) => scheduledEventIds.includes(event.id));
+    return [...local, ...googleViewEvents];
+  }, [events, scheduledEventIds, googleViewEvents]);
 
   // Get all events for sidebar (sorted by date)
+  // Only include Universify events (Google events are already on the calendar)
   const sortedEvents = useMemo(() => {
     return [...events].sort((a, b) => 
       new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
@@ -87,10 +106,78 @@ export default function CalendarScreen() {
     }
   };
 
-  const handleScheduleEvent = (event: Event) => {
+  const handleScheduleEvent = async (event: Event) => {
+    // Schedule locally
     scheduleEvent(event.id, weekKey);
     const updatedIds = getScheduledEventIds(weekKey);
     setScheduledEventIds([...updatedIds]); 
+
+    // Sync to Google Calendar if authenticated
+    if (isGoogleAuthenticated) {
+      // Refresh session first to ensure we have the latest provider_token
+      await refreshSession();
+      
+      // Get fresh session after refresh
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      // Use provider_token from fresh session
+      const token = session?.provider_token || providerToken || googleSession?.provider_token;
+      
+      if (!token) {
+        console.error('No provider_token available after refresh');
+        alert("No Google access token from Supabase. Try signing in again.");
+        return;
+      }
+
+      // Build event object for Google API
+      const start = new Date(event.startTime);
+      const end = new Date(event.endTime);
+
+      const googleEvent = {
+        summary: event.title,
+        description: event.description,
+        start: {
+          dateTime: start.toISOString(),
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        },
+        end: {
+          dateTime: end.toISOString(),
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        },
+      };
+
+      if (event.location) {
+        (googleEvent as any).location = event.location;
+      }
+
+      try {
+        const res = await fetch(
+          "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(googleEvent),
+          }
+        );
+
+        const json = await res.json();
+
+        if (!res.ok) {
+          console.error("Google Calendar error:", json);
+          alert(`Could not create event: ${json.error?.message || res.statusText}`);
+          return;
+        }
+
+        console.log("Created event in Google Calendar:", json);
+        alert("Event added to Google Calendar ✅");
+      } catch (err) {
+        console.error("Network error:", err);
+        alert("Network error talking to Google Calendar");
+      }
+    }
   };
 
   const handleUnscheduleEvent = (event: Event) => {
@@ -171,7 +258,7 @@ export default function CalendarScreen() {
               </View>
           </View>
 
-          {isLoading ? (
+          {(isLoading || isGoogleLoading) ? (
             <View style={styles.calendarLoadingContainer}>
               <ActivityIndicator size="large" color="#FF6B6B" />
               <Text style={styles.calendarLoadingText}>Loading calendar...</Text>
@@ -179,8 +266,7 @@ export default function CalendarScreen() {
           ) : (
             <WeekView
               // Use a key that changes when the week or view changes to force proper re-rendering
-              // but NOT when events change to prevent scroll jumping
-              key={`calendar-${weekKey}-${viewDays}`} 
+              key={`calendar-${weekKey}-${viewDays}-${scheduledEventIds.length}`} 
               weekDays={displayDays}
               events={weekEvents}
               onEventPress={handleEventPress}

@@ -12,11 +12,16 @@ import {
 } from 'react-native';
 import { Link, router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
 import { validateEmail } from '@/utils/validation';
 import { useResponsive } from '@/hooks/useResponsive';
 
+// TOGGLE THIS VARIABLE TO ENABLE/DISABLE AUTO-LOGIN BUTTON
+const SHOW_AUTO_LOGIN = true;
+
 export default function LoginScreen() {
   const { login, isLoading, error, clearError } = useAuth();
+  const { googleSignIn, isLoading: isGoogleLoading, error: googleError } = useGoogleAuth();
   const { isMobile } = useResponsive();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -54,6 +59,14 @@ export default function LoginScreen() {
       router.replace('/(tabs)');
     }
   };
+
+  const handleAutoLogin = async () => {
+      const success = await login({ email: 'demo@cmu.edu', password: 'Demo123!' });
+      if (success) {
+          router.replace('/(tabs)');
+      }
+  };
+
 
   return (
     <KeyboardAvoidingView
@@ -158,6 +171,47 @@ export default function LoginScreen() {
             )}
           </TouchableOpacity>
 
+          {/* Divider */}
+          <View style={styles.dividerContainer}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>OR</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          {/* Google Sign-In Button */}
+          <TouchableOpacity
+            style={[styles.googleButton, (isGoogleLoading || isLoading) && styles.buttonDisabled]}
+            onPress={googleSignIn}
+            disabled={isGoogleLoading || isLoading}
+          >
+            {isGoogleLoading ? (
+              <ActivityIndicator color="#4285F4" />
+            ) : (
+              <>
+                <Text style={styles.googleIcon}>🔵</Text>
+                <Text style={styles.googleButtonText}>Sign in with Google</Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          {/* Google Error Message */}
+          {googleError && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{googleError}</Text>
+            </View>
+          )}
+
+          {/* Auto Login Button (For Testing) */}
+          {SHOW_AUTO_LOGIN && (
+            <TouchableOpacity
+              style={[styles.secondaryButton, isLoading && styles.buttonDisabled]}
+              onPress={handleAutoLogin}
+              disabled={isLoading}
+            >
+               <Text style={styles.secondaryButtonText}>Auto Login (Demo)</Text>
+            </TouchableOpacity>
+          )}
+
           {/* Demo Accounts Info */}
           <View style={styles.demoInfo}>
             <Text style={styles.demoTitle}>Demo Accounts:</Text>
@@ -167,7 +221,7 @@ export default function LoginScreen() {
 
           {/* Sign Up Link */}
           <View style={styles.signupContainer}>
-            <Text style={styles.signupText}>Don't have an account? </Text>
+            <Text style={styles.signupText}>Don&apos;t have an account? </Text>
             <Link href="/(auth)/signup" asChild>
               <TouchableOpacity disabled={isLoading}>
                 <Text style={styles.signupLink}>Sign Up</Text>
@@ -327,6 +381,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  secondaryButton: {
+    height: 48,
+    backgroundColor: 'transparent',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FF6B6B',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  secondaryButtonText: {
+      color: '#FF6B6B',
+      fontSize: 16,
+      fontWeight: '600',
+  },
   demoInfo: {
     backgroundColor: '#F3F4F6',
     borderRadius: 8,
@@ -358,5 +427,40 @@ const styles = StyleSheet.create({
     color: '#FF6B6B',
     fontWeight: '600',
   },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 24,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E5E7EB',
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '500',
+  },
+  googleButton: {
+    height: 48,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  googleIcon: {
+    fontSize: 20,
+    marginRight: 8,
+  },
+  googleButtonText: {
+    color: '#374151',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });
-

@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#D1D5DB',
-    borderRadius: 8,
+    borderRadius: 12,
     backgroundColor: '#FFFFFF',
   },
   inputContainerError: {

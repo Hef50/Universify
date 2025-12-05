@@ -2,17 +2,27 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { router, usePathname } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
+import { Ionicons } from '@expo/vector-icons';
+
+// Re-using the SpinningPetalLogo from index.tsx (or a smaller version)
+// Ideally this should be in a shared component file, but for now:
+const SmallPetalLogo = () => (
+  <View style={styles.logoContainer}>
+     <View style={[styles.petal, styles.petalVertical]} />
+     <View style={[styles.petal, styles.petalRotated1]} />
+     <View style={[styles.petal, styles.petalRotated2]} />
+  </View>
+);
 
 export const DesktopNav = () => {
   const pathname = usePathname();
   const { currentUser, logout } = useAuth();
 
   const navItems = [
-    { path: '/(tabs)', label: 'Home', icon: '🏠' },
-    { path: '/(tabs)/calendar', label: 'Calendar', icon: '📅' },
-    { path: '/(tabs)/find', label: 'Find Activities', icon: '🔍' },
-    { path: '/(tabs)/create', label: 'Create Event', icon: '➕' },
-    { path: '/(tabs)/profile', label: 'Profile', icon: '👤' },
+    { path: '/(tabs)/calendar', label: 'Calendar', icon: 'calendar-outline', activeIcon: 'calendar' },
+    { path: '/(tabs)/find', label: 'Find Activities', icon: 'search-outline', activeIcon: 'search' },
+    { path: '/(tabs)/create', label: 'Create Event', icon: 'add-circle-outline', activeIcon: 'add-circle' },
+    { path: '/(tabs)/profile', label: 'Profile', icon: 'person-outline', activeIcon: 'person' },
   ];
 
   const isActive = (path: string) => {
@@ -31,30 +41,36 @@ export const DesktopNav = () => {
           onPress={() => router.push('/(tabs)')}
           activeOpacity={0.7}
         >
-          <Text style={styles.brandEmoji}>🎓</Text>
+          <SmallPetalLogo />
           <Text style={styles.brandName}>Universify</Text>
         </TouchableOpacity>
 
         {/* Navigation Items */}
         <View style={styles.navItems}>
-          {navItems.map((item) => (
+          {navItems.map((item) => {
+            const active = isActive(item.path);
+            return (
             <TouchableOpacity
               key={item.path}
-              style={[styles.navItem, isActive(item.path) && styles.navItemActive]}
+              style={[styles.navItem, active && styles.navItemActive]}
               onPress={() => router.push(item.path as any)}
               activeOpacity={0.7}
             >
-              <Text style={styles.navIcon}>{item.icon}</Text>
+              <Ionicons 
+                name={active ? item.activeIcon as any : item.icon as any} 
+                size={20} 
+                color={active ? '#FF6B6B' : '#6B7280'} 
+              />
               <Text
                 style={[
                   styles.navLabel,
-                  isActive(item.path) && styles.navLabelActive,
+                  active && styles.navLabelActive,
                 ]}
               >
                 {item.label}
               </Text>
             </TouchableOpacity>
-          ))}
+          )})}
         </View>
 
         {/* User Menu */}
@@ -80,7 +96,7 @@ export const DesktopNav = () => {
             onPress={logout}
             activeOpacity={0.7}
           >
-            <Text style={styles.logoutIcon}>🚪</Text>
+            <Ionicons name="log-out-outline" size={20} color="#6B7280" />
             <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
         </View>
@@ -119,11 +135,33 @@ const styles = StyleSheet.create({
   brand: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
     marginRight: 48,
   },
-  brandEmoji: {
-    fontSize: 28,
+  // Logo Styles
+  logoContainer: {
+    width: 32,
+    height: 32,
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  petal: {
+    position: 'absolute',
+    width: 10,
+    height: 32,
+    backgroundColor: '#FF6B6B',
+    borderRadius: 50,
+    opacity: 0.9,
+  },
+  petalVertical: {
+    transform: [{ rotate: '0deg' }],
+  },
+  petalRotated1: {
+    transform: [{ rotate: '60deg' }],
+  },
+  petalRotated2: {
+    transform: [{ rotate: '-60deg' }],
   },
   brandName: {
     fontSize: 24,
@@ -139,17 +177,14 @@ const styles = StyleSheet.create({
   navItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 8,
-    transition: 'all 0.2s ease',
+    // transition: 'all 0.2s ease', // Transition not supported in native styles
   },
   navItemActive: {
-    backgroundColor: '#FEF2F2',
-  },
-  navIcon: {
-    fontSize: 18,
+    backgroundColor: '#FFF1F1', // Lighter red/orange background
   },
   navLabel: {
     fontSize: 15,
@@ -207,13 +242,9 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
     backgroundColor: '#FFFFFF',
   },
-  logoutIcon: {
-    fontSize: 16,
-  },
   logoutText: {
     fontSize: 14,
     fontWeight: '500',
     color: '#6B7280',
   },
 });
-

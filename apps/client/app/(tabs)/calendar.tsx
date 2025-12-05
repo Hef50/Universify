@@ -1,345 +1,343 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Modal, TextInput, Platform } from 'react-native';
-import { router } from 'expo-router';
+import React, { useState, useMemo, useEffect } from 'react';
+import { View, StyleSheet, Text, ActivityIndicator, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { useEvents } from '@/contexts/EventsContext';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useResponsive } from '@/hooks/useResponsive';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useGoogleCalendar } from '@/contexts/GoogleCalendarContext';
+import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
+import { supabase } from '@/lib/supabase';
 import { CalendarHeader } from '@/components/calendar/CalendarHeader';
-import { CalendarGrid } from '@/components/calendar/CalendarGrid';
+import { WeekView } from '@/components/calendar/WeekView';
 import { ResizableSidebar } from '@/components/layout/ResizableSidebar';
+import { EventDisplayCard } from '@/components/calendar/EventDisplayCard';
 import { Event } from '@/types/event';
-import { Text, ScrollView, TouchableOpacity } from 'react-native';
-import { useSuggestions } from '@/hooks/useRecommendations';
-import { useAuth } from '@/contexts/AuthContext';
+import {
+  getWeekKey,
+  getScheduledEventIds,
+  scheduleEvent,
+  unscheduleEvent,
+} from '@/utils/scheduledEvents';
 
 export default function CalendarScreen() {
-  const { events, createEvent } = useEvents();
-  const { settings } = useSettings();
+  const { events, isLoading } = useEvents();
+  const { settings, updateSettings } = useSettings();
   const { isMobile, isDesktop } = useResponsive();
-  const { currentUser } = useAuth();
+  const { googleEvents, isLoading: isGoogleLoading } = useGoogleCalendar();
+  const { isGoogleAuthenticated, googleSession, providerToken, refreshSession } = useGoogleAuth();
+  
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [suggestedEvents, setSuggestedEvents] = useState<Event[]>([]);
-  const [recommendationMode, setRecommendationMode] = useState(false);
-  const [showTimeRangeModal, setShowTimeRangeModal] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [eventToAdd, setEventToAdd] = useState<Event | null>(null);
-  const [timeRangeStart, setTimeRangeStart] = useState('');
-  const [timeRangeEnd, setTimeRangeEnd] = useState('');
-  const [suggestionStartISO, setSuggestionStartISO] = useState<string | undefined>();
-  const [suggestionEndISO, setSuggestionEndISO] = useState<string | undefined>();
+  const [scheduledEventIds, setScheduledEventIds] = useState<string[]>([]);
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
+  const [isLoadingScheduled, setIsLoadingScheduled] = useState(true);
+  const [customDays, setCustomDays] = useState(settings.calendarViewDays.toString());
 
-  const calendar = useCalendar(isMobile ? 3 : settings.calendarViewDays);
+  // Use view days from settings
+  const viewDays = settings.calendarViewDays;
 
-  const { suggestions, isLoading: suggestionsLoading } = useSuggestions({
-    events,
-    startISO: suggestionStartISO,
-    endISO: suggestionEndISO,
-    limit: 5,
-  });
+  const calendar = useCalendar(isMobile ? 3 : viewDays);
+  const weekKey = getWeekKey(calendar.currentDate);
 
-  // Update suggested events when suggestions change
-  React.useEffect(() => {
-    setSuggestedEvents(suggestions);
-  }, [suggestions]);
+  // Get days to display based on view mode
+  const displayDays = useMemo(() => {
+    const days = [];
+    const startDate = new Date(calendar.currentDate);
+    
+    // For 7-day view (week view), align to Sunday
+    if (viewDays === 7) {
+      const day = startDate.getDay();
+      const diff = startDate.getDate() - day;
+      startDate.setDate(diff);
+    }
+
+    for (let i = 0; i < viewDays; i++) {
+      const d = new Date(startDate);
+      d.setDate(startDate.getDate() + i);
+      days.push(d);
+    }
+    return days;
+  }, [calendar.currentDate, viewDays]);
+
+  // Load scheduled events for current week (synchronous for web)
+  useEffect(() => {
+    setIsLoadingScheduled(true);
+    const ids = getScheduledEventIds(weekKey);
+    setScheduledEventIds([...ids]); // Create new array for state update
+    setIsLoadingScheduled(false);
+  }, [weekKey]);
+
+  // Filter Google events for the current view
+  const googleViewEvents = useMemo(() => {
+    if (displayDays.length === 0) return [];
+    const viewStart = new Date(displayDays[0]);
+    viewStart.setHours(0,0,0,0);
+    const viewEnd = new Date(displayDays[displayDays.length - 1]);
+    viewEnd.setHours(23,59,59,999);
+    
+    return googleEvents.filter(event => {
+         const eventStart = new Date(event.startTime);
+         const eventEnd = new Date(event.endTime);
+         return eventStart <= viewEnd && eventEnd >= viewStart;
+    });
+  }, [googleEvents, displayDays]);
+
+  // Get events to display in the calendar
+  // Merge local scheduled events with Google events
+  const weekEvents = useMemo(() => {
+    // Local events: only show if scheduled
+    const local = events.filter((event) => scheduledEventIds.includes(event.id));
+    return [...local, ...googleViewEvents];
+  }, [events, scheduledEventIds, googleViewEvents]);
+
+  // Get all events for sidebar (sorted by date)
+  // Only include Universify events (Google events are already on the calendar)
+  const sortedEvents = useMemo(() => {
+    return [...events].sort((a, b) => 
+      new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+    );
+  }, [events]);
 
   const handleEventPress = (event: Event) => {
-    // Check if this is a suggested event
-    const isSuggested = suggestedEvents.some(e => e.id === event.id);
-    if (isSuggested) {
-      setEventToAdd(event);
-      setShowConfirmModal(true);
+    if (isDesktop) {
+      // Toggle expansion
+      setExpandedCardId(prevId => prevId === event.id ? null : event.id);
     } else {
       setSelectedEvent(event);
     }
   };
 
-  const handleGetSuggestions = () => {
-    setShowTimeRangeModal(true);
-  };
+  const handleScheduleEvent = async (event: Event) => {
+    // Schedule locally
+    scheduleEvent(event.id, weekKey);
+    const updatedIds = getScheduledEventIds(weekKey);
+    setScheduledEventIds([...updatedIds]); 
 
-  const handleTimeRangeSubmit = () => {
-    if (timeRangeStart && timeRangeEnd) {
-      // Convert to ISO strings
-      const start = new Date(timeRangeStart);
-      const end = new Date(timeRangeEnd);
-      if (start < end) {
-        setSuggestionStartISO(start.toISOString());
-        setSuggestionEndISO(end.toISOString());
-        setRecommendationMode(true);
-        setShowTimeRangeModal(false);
+    // Sync to Google Calendar if authenticated
+    if (isGoogleAuthenticated) {
+      // Refresh session first to ensure we have the latest provider_token
+      await refreshSession();
+      
+      // Get fresh session after refresh
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      // Use provider_token from fresh session
+      const token = session?.provider_token || providerToken || googleSession?.provider_token;
+      
+      if (!token) {
+        console.error('No provider_token available after refresh');
+        alert("No Google access token from Supabase. Try signing in again.");
+        return;
+      }
+
+      // Build event object for Google API
+      const start = new Date(event.startTime);
+      const end = new Date(event.endTime);
+
+      const googleEvent = {
+        summary: event.title,
+        description: event.description,
+        start: {
+          dateTime: start.toISOString(),
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        },
+        end: {
+          dateTime: end.toISOString(),
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        },
+      };
+
+      if (event.location) {
+        (googleEvent as any).location = event.location;
+      }
+
+      try {
+        const res = await fetch(
+          "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(googleEvent),
+          }
+        );
+
+        const json = await res.json();
+
+        if (!res.ok) {
+          console.error("Google Calendar error:", json);
+          alert(`Could not create event: ${json.error?.message || res.statusText}`);
+          return;
+        }
+
+        console.log("Created event in Google Calendar:", json);
+        alert("Event added to Google Calendar ✅");
+      } catch (err) {
+        console.error("Network error:", err);
+        alert("Network error talking to Google Calendar");
       }
     }
   };
 
-  const handleRecommendationDragEnd = (day: Date, startTime: Date, endTime: Date) => {
-    console.log('handleRecommendationDragEnd called', { day, startTime, endTime });
-    // Automatically enter recommendation mode and set time range
-    setSuggestionStartISO(startTime.toISOString());
-    setSuggestionEndISO(endTime.toISOString());
-    setRecommendationMode(true);
-    // Suggestions will automatically be fetched via useSuggestions hook
+  const handleUnscheduleEvent = (event: Event) => {
+    unscheduleEvent(event.id, weekKey);
+    const updatedIds = getScheduledEventIds(weekKey);
+    setScheduledEventIds([...updatedIds]);
   };
 
-  const handleAddSuggestedEvent = async () => {
-    if (!eventToAdd || !currentUser) return;
-
-    try {
-      // Convert suggested event to EventFormData format
-      const startDate = new Date(eventToAdd.startTime);
-      const endDate = new Date(eventToAdd.endTime);
-      
-      // Format dates and times correctly
-      const formatDate = (date: Date) => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-      };
-      
-      const formatTime = (date: Date) => {
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        return `${hours}:${minutes}`;
-      };
-      
-      const eventData = {
-        title: eventToAdd.title,
-        description: eventToAdd.description || '',
-        startDate: formatDate(startDate),
-        startTime: formatTime(startDate),
-        endDate: formatDate(endDate),
-        endTime: formatTime(endDate),
-        location: eventToAdd.location,
-        categories: eventToAdd.categories,
-        isClubEvent: eventToAdd.isClubEvent,
-        isSocialEvent: eventToAdd.isSocialEvent,
-        capacity: eventToAdd.capacity,
-        rsvpEnabled: eventToAdd.rsvpEnabled,
-        attendeeVisibility: eventToAdd.attendeeVisibility,
-        color: eventToAdd.color,
-        tags: eventToAdd.tags,
-      };
-
-      await createEvent(eventData, currentUser.id);
-      
-      // Remove from suggestions
-      setSuggestedEvents(prev => prev.filter(e => e.id !== eventToAdd.id));
-      setShowConfirmModal(false);
-      setEventToAdd(null);
-    } catch (error) {
-      console.error('Failed to add event:', error);
-    }
+  // Navigation handlers
+  const handlePrev = () => {
+    const newDate = new Date(calendar.currentDate);
+    newDate.setDate(calendar.currentDate.getDate() - viewDays);
+    calendar.goToDate(newDate);
   };
 
-  const handleCancelRecommendationMode = () => {
-    setRecommendationMode(false);
-    setSuggestedEvents([]);
-    setSuggestionStartISO(undefined);
-    setSuggestionEndISO(undefined);
+  const handleNext = () => {
+    const newDate = new Date(calendar.currentDate);
+    newDate.setDate(calendar.currentDate.getDate() + viewDays);
+    calendar.goToDate(newDate);
+  };
+
+  const handleViewChange = (days: number) => {
+      updateSettings({ calendarViewDays: days });
+      setCustomDays(days.toString());
+  };
+
+  const handleCustomDaysChange = (text: string) => {
+      setCustomDays(text);
+      const days = parseInt(text, 10);
+      if (!isNaN(days) && days > 0 && days <= 16) {
+          updateSettings({ calendarViewDays: days });
+      }
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.calendarContainer}>
-        <CalendarHeader
-          days={calendar.displayDays}
-          currentDate={calendar.currentDate}
-          onPrevious={calendar.previousPeriod}
-          onNext={calendar.nextPeriod}
-          onToday={calendar.goToToday}
-          viewDays={calendar.viewDays}
-          onViewDaysChange={calendar.setViewDays}
-        />
-        <CalendarGrid
-          days={calendar.displayDays}
-          events={events}
-          suggestedEvents={suggestedEvents}
-          onEventPress={handleEventPress}
-          onRecommendationDragEnd={handleRecommendationDragEnd}
-          recommendationMode={recommendationMode}
-        />
-      </View>
+      <View style={styles.content}>
+        <View style={styles.calendarSection}>
+          <View style={styles.controlsRow}>
+              <CalendarHeader
+                currentDate={calendar.currentDate}
+                onToday={calendar.goToToday}
+                onPrevWeek={handlePrev}
+                onNextWeek={handleNext}
+              />
+              
+              {/* View Toggles */}
+              <View style={styles.viewControls}>
+                  <TouchableOpacity 
+                    style={[styles.viewButton, viewDays === 1 && styles.viewButtonActive]}
+                    onPress={() => handleViewChange(1)}
+                  >
+                      <Text style={[styles.viewButtonText, viewDays === 1 && styles.viewButtonTextActive]}>Day</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[styles.viewButton, viewDays === 3 && styles.viewButtonActive]}
+                    onPress={() => handleViewChange(3)}
+                  >
+                      <Text style={[styles.viewButtonText, viewDays === 3 && styles.viewButtonTextActive]}>3 Day</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[styles.viewButton, viewDays === 7 && styles.viewButtonActive]}
+                    onPress={() => handleViewChange(7)}
+                  >
+                      <Text style={[styles.viewButtonText, viewDays === 7 && styles.viewButtonTextActive]}>Week</Text>
+                  </TouchableOpacity>
+                  
+                  <View style={styles.customDaysContainer}>
+                      <TextInput 
+                        style={styles.customDaysInput}
+                        value={customDays}
+                        onChangeText={handleCustomDaysChange}
+                        keyboardType="number-pad"
+                        maxLength={2}
+                      />
+                      <Text style={styles.customDaysLabel}>Days</Text>
+                  </View>
+              </View>
+          </View>
 
-      {/* Recommendations Sidebar (Desktop only) */}
-      {isDesktop && (
+          {(isLoading || isGoogleLoading) ? (
+            <View style={styles.calendarLoadingContainer}>
+              <ActivityIndicator size="large" color="#FF6B6B" />
+              <Text style={styles.calendarLoadingText}>Loading calendar...</Text>
+            </View>
+          ) : (
+            <WeekView
+              // Use a key that changes when the week or view changes to force proper re-rendering
+              key={`calendar-${weekKey}-${viewDays}-${scheduledEventIds.length}`} 
+              weekDays={displayDays}
+              events={weekEvents}
+              onEventPress={handleEventPress}
+            />
+          )}
+        </View>
+
+        {/* Events Sidebar (Desktop only) */}
+        {isDesktop && (
         <ResizableSidebar position="right" initialWidth={350}>
           <View style={styles.sidebar}>
             <View style={styles.sidebarHeader}>
-              <Text style={styles.sidebarTitle}>Recommendations</Text>
+              <Text style={styles.sidebarTitle}>All Events</Text>
             </View>
-            <ScrollView style={styles.sidebarContent}>
-              {recommendationMode && (
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={handleCancelRecommendationMode}
+            {isLoading || isLoadingScheduled ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#FF6B6B" />
+                <Text style={styles.loadingText}>Loading events...</Text>
+              </View>
+            ) : (
+              <View style={styles.sidebarContent}>
+                {/* Expanded card overlay */}
+                {expandedCardId && (() => {
+                  const expandedEvent = sortedEvents.find(e => e.id === expandedCardId);
+                  if (!expandedEvent) return null;
+                  const isScheduled = scheduledEventIds.includes(expandedEvent.id);
+                  return (
+                    <EventDisplayCard
+                      key={`expanded-${expandedEvent.id}-${isScheduled}`}
+                      event={expandedEvent} // Pass original event without adjustment
+                      isScheduled={isScheduled}
+                      isExpanded={true}
+                      onSchedule={() => handleScheduleEvent(expandedEvent)}
+                      onUnschedule={() => handleUnscheduleEvent(expandedEvent)}
+                      onToggleExpand={() => setExpandedCardId(null)}
+                    />
+                  );
+                })()}
+                
+                {/* Regular cards list */}
+                <ScrollView
+                  style={[
+                    styles.eventsList,
+                    expandedCardId && styles.eventsListHidden
+                  ]}
+                  showsVerticalScrollIndicator
                 >
-                  <Text style={styles.cancelButtonText}>Cancel Suggestions</Text>
-                </TouchableOpacity>
-              )}
-              <TouchableOpacity
-                style={styles.suggestionsButton}
-                onPress={handleGetSuggestions}
-                disabled={recommendationMode}
-              >
-                <Text style={styles.suggestionsButtonText}>Give me suggestions</Text>
-              </TouchableOpacity>
-              {recommendationMode && (
-                <View style={styles.suggestionsInfo}>
-                  {suggestionStartISO && suggestionEndISO && (
-                    <Text style={styles.timeRangeText}>
-                      Time range: {new Date(suggestionStartISO).toLocaleString()} - {new Date(suggestionEndISO).toLocaleString()}
-                    </Text>
-                  )}
-                  {suggestionsLoading && (
-                    <Text style={styles.loadingText}>Loading suggestions...</Text>
-                  )}
-                  {!suggestionsLoading && suggestedEvents.length > 0 && (
-                    <>
-                      <Text style={styles.suggestionsCount}>
-                        {suggestedEvents.length} suggestions found
-                      </Text>
-                      <View style={styles.suggestionsList}>
-                        {suggestedEvents.map((event) => (
-                          <TouchableOpacity
-                            key={event.id}
-                            style={styles.suggestionCard}
-                            onPress={() => {
-                              setEventToAdd(event);
-                              setShowConfirmModal(true);
-                            }}
-                          >
-                            <Text style={styles.suggestionTitle}>{event.title}</Text>
-                            <Text style={styles.suggestionTime}>
-                              {new Date(event.startTime).toLocaleString()} - {new Date(event.endTime).toLocaleString()}
-                            </Text>
-                            {event.location && (
-                              <Text style={styles.suggestionLocation}>📍 {event.location}</Text>
-                            )}
-                            {event.categories && event.categories.length > 0 && (
-                              <View style={styles.suggestionTags}>
-                                {event.categories.slice(0, 3).map((cat, idx) => (
-                                  <View key={idx} style={styles.suggestionTag}>
-                                    <Text style={styles.suggestionTagText}>{cat}</Text>
-                                  </View>
-                                ))}
-                              </View>
-                            )}
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                    </>
-                  )}
-                  {!suggestionsLoading && suggestedEvents.length === 0 && suggestionStartISO && (
-                    <Text style={styles.noSuggestionsText}>No suggestions found for this time range</Text>
-                  )}
-                  {!suggestionStartISO && (
-                    <Text style={styles.suggestionsInfoText}>
-                      Drag on the calendar to select a time range for suggestions
-                    </Text>
-                  )}
-                </View>
-              )}
-            </ScrollView>
+                  {sortedEvents.map((event) => {
+                    const isScheduled = scheduledEventIds.includes(event.id);
+                    const isExpanded = expandedCardId === event.id;
+                    return (
+                      <EventDisplayCard
+                        key={`${event.id}-${isScheduled}`}
+                        event={event} // Pass original event
+                        isScheduled={isScheduled}
+                        isExpanded={false}
+                        onSchedule={() => handleScheduleEvent(event)}
+                        onUnschedule={() => handleUnscheduleEvent(event)}
+                        onToggleExpand={() => setExpandedCardId(isExpanded ? null : event.id)}
+                      />
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            )}
           </View>
         </ResizableSidebar>
-      )}
+        )}
+      </View>
 
-      {/* Time Range Selection Modal */}
-      <Modal
-        visible={showTimeRangeModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowTimeRangeModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select Time Range</Text>
-            <Text style={styles.modalSubtitle}>
-              Choose a time range to get event suggestions, or drag on the calendar
-            </Text>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Start Time</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="YYYY-MM-DDTHH:mm (e.g., 2024-01-15T14:00)"
-                value={timeRangeStart}
-                onChangeText={setTimeRangeStart}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>End Time</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="YYYY-MM-DDTHH:mm (e.g., 2024-01-15T16:00)"
-                value={timeRangeEnd}
-                onChangeText={setTimeRangeEnd}
-              />
-            </View>
-
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelModalButton]}
-                onPress={() => setShowTimeRangeModal(false)}
-              >
-                <Text style={styles.cancelModalButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.submitModalButton]}
-                onPress={handleTimeRangeSubmit}
-              >
-                <Text style={styles.submitModalButtonText}>Get Suggestions</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Confirmation Modal for Adding Suggested Event */}
-      <Modal
-        visible={showConfirmModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowConfirmModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Event to Schedule?</Text>
-            {eventToAdd && (
-              <>
-                <Text style={styles.eventConfirmTitle}>{eventToAdd.title}</Text>
-                <Text style={styles.eventConfirmDetails}>
-                  {new Date(eventToAdd.startTime).toLocaleString()} - {new Date(eventToAdd.endTime).toLocaleString()}
-                </Text>
-                {eventToAdd.location && (
-                  <Text style={styles.eventConfirmDetails}>📍 {eventToAdd.location}</Text>
-                )}
-              </>
-            )}
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelModalButton]}
-                onPress={() => {
-                  setShowConfirmModal(false);
-                  setEventToAdd(null);
-                }}
-              >
-                <Text style={styles.cancelModalButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.submitModalButton]}
-                onPress={handleAddSuggestedEvent}
-              >
-                <Text style={styles.submitModalButtonText}>Add to Schedule</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Event Detail Modal */}
+      {/* Event Detail Modal - Placeholder */}
       {selectedEvent && (
         <View style={styles.eventDetailOverlay}>
           <TouchableOpacity
@@ -367,11 +365,68 @@ export default function CalendarScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'row',
     backgroundColor: '#F8F9FA',
   },
-  calendarContainer: {
+  content: {
     flex: 1,
+    flexDirection: 'row',
+    padding: 24,
+    gap: 24,
+  },
+  calendarSection: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  controlsRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+  },
+  viewControls: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+  },
+  viewButton: {
+      paddingVertical: 6,
+      paddingHorizontal: 12,
+      borderRadius: 6,
+      backgroundColor: '#F3F4F6',
+  },
+  viewButtonActive: {
+      backgroundColor: '#FF6B6B',
+  },
+  viewButtonText: {
+      fontSize: 13,
+      fontWeight: '500',
+      color: '#6B7280',
+  },
+  viewButtonTextActive: {
+      color: '#FFFFFF',
+  },
+  customDaysContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      marginLeft: 8,
+      backgroundColor: '#FFFFFF',
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: '#E5E7EB',
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+  },
+  customDaysInput: {
+      width: 24,
+      fontSize: 13,
+      textAlign: 'center',
+      padding: 0,
+  },
+  customDaysLabel: {
+      fontSize: 12,
+      color: '#6B7280',
   },
   sidebar: {
     flex: 1,
@@ -389,22 +444,37 @@ const styles = StyleSheet.create({
   },
   sidebarContent: {
     flex: 1,
-    padding: 20,
+    position: 'relative',
   },
-  comingSoon: {
+  eventsList: {
+    flex: 1,
+    padding: 16,
+  },
+  eventsListHidden: {
+    opacity: 0,
+    pointerEvents: 'none',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  loadingText: {
+    marginTop: 12,
     fontSize: 14,
-    color: '#9CA3AF',
-    fontStyle: 'italic',
+    color: '#6B7280',
   },
-  demoButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    backgroundColor: '#4ECDC4',
-    borderRadius: 8,
+  calendarLoadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
   },
-  demoButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+  calendarLoadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: '#6B7280',
   },
   eventDetailOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -449,188 +519,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  suggestionsButton: {
-    backgroundColor: '#4ECDC4',
-    borderRadius: 8,
-    padding: 14,
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  suggestionsButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  cancelButton: {
-    backgroundColor: '#FF6B6B',
-    borderRadius: 8,
-    padding: 12,
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  cancelButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  suggestionsInfo: {
-    marginTop: 12,
-  },
-  suggestionsInfoText: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 8,
-  },
-  loadingText: {
-    fontSize: 14,
-    color: '#4ECDC4',
-    fontStyle: 'italic',
-  },
-  suggestionsCount: {
-    fontSize: 14,
-    color: '#10B981',
-    fontWeight: '600',
-  },
-  noSuggestionsText: {
-    fontSize: 14,
-    color: '#EF4444',
-    fontStyle: 'italic',
-  },
-  timeRangeText: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginBottom: 12,
-    fontStyle: 'italic',
-  },
-  suggestionsList: {
-    marginTop: 12,
-    gap: 12,
-  },
-  suggestionCard: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 8,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    marginBottom: 8,
-  },
-  suggestionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 6,
-  },
-  suggestionTime: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginBottom: 4,
-  },
-  suggestionLocation: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginBottom: 8,
-  },
-  suggestionTags: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-    marginTop: 4,
-  },
-  suggestionTag: {
-    backgroundColor: '#E5E7EB',
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  suggestionTagText: {
-    fontSize: 10,
-    color: '#374151',
-    fontWeight: '500',
-  },
-  modalOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 24,
-    width: '90%',
-    maxWidth: 500,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 12,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 8,
-  },
-  modalSubtitle: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 20,
-  },
-  inputGroup: {
-    marginBottom: 16,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: '#FFFFFF',
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
-  },
-  modalButton: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  cancelModalButton: {
-    backgroundColor: '#F3F4F6',
-  },
-  cancelModalButtonText: {
-    color: '#374151',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  submitModalButton: {
-    backgroundColor: '#4ECDC4',
-  },
-  submitModalButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  eventConfirmTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginTop: 12,
-    marginBottom: 8,
-  },
-  eventConfirmDetails: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 4,
-  },
 });
-

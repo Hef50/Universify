@@ -1,6 +1,17 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { useResponsive } from '@/hooks/useResponsive';
+import { Ionicons } from '@expo/vector-icons';
+
+// Re-using the SpinningPetalLogo from index.tsx (or a smaller version)
+// Ideally this should be in a shared component file, but for now:
+const SmallPetalLogo = () => (
+  <View style={styles.logoPetalContainer}>
+     <View style={[styles.petal, styles.petalVertical]} />
+     <View style={[styles.petal, styles.petalRotated1]} />
+     <View style={[styles.petal, styles.petalRotated2]} />
+  </View>
+);
 
 interface HeaderProps {
   title?: string;
@@ -31,11 +42,11 @@ export const Header: React.FC<HeaderProps> = ({
       <View style={styles.leftSection}>
         {leftAction ? (
           <TouchableOpacity style={styles.iconButton} onPress={leftAction.onPress}>
-            <Text style={styles.icon}>{leftAction.icon}</Text>
+            <Ionicons name={leftAction.icon as any} size={24} color="#374151" />
           </TouchableOpacity>
         ) : (
           <View style={styles.logoContainer}>
-            <Text style={styles.logo}>🎓</Text>
+            <SmallPetalLogo />
             {!isMobile && <Text style={styles.logoText}>Universify</Text>}
           </View>
         )}
@@ -52,12 +63,12 @@ export const Header: React.FC<HeaderProps> = ({
       <View style={styles.rightSection}>
         {showSearch && onSearchPress && (
           <TouchableOpacity style={styles.iconButton} onPress={onSearchPress}>
-            <Text style={styles.icon}>🔍</Text>
+            <Ionicons name="search" size={20} color="#374151" />
           </TouchableOpacity>
         )}
         {rightAction && (
           <TouchableOpacity style={styles.iconButton} onPress={rightAction.onPress}>
-            <Text style={styles.icon}>{rightAction.icon}</Text>
+             <Ionicons name={rightAction.icon as any} size={20} color="#374151" />
           </TouchableOpacity>
         )}
       </View>
@@ -112,8 +123,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  logo: {
-    fontSize: 28,
+  logoPetalContainer: {
+    width: 28,
+    height: 28,
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  petal: {
+    position: 'absolute',
+    width: 8,
+    height: 28,
+    backgroundColor: '#FF6B6B',
+    borderRadius: 50,
+    opacity: 0.9,
+  },
+  petalVertical: {
+    transform: [{ rotate: '0deg' }],
+  },
+  petalRotated1: {
+    transform: [{ rotate: '60deg' }],
+  },
+  petalRotated2: {
+    transform: [{ rotate: '-60deg' }],
   },
   logoText: {
     fontSize: 20,
@@ -137,4 +169,3 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
 });
-

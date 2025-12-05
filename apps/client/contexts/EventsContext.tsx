@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { Event, RSVPStatus, EventFormData } from '@/types/event';
 import mockEventsData from '@/data/mockEvents.json';
 import currentWeekEvents from '@/data/currentWeekEvents.json';
+import allEventsData from '@/data/allEvents.json';
 
 // Mock localStorage for React Native
 const storage = {
@@ -45,28 +46,38 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const loadEvents = async () => {
     try {
+      // Always start with events from allEvents.json as the base
+      const baseEvents = allEventsData as Event[];
+      const baseEventIds = new Set(baseEvents.map(e => e.id));
+      
+      // Try to load user-created events from localStorage
       const storedEvents = await storage.getItem(EVENTS_STORAGE_KEY);
+      let userCreatedEvents: Event[] = [];
+      
       if (storedEvents) {
-        const parsed = JSON.parse(storedEvents);
-        // Ensure we have events - if localStorage is empty, use mock data
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setEvents(parsed);
-        } else {
-          // Load from mock data + current week events
-          const allEvents = [...(mockEventsData as Event[]), ...(currentWeekEvents as Event[])];
-          setEvents(allEvents);
-          await storage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(allEvents));
+        try {
+          const parsed = JSON.parse(storedEvents);
+          if (Array.isArray(parsed)) {
+            // Only include events from localStorage that aren't in allEvents.json
+            // (these would be user-created events)
+            userCreatedEvents = parsed.filter((e: Event) => !baseEventIds.has(e.id));
+          }
+        } catch (e) {
+          console.error('Failed to parse stored events:', e);
         }
-      } else {
-        // Load from mock data + current week events
-        const allEvents = [...(mockEventsData as Event[]), ...(currentWeekEvents as Event[])];
-        setEvents(allEvents);
-        await storage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(allEvents));
       }
+      
+      // Merge base events with user-created events
+      const allEvents = [...baseEvents, ...userCreatedEvents];
+      console.log(`Loaded ${allEvents.length} events (${baseEvents.length} from allEvents.json, ${userCreatedEvents.length} user-created)`);
+      setEvents(allEvents);
+      
+      // Update localStorage with merged events
+      await storage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(allEvents));
     } catch (error) {
       console.error('Failed to load events:', error);
-      // Always fallback to mock data
-      const allEvents = [...(mockEventsData as Event[]), ...(currentWeekEvents as Event[])];
+      // Always fallback to allEvents.json
+      const allEvents = allEventsData as Event[];
       setEvents(allEvents);
     } finally {
       setIsLoading(false);

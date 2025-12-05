@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Event } from '@/types/event';
 import { layoutEvents, EventWithLayout } from '@/utils/eventLayout';
@@ -9,6 +9,15 @@ interface WeekViewProps {
   weekDays: Date[];
   events: Event[];
   onEventPress?: (event: Event) => void;
+  onSelectionChange?: (selection: { startDate: Date; endDate: Date } | null) => void;
+  externalSelection?: { startDate: Date; endDate: Date } | null;
+}
+
+interface SelectionBox {
+  startDay: number;
+  endDay: number;
+  startTime: number; // hour + minute fraction
+  endTime: number; // hour + minute fraction
 }
 
 // Generate time slots from 12 AM to 11 PM
@@ -28,8 +37,24 @@ const HOUR_HEIGHT = 64; // Height of each hour slot in pixels (4rem equivalent)
 const TIME_COLUMN_WIDTH = 60;
 const MIN_DAY_WIDTH = 140; // Increased min width for better readability
 
-export const WeekView: React.FC<WeekViewProps> = ({ weekDays, events, onEventPress }) => {
+export const WeekView: React.FC<WeekViewProps> = ({ weekDays, events, onEventPress, onSelectionChange, externalSelection }) => {
   const [dayColumnWidth, setDayColumnWidth] = useState(MIN_DAY_WIDTH);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState<{ dayIndex: number; timeIndex: number; y: number } | null>(null);
+  const [dragCurrent, setDragCurrent] = useState<{ dayIndex: number; timeIndex: number; y: number } | null>(null);
+  const [finalSelection, setFinalSelection] = useState<SelectionBox | null>(null);
+  const gridBodyRef = useRef<View>(null);
+  const gridLayoutRef = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
+  
+  // Clear selection when externalSelection becomes null (reset button clicked)
+  useEffect(() => {
+    if (externalSelection === null && finalSelection !== null) {
+      setFinalSelection(null);
+      setIsDragging(false);
+      setDragStart(null);
+      setDragCurrent(null);
+    }
+  }, [externalSelection, finalSelection]);
   
   // Pre-calculate event layouts for each day
   const eventsByDay = useMemo(() => {
@@ -75,6 +100,260 @@ export const WeekView: React.FC<WeekViewProps> = ({ weekDays, events, onEventPre
     return eventsByDay.get(dayIndex) || [];
   };
 
+  // Calculate position from event coordinates
+  const getPositionFromCoordinates = (x: number, y: number) => {
+    if (!gridLayoutRef.current) return null;
+
+    const { x: gridX, y: gridY } = gridLayoutRef.current;
+    const relativeX = x - gridX;
+    const relativeY = y - gridY;
+
+    // The grid body's position already accounts for the header, so we use relativeY directly
+    if (relativeY < 0) return null;
+
+    // Ignore clicks/drags in the time column area (use <= to be more strict)
+    if (relativeX <= TIME_COLUMN_WIDTH) return null;
+
+    // Calculate day index
+    const effectiveWidth = Math.max(dayColumnWidth, MIN_DAY_WIDTH);
+    const dayIndex = Math.floor((relativeX - TIME_COLUMN_WIDTH) / effectiveWidth);
+    // Ensure dayIndex is never negative
+    if (dayIndex < 0) return null;
+    const clampedDayIndex = Math.max(0, Math.min(dayIndex, weekDays.length - 1));
+
+    // Calculate time index (which hour slot)
+    const timeIndex = Math.floor(relativeY / HOUR_HEIGHT);
+    const clampedTimeIndex = Math.max(0, Math.min(timeIndex, timeSlots.length - 1));
+
+    // Calculate precise Y position within the time slot
+    const yInSlot = relativeY - (clampedTimeIndex * HOUR_HEIGHT);
+
+    return {
+      dayIndex: clampedDayIndex,
+      timeIndex: clampedTimeIndex,
+      y: yInSlot,
+    };
+  };
+
+  const handleDragStart = (event: any) => {
+    // Clear previous selection when starting new drag
+    setFinalSelection(null);
+    if (onSelectionChange) {
+      onSelectionChange(null);
+    }
+    
+    if (!gridBodyRef.current) return;
+
+    const nativeEvent = event.nativeEvent;
+
+    if (Platform.OS === 'web') {
+      // For web, get bounding rect
+      if (gridBodyRef.current && typeof (gridBodyRef.current as any).getBoundingClientRect === 'function') {
+        const rect = (gridBodyRef.current as any).getBoundingClientRect();
+        gridLayoutRef.current = { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
+      }
+      const pos = getPositionFromCoordinates(nativeEvent.clientX, nativeEvent.clientY);
+      // Only start drag if position is valid and not in time column
+      if (pos && pos.dayIndex >= 0) {
+        setDragStart(pos);
+        setDragCurrent(pos);
+        setIsDragging(true);
+      }
+    } else {
+      // For native, use measureInWindow to get window coordinates
+      (gridBodyRef.current as any).measureInWindow((x: number, y: number, width: number, height: number) => {
+        gridLayoutRef.current = { x, y, width, height };
+        const pos = getPositionFromCoordinates(nativeEvent.pageX, nativeEvent.pageY);
+        // Only start drag if position is valid and not in time column
+        if (pos && pos.dayIndex >= 0) {
+          setDragStart(pos);
+          setDragCurrent(pos);
+          setIsDragging(true);
+        }
+      });
+    }
+  };
+
+  const handleDragMove = (event: any) => {
+    if (!isDragging || !dragStart) return;
+
+    const nativeEvent = event.nativeEvent;
+
+    if (Platform.OS === 'web') {
+      // For web, update layout if needed
+      if (gridBodyRef.current && typeof (gridBodyRef.current as any).getBoundingClientRect === 'function') {
+        const rect = (gridBodyRef.current as any).getBoundingClientRect();
+        gridLayoutRef.current = { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
+      }
+      const pos = getPositionFromCoordinates(nativeEvent.clientX, nativeEvent.clientY);
+      // Only update if position is valid and not in time column
+      // Clamp dayIndex to the starting day to prevent multi-day selection
+      if (pos && pos.dayIndex >= 0) {
+        setDragCurrent({
+          ...pos,
+          dayIndex: dragStart.dayIndex, // Force same day as drag start
+        });
+      }
+    } else {
+      // For native, use measureInWindow
+      if (gridBodyRef.current) {
+        (gridBodyRef.current as any).measureInWindow((x: number, y: number, width: number, height: number) => {
+          gridLayoutRef.current = { x, y, width, height };
+          const pos = getPositionFromCoordinates(nativeEvent.pageX, nativeEvent.pageY);
+          // Only update if position is valid and not in time column
+          // Clamp dayIndex to the starting day to prevent multi-day selection
+          if (pos && pos.dayIndex >= 0) {
+            setDragCurrent({
+              ...pos,
+              dayIndex: dragStart.dayIndex, // Force same day as drag start
+            });
+          }
+        });
+      }
+    }
+  };
+
+  const handleDragEnd = () => {
+    if (!dragStart || !dragCurrent) {
+      setIsDragging(false);
+      return;
+    }
+
+    // Calculate final selection box - restrict to single day
+    // Use the starting day for both start and end to prevent multi-day selection
+    const startDay = dragStart.dayIndex;
+    const endDay = dragStart.dayIndex;
+    
+    // Calculate precise time positions
+    const startTimeSlot = Math.min(dragStart.timeIndex, dragCurrent.timeIndex);
+    const endTimeSlot = Math.max(dragStart.timeIndex, dragCurrent.timeIndex);
+    
+    // Calculate precise time within slots
+    let startTime = startTimeSlot;
+    let endTime = endTimeSlot + 1;
+    
+    if (dragStart.timeIndex === dragCurrent.timeIndex) {
+      // Same time slot, use Y positions
+      const minY = Math.min(dragStart.y, dragCurrent.y);
+      const maxY = Math.max(dragStart.y, dragCurrent.y);
+      startTime = startTimeSlot + (minY / HOUR_HEIGHT);
+      endTime = startTimeSlot + (maxY / HOUR_HEIGHT);
+    } else {
+      // Different time slots
+      if (dragStart.timeIndex < dragCurrent.timeIndex) {
+        startTime = dragStart.timeIndex + (dragStart.y / HOUR_HEIGHT);
+        endTime = dragCurrent.timeIndex + (dragCurrent.y / HOUR_HEIGHT);
+      } else {
+        startTime = dragCurrent.timeIndex + (dragCurrent.y / HOUR_HEIGHT);
+        endTime = dragStart.timeIndex + (dragStart.y / HOUR_HEIGHT);
+      }
+    }
+
+    setFinalSelection({
+      startDay,
+      endDay,
+      startTime,
+      endTime,
+    });
+
+    // Convert selection to actual dates and notify parent
+    if (onSelectionChange && weekDays.length > 0 && startDay >= 0 && endDay >= 0) {
+      const startDate = new Date(weekDays[startDay]);
+      const startHours = Math.floor(startTime);
+      const startMinutes = Math.round((startTime % 1) * 60);
+      startDate.setHours(startHours, startMinutes, 0, 0);
+      
+      const endDate = new Date(weekDays[endDay]);
+      const endHours = Math.floor(endTime);
+      const endMinutes = Math.round((endTime % 1) * 60);
+      endDate.setHours(endHours, endMinutes, 0, 0);
+      
+      onSelectionChange({ startDate, endDate });
+    }
+
+    setIsDragging(false);
+    setDragStart(null);
+    setDragCurrent(null);
+  };
+
+  // Calculate selection box style
+  const getSelectionBoxStyle = (): any => {
+    if (!dragStart || !dragCurrent) {
+      if (!finalSelection) return null;
+      
+      // Use final selection - ensure it never extends into time column
+      // Restrict to single day width
+      const effectiveWidth = Math.max(dayColumnWidth, MIN_DAY_WIDTH);
+      const left = TIME_COLUMN_WIDTH + (finalSelection.startDay * effectiveWidth);
+      const width = effectiveWidth; // Single day width (selection is restricted to one day)
+      const top = finalSelection.startTime * HOUR_HEIGHT;
+      const height = (finalSelection.endTime - finalSelection.startTime) * HOUR_HEIGHT;
+
+      // Ensure left is never less than TIME_COLUMN_WIDTH
+      if (left < TIME_COLUMN_WIDTH) return null;
+
+      return {
+        position: 'absolute' as const,
+        left,
+        top,
+        width,
+        height,
+        backgroundColor: '#F24A3D80',
+        zIndex: 5,
+        pointerEvents: 'none' as const,
+      };
+    }
+
+    // Use current drag - ensure it never extends into time column
+    // Restrict to single day (use starting day)
+    const effectiveWidth = Math.max(dayColumnWidth, MIN_DAY_WIDTH);
+    const startDay = dragStart.dayIndex;
+    const endDay = dragStart.dayIndex; // Force same day
+    
+    // Ensure day indices are valid (not negative)
+    if (startDay < 0 || endDay < 0) return null;
+    
+    const startTimeSlot = Math.min(dragStart.timeIndex, dragCurrent.timeIndex);
+    const endTimeSlot = Math.max(dragStart.timeIndex, dragCurrent.timeIndex);
+    
+    let startTime = startTimeSlot;
+    let endTime = endTimeSlot + 1;
+    
+    if (dragStart.timeIndex === dragCurrent.timeIndex) {
+      const minY = Math.min(dragStart.y, dragCurrent.y);
+      const maxY = Math.max(dragStart.y, dragCurrent.y);
+      startTime = startTimeSlot + (minY / HOUR_HEIGHT);
+      endTime = startTimeSlot + (maxY / HOUR_HEIGHT);
+    } else {
+      if (dragStart.timeIndex < dragCurrent.timeIndex) {
+        startTime = dragStart.timeIndex + (dragStart.y / HOUR_HEIGHT);
+        endTime = dragCurrent.timeIndex + (dragCurrent.y / HOUR_HEIGHT);
+      } else {
+        startTime = dragCurrent.timeIndex + (dragCurrent.y / HOUR_HEIGHT);
+        endTime = dragStart.timeIndex + (dragStart.y / HOUR_HEIGHT);
+      }
+    }
+
+    const left = TIME_COLUMN_WIDTH + (startDay * effectiveWidth);
+    const width = effectiveWidth; // Single day width (endDay === startDay)
+    const top = startTime * HOUR_HEIGHT;
+    const height = (endTime - startTime) * HOUR_HEIGHT;
+
+    // Ensure left is never less than TIME_COLUMN_WIDTH
+    if (left < TIME_COLUMN_WIDTH) return null;
+
+    return {
+      position: 'absolute' as const,
+      left,
+      top,
+      width,
+      height,
+      backgroundColor: '#F24A3D80',
+      zIndex: 5,
+      pointerEvents: 'none' as const,
+    };
+  };
+
   return (
     <View style={styles.container}>
       {/* 
@@ -111,7 +390,23 @@ export const WeekView: React.FC<WeekViewProps> = ({ weekDays, events, onEventPre
           </View>
 
           {/* Body Grid */}
-          <View style={styles.gridBody}>
+          <View 
+            ref={gridBodyRef}
+            style={styles.gridBody}
+            onTouchStart={handleDragStart}
+            onTouchMove={handleDragMove}
+            onTouchEnd={handleDragEnd}
+            onMouseDown={Platform.OS === 'web' ? handleDragStart : undefined}
+            onMouseMove={Platform.OS === 'web' && isDragging ? handleDragMove : undefined}
+            onMouseUp={Platform.OS === 'web' ? handleDragEnd : undefined}
+            onMouseLeave={Platform.OS === 'web' ? handleDragEnd : undefined}
+          >
+            {/* Selection Box Overlay */}
+            {(isDragging || finalSelection) && (() => {
+              const boxStyle = getSelectionBoxStyle();
+              return boxStyle ? <View style={boxStyle} /> : null;
+            })()}
+
             {timeSlots.map((time, timeIndex) => (
               <View key={timeIndex} style={styles.timeRow}>
                 {/* Time Label */}

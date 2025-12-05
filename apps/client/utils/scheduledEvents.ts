@@ -89,3 +89,13 @@ export const getScheduledEventIds = (weekKey: string): string[] => {
   return scheduled[weekKey] || [];
 };
 
+// Get all scheduled event IDs across all weeks
+export const getAllScheduledEventIds = (): string[] => {
+  const scheduled = getScheduledEvents();
+  const allIds: string[] = [];
+  Object.values(scheduled).forEach(weekEvents => {
+    allIds.push(...weekEvents);
+  });
+  return allIds;
+};
+

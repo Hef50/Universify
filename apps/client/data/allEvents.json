@@ -1,0 +1,3676 @@
+[
+  {
+    "id": "evt-001",
+    "title": "Carnegie Mellon Career Fair",
+    "description": "Annual career fair featuring top tech companies and startups. Bring your resume and dress professionally!",
+    "startTime": "2025-10-20T10:00:00Z",
+    "endTime": "2025-10-20T16:00:00Z",
+    "location": "Wiegand Gymnasium",
+    "categories": [
+      "Career",
+      "Networking"
+    ],
+    "organizer": {
+      "id": "org-001",
+      "name": "Career Services",
+      "type": "club"
+    },
+    "color": "#FF6B6B",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 234,
+      "maybe": 67,
+      "notGoing": 12
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 500,
+    "tags": [
+      "career",
+      "recruiting",
+      "tech"
+    ],
+    "createdAt": "2025-09-15T10:00:00Z",
+    "updatedAt": "2025-10-01T10:00:00Z"
+  },
+  {
+    "id": "evt-002",
+    "title": "Scotty's Lab: Arduino Workshop",
+    "description": "Learn the basics of Arduino programming and build your own LED circuit!",
+    "startTime": "2025-10-19T13:00:00Z",
+    "endTime": "2025-10-19T15:00:00Z",
+    "location": "Hunt Library Maker Space",
+    "categories": [
+      "Tech",
+      "Academic"
+    ],
+    "organizer": {
+      "id": "org-002",
+      "name": "Scotty's Lab",
+      "type": "club"
+    },
+    "color": "#8B7FFF",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 28,
+      "maybe": 15,
+      "notGoing": 3
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 30,
+    "tags": [
+      "arduino",
+      "electronics",
+      "workshop"
+    ],
+    "createdAt": "2025-09-20T10:00:00Z",
+    "updatedAt": "2025-10-05T10:00:00Z"
+  },
+  {
+    "id": "evt-003",
+    "title": "Poker Night @ Wiegand",
+    "description": "Casual poker game, all skill levels welcome! Bring $5 for buy-in.",
+    "startTime": "2025-10-18T18:30:00Z",
+    "endTime": "2025-10-18T22:00:00Z",
+    "location": "Wiegand Gym Lounge",
+    "categories": [
+      "Social",
+      "Fun"
+    ],
+    "organizer": {
+      "id": "user-001",
+      "name": "Alex Chen",
+      "type": "individual"
+    },
+    "color": "#FF8C94",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 8,
+      "maybe": 4,
+      "notGoing": 0
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 12,
+    "tags": [
+      "poker",
+      "games",
+      "social"
+    ],
+    "createdAt": "2025-10-15T10:00:00Z",
+    "updatedAt": "2025-10-15T10:00:00Z"
+  },
+  {
+    "id": "evt-004",
+    "title": "Free Pizza & Study Session",
+    "description": "Grab free pizza while studying for midterms. Quiet study space available.",
+    "startTime": "2025-10-21T17:00:00Z",
+    "endTime": "2025-10-21T21:00:00Z",
+    "location": "Gates Hillman Center 4th Floor",
+    "categories": [
+      "Food",
+      "Academic"
+    ],
+    "organizer": {
+      "id": "org-003",
+      "name": "Student Government",
+      "type": "club"
+    },
+    "color": "#FFA07A",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 156,
+      "maybe": 89,
+      "notGoing": 5
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "tags": [
+      "food",
+      "study",
+      "pizza"
+    ],
+    "createdAt": "2025-10-10T10:00:00Z",
+    "updatedAt": "2025-10-12T10:00:00Z"
+  },
+  {
+    "id": "evt-005",
+    "title": "Basketball Pickup Game",
+    "description": "Looking for 4 more players for a casual basketball game. All levels welcome!",
+    "startTime": "2025-10-19T16:00:00Z",
+    "endTime": "2025-10-19T18:00:00Z",
+    "location": "Highmark Center Court 2",
+    "categories": [
+      "Sports",
+      "Social"
+    ],
+    "organizer": {
+      "id": "user-002",
+      "name": "Jordan Smith",
+      "type": "individual"
+    },
+    "color": "#95E1D3",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 6,
+      "maybe": 3,
+      "notGoing": 1
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 10,
+    "tags": [
+      "basketball",
+      "sports",
+      "pickup"
+    ],
+    "createdAt": "2025-10-17T10:00:00Z",
+    "updatedAt": "2025-10-17T10:00:00Z"
+  },
+  {
+    "id": "evt-006",
+    "title": "Yoga & Mindfulness Session",
+    "description": "Start your day with gentle yoga and meditation. Mats provided.",
+    "startTime": "2025-10-20T07:00:00Z",
+    "endTime": "2025-10-20T08:00:00Z",
+    "location": "University Center McKenna Room",
+    "categories": [
+      "Wellness",
+      "Afternoon"
+    ],
+    "organizer": {
+      "id": "org-004",
+      "name": "Wellness Center",
+      "type": "club"
+    },
+    "color": "#A8E6CF",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 18,
+      "maybe": 7,
+      "notGoing": 2
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 25,
+    "tags": [
+      "yoga",
+      "wellness",
+      "meditation"
+    ],
+    "createdAt": "2025-10-05T10:00:00Z",
+    "updatedAt": "2025-10-08T10:00:00Z"
+  },
+  {
+    "id": "evt-007",
+    "title": "Hackathon: TartanHacks 2025",
+    "description": "24-hour hackathon with prizes, workshops, and free food! Form teams or join one there.",
+    "startTime": "2025-10-25T18:00:00Z",
+    "endTime": "2025-10-26T18:00:00Z",
+    "location": "Gates Hillman Center",
+    "categories": [
+      "Tech",
+      "Events"
+    ],
+    "organizer": {
+      "id": "org-005",
+      "name": "ScottyLabs",
+      "type": "club"
+    },
+    "color": "#5B9BD5",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 312,
+      "maybe": 145,
+      "notGoing": 23
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 400,
+    "tags": [
+      "hackathon",
+      "coding",
+      "tech"
+    ],
+    "createdAt": "2025-09-01T10:00:00Z",
+    "updatedAt": "2025-10-10T10:00:00Z"
+  },
+  {
+    "id": "evt-008",
+    "title": "Art Gallery Opening: Student Showcase",
+    "description": "Featuring works from CMU art students. Wine and cheese reception.",
+    "startTime": "2025-10-22T18:00:00Z",
+    "endTime": "2025-10-22T21:00:00Z",
+    "location": "Miller Gallery",
+    "categories": [
+      "Arts",
+      "Social"
+    ],
+    "organizer": {
+      "id": "org-006",
+      "name": "School of Art",
+      "type": "club"
+    },
+    "color": "#C7A4FF",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 67,
+      "maybe": 34,
+      "notGoing": 8
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "tags": [
+      "art",
+      "gallery",
+      "exhibition"
+    ],
+    "createdAt": "2025-10-01T10:00:00Z",
+    "updatedAt": "2025-10-15T10:00:00Z"
+  },
+  {
+    "id": "evt-009",
+    "title": "Coffee Chat: Alumni in Tech",
+    "description": "Informal networking with CMU alumni working at FAANG companies.",
+    "startTime": "2025-10-23T15:00:00Z",
+    "endTime": "2025-10-23T16:30:00Z",
+    "location": "Rothberg's Roasters",
+    "categories": [
+      "Career",
+      "Networking"
+    ],
+    "organizer": {
+      "id": "org-007",
+      "name": "Alumni Relations",
+      "type": "club"
+    },
+    "color": "#FF6BA8",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 45,
+      "maybe": 23,
+      "notGoing": 5
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 50,
+    "tags": [
+      "networking",
+      "alumni",
+      "career"
+    ],
+    "createdAt": "2025-10-05T10:00:00Z",
+    "updatedAt": "2025-10-18T10:00:00Z"
+  },
+  {
+    "id": "evt-010",
+    "title": "Lunar Gala Fashion Show",
+    "description": "CMU's premier fashion show featuring student designers. Tickets required.",
+    "startTime": "2025-10-21T19:00:00Z",
+    "endTime": "2025-10-21T22:00:00Z",
+    "location": "Wiegand Gymnasium",
+    "categories": [
+      "Arts",
+      "Events"
+    ],
+    "organizer": {
+      "id": "org-008",
+      "name": "Lunar Gala",
+      "type": "club"
+    },
+    "color": "#FF6BA8",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 489,
+      "maybe": 156,
+      "notGoing": 34
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 600,
+    "tags": [
+      "fashion",
+      "show",
+      "design"
+    ],
+    "createdAt": "2025-08-15T10:00:00Z",
+    "updatedAt": "2025-10-10T10:00:00Z"
+  },
+  {
+    "id": "evt-011",
+    "title": "Trivia Night @ The Underground",
+    "description": "Test your knowledge! Teams of 4-6. Prizes for top 3 teams.",
+    "startTime": "2025-10-24T20:00:00Z",
+    "endTime": "2025-10-24T22:30:00Z",
+    "location": "The Underground",
+    "categories": [
+      "Fun",
+      "Social"
+    ],
+    "organizer": {
+      "id": "org-009",
+      "name": "Student Activities",
+      "type": "club"
+    },
+    "color": "#FFD93D",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 78,
+      "maybe": 45,
+      "notGoing": 12
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 120,
+    "tags": [
+      "trivia",
+      "games",
+      "competition"
+    ],
+    "createdAt": "2025-10-10T10:00:00Z",
+    "updatedAt": "2025-10-20T10:00:00Z"
+  },
+  {
+    "id": "evt-012",
+    "title": "Machine Learning Workshop",
+    "description": "Introduction to neural networks and deep learning with hands-on coding.",
+    "startTime": "2025-10-26T14:00:00Z",
+    "endTime": "2025-10-26T17:00:00Z",
+    "location": "Gates Hillman 6115",
+    "categories": [
+      "Tech",
+      "Academic"
+    ],
+    "organizer": {
+      "id": "org-010",
+      "name": "AI Club",
+      "type": "club"
+    },
+    "color": "#5B9BD5",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 92,
+      "maybe": 38,
+      "notGoing": 7
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 100,
+    "tags": [
+      "ml",
+      "ai",
+      "workshop"
+    ],
+    "createdAt": "2025-10-01T10:00:00Z",
+    "updatedAt": "2025-10-15T10:00:00Z"
+  },
+  {
+    "id": "evt-013",
+    "title": "Bubble Tea Run",
+    "description": "Going to get bubble tea in Oakland, anyone want to join? Meeting at UC.",
+    "startTime": "2025-10-19T14:30:00Z",
+    "endTime": "2025-10-19T16:00:00Z",
+    "location": "University Center Entrance",
+    "categories": [
+      "Food",
+      "Social"
+    ],
+    "organizer": {
+      "id": "user-003",
+      "name": "Sarah Kim",
+      "type": "individual"
+    },
+    "color": "#FFA07A",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 5,
+      "maybe": 3,
+      "notGoing": 0
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 10,
+    "tags": [
+      "food",
+      "boba",
+      "social"
+    ],
+    "createdAt": "2025-10-18T10:00:00Z",
+    "updatedAt": "2025-10-18T10:00:00Z"
+  },
+  {
+    "id": "evt-014",
+    "title": "Startup Pitch Competition",
+    "description": "Watch student entrepreneurs pitch their startups. $10k in prizes!",
+    "startTime": "2025-10-27T17:00:00Z",
+    "endTime": "2025-10-27T20:00:00Z",
+    "location": "Tepper Auditorium",
+    "categories": [
+      "Career",
+      "Events"
+    ],
+    "organizer": {
+      "id": "org-011",
+      "name": "Entrepreneurship Club",
+      "type": "club"
+    },
+    "color": "#FF6B6B",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 134,
+      "maybe": 67,
+      "notGoing": 15
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 200,
+    "tags": [
+      "startup",
+      "pitch",
+      "entrepreneurship"
+    ],
+    "createdAt": "2025-09-20T10:00:00Z",
+    "updatedAt": "2025-10-15T10:00:00Z"
+  },
+  {
+    "id": "evt-015",
+    "title": "Salsa Dancing Lessons",
+    "description": "Beginner-friendly salsa lessons. No partner needed!",
+    "startTime": "2025-10-25T19:00:00Z",
+    "endTime": "2025-10-25T21:00:00Z",
+    "location": "Rangos Ballroom",
+    "categories": [
+      "Fun",
+      "Social"
+    ],
+    "organizer": {
+      "id": "org-012",
+      "name": "Latin Dance Club",
+      "type": "club"
+    },
+    "color": "#FF8C94",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 56,
+      "maybe": 28,
+      "notGoing": 4
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 80,
+    "tags": [
+      "dance",
+      "salsa",
+      "lessons"
+    ],
+    "createdAt": "2025-10-05T10:00:00Z",
+    "updatedAt": "2025-10-18T10:00:00Z"
+  },
+  {
+    "id": "evt-016",
+    "title": "Study Abroad Info Session",
+    "description": "Learn about study abroad opportunities for next semester.",
+    "startTime": "2025-10-23T12:00:00Z",
+    "endTime": "2025-10-23T13:00:00Z",
+    "location": "Warner Hall 100",
+    "categories": [
+      "Academic",
+      "Events"
+    ],
+    "organizer": {
+      "id": "org-013",
+      "name": "Global Programs",
+      "type": "club"
+    },
+    "color": "#8B7FFF",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 43,
+      "maybe": 29,
+      "notGoing": 8
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 60,
+    "tags": [
+      "study-abroad",
+      "international",
+      "info-session"
+    ],
+    "createdAt": "2025-10-01T10:00:00Z",
+    "updatedAt": "2025-10-10T10:00:00Z"
+  },
+  {
+    "id": "evt-017",
+    "title": "Rock Climbing @ The Climbing Wall",
+    "description": "Casual climbing session. Equipment provided, all levels welcome!",
+    "startTime": "2025-10-20T15:00:00Z",
+    "endTime": "2025-10-20T17:00:00Z",
+    "location": "Cohon Center Climbing Wall",
+    "categories": [
+      "Sports",
+      "Wellness"
+    ],
+    "organizer": {
+      "id": "user-004",
+      "name": "Mike Torres",
+      "type": "individual"
+    },
+    "color": "#95E1D3",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 12,
+      "maybe": 6,
+      "notGoing": 1
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 20,
+    "tags": [
+      "climbing",
+      "sports",
+      "fitness"
+    ],
+    "createdAt": "2025-10-17T10:00:00Z",
+    "updatedAt": "2025-10-17T10:00:00Z"
+  },
+  {
+    "id": "evt-018",
+    "title": "Diwali Celebration",
+    "description": "Celebrate the festival of lights with food, music, and performances!",
+    "startTime": "2025-10-28T18:00:00Z",
+    "endTime": "2025-10-28T22:00:00Z",
+    "location": "Rangos Ballroom",
+    "categories": [
+      "Events",
+      "Social",
+      "Food"
+    ],
+    "organizer": {
+      "id": "org-014",
+      "name": "Indian Student Association",
+      "type": "club"
+    },
+    "color": "#FFD93D",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 267,
+      "maybe": 98,
+      "notGoing": 23
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 400,
+    "tags": [
+      "diwali",
+      "cultural",
+      "celebration"
+    ],
+    "createdAt": "2025-09-15T10:00:00Z",
+    "updatedAt": "2025-10-15T10:00:00Z"
+  },
+  {
+    "id": "evt-019",
+    "title": "Resume Review Drop-In",
+    "description": "Get your resume reviewed by career advisors. No appointment needed.",
+    "startTime": "2025-10-24T13:00:00Z",
+    "endTime": "2025-10-24T16:00:00Z",
+    "location": "Career Center",
+    "categories": [
+      "Career",
+      "Academic"
+    ],
+    "organizer": {
+      "id": "org-001",
+      "name": "Career Services",
+      "type": "club"
+    },
+    "color": "#FF6B6B",
+    "rsvpEnabled": false,
+    "rsvpCounts": {
+      "going": 0,
+      "maybe": 0,
+      "notGoing": 0
+    },
+    "attendees": [],
+    "attendeeVisibility": "private",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "tags": [
+      "resume",
+      "career",
+      "advising"
+    ],
+    "createdAt": "2025-10-10T10:00:00Z",
+    "updatedAt": "2025-10-15T10:00:00Z"
+  },
+  {
+    "id": "evt-020",
+    "title": "Board Game Night",
+    "description": "Bring your favorite board games or play ours! Snacks provided.",
+    "startTime": "2025-10-26T19:00:00Z",
+    "endTime": "2025-10-26T23:00:00Z",
+    "location": "Morewood Gardens Lounge",
+    "categories": [
+      "Fun",
+      "Social"
+    ],
+    "organizer": {
+      "id": "user-005",
+      "name": "Emily Zhang",
+      "type": "individual"
+    },
+    "color": "#FFD93D",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 18,
+      "maybe": 9,
+      "notGoing": 2
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 30,
+    "tags": [
+      "games",
+      "board-games",
+      "social"
+    ],
+    "createdAt": "2025-10-20T10:00:00Z",
+    "updatedAt": "2025-10-20T10:00:00Z"
+  },
+  {
+    "id": "evt-021",
+    "title": "Cybersecurity CTF Competition",
+    "description": "Capture the flag competition testing your hacking skills. Form teams of 3-4.",
+    "startTime": "2025-10-29T18:00:00Z",
+    "endTime": "2025-10-30T06:00:00Z",
+    "location": "Gates Hillman Center",
+    "categories": [
+      "Tech",
+      "Events"
+    ],
+    "organizer": {
+      "id": "org-015",
+      "name": "Security Club",
+      "type": "club"
+    },
+    "color": "#5B9BD5",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 76,
+      "maybe": 34,
+      "notGoing": 8
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 100,
+    "tags": [
+      "ctf",
+      "security",
+      "hacking"
+    ],
+    "createdAt": "2025-10-01T10:00:00Z",
+    "updatedAt": "2025-10-20T10:00:00Z"
+  },
+  {
+    "id": "evt-022",
+    "title": "Farmers Market on Campus",
+    "description": "Fresh produce, baked goods, and local crafts from Pittsburgh vendors.",
+    "startTime": "2025-10-22T10:00:00Z",
+    "endTime": "2025-10-22T14:00:00Z",
+    "location": "The Cut",
+    "categories": [
+      "Food",
+      "Events"
+    ],
+    "organizer": {
+      "id": "org-016",
+      "name": "Sustainability Committee",
+      "type": "club"
+    },
+    "color": "#6BCF7F",
+    "rsvpEnabled": false,
+    "rsvpCounts": {
+      "going": 0,
+      "maybe": 0,
+      "notGoing": 0
+    },
+    "attendees": [],
+    "attendeeVisibility": "private",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "tags": [
+      "farmers-market",
+      "food",
+      "local"
+    ],
+    "createdAt": "2025-10-05T10:00:00Z",
+    "updatedAt": "2025-10-12T10:00:00Z"
+  },
+  {
+    "id": "evt-023",
+    "title": "Improv Comedy Show",
+    "description": "Student improv troupe performs. Audience participation encouraged!",
+    "startTime": "2025-10-25T20:00:00Z",
+    "endTime": "2025-10-25T21:30:00Z",
+    "location": "Kresge Theatre",
+    "categories": [
+      "Arts",
+      "Fun"
+    ],
+    "organizer": {
+      "id": "org-017",
+      "name": "No Parking Players",
+      "type": "club"
+    },
+    "color": "#C7A4FF",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 89,
+      "maybe": 45,
+      "notGoing": 12
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 150,
+    "tags": [
+      "improv",
+      "comedy",
+      "performance"
+    ],
+    "createdAt": "2025-10-08T10:00:00Z",
+    "updatedAt": "2025-10-18T10:00:00Z"
+  },
+  {
+    "id": "evt-024",
+    "title": "Meditation & Stress Relief",
+    "description": "Guided meditation session to help with midterm stress.",
+    "startTime": "2025-10-23T17:00:00Z",
+    "endTime": "2025-10-23T18:00:00Z",
+    "location": "Wellness Center",
+    "categories": [
+      "Wellness",
+      "Afternoon"
+    ],
+    "organizer": {
+      "id": "org-004",
+      "name": "Wellness Center",
+      "type": "club"
+    },
+    "color": "#A8E6CF",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 23,
+      "maybe": 12,
+      "notGoing": 3
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 30,
+    "tags": [
+      "meditation",
+      "wellness",
+      "stress-relief"
+    ],
+    "createdAt": "2025-10-10T10:00:00Z",
+    "updatedAt": "2025-10-15T10:00:00Z"
+  },
+  {
+    "id": "evt-025",
+    "title": "Late Night Breakfast",
+    "description": "Free pancakes, waffles, and breakfast foods during finals prep!",
+    "startTime": "2025-10-30T22:00:00Z",
+    "endTime": "2025-10-31T01:00:00Z",
+    "location": "Resnik Dining Hall",
+    "categories": [
+      "Food",
+      "Events"
+    ],
+    "organizer": {
+      "id": "org-003",
+      "name": "Student Government",
+      "type": "club"
+    },
+    "color": "#FFA07A",
+    "rsvpEnabled": false,
+    "rsvpCounts": {
+      "going": 0,
+      "maybe": 0,
+      "notGoing": 0
+    },
+    "attendees": [],
+    "attendeeVisibility": "private",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "tags": [
+      "food",
+      "breakfast",
+      "free"
+    ],
+    "createdAt": "2025-10-15T10:00:00Z",
+    "updatedAt": "2025-10-20T10:00:00Z"
+  },
+  {
+    "id": "evt-026",
+    "title": "Photography Walk: Fall Colors",
+    "description": "Explore campus and capture autumn colors. Bring your camera or phone!",
+    "startTime": "2025-10-21T14:00:00Z",
+    "endTime": "2025-10-21T16:00:00Z",
+    "location": "Schenley Park Entrance",
+    "categories": [
+      "Arts",
+      "Afternoon"
+    ],
+    "organizer": {
+      "id": "user-006",
+      "name": "Rachel Park",
+      "type": "individual"
+    },
+    "color": "#C7A4FF",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 14,
+      "maybe": 7,
+      "notGoing": 1
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 20,
+    "tags": [
+      "photography",
+      "nature",
+      "fall"
+    ],
+    "createdAt": "2025-10-16T10:00:00Z",
+    "updatedAt": "2025-10-16T10:00:00Z"
+  },
+  {
+    "id": "evt-027",
+    "title": "Mock Interview Practice",
+    "description": "Practice technical interviews with upperclassmen. Sign up for time slots.",
+    "startTime": "2025-10-27T10:00:00Z",
+    "endTime": "2025-10-27T16:00:00Z",
+    "location": "Gates Hillman 4000",
+    "categories": [
+      "Career",
+      "Academic"
+    ],
+    "organizer": {
+      "id": "org-018",
+      "name": "CS Mentorship Program",
+      "type": "club"
+    },
+    "color": "#FF6B6B",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 54,
+      "maybe": 23,
+      "notGoing": 6
+    },
+    "attendees": [],
+    "attendeeVisibility": "private",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 60,
+    "tags": [
+      "interview",
+      "career",
+      "practice"
+    ],
+    "createdAt": "2025-10-12T10:00:00Z",
+    "updatedAt": "2025-10-22T10:00:00Z"
+  },
+  {
+    "id": "evt-028",
+    "title": "Volleyball Tournament",
+    "description": "Intramural volleyball tournament. Teams of 6, sign up by Oct 23.",
+    "startTime": "2025-10-28T13:00:00Z",
+    "endTime": "2025-10-28T18:00:00Z",
+    "location": "Highmark Center Courts",
+    "categories": [
+      "Sports",
+      "Events"
+    ],
+    "organizer": {
+      "id": "org-019",
+      "name": "Intramural Sports",
+      "type": "club"
+    },
+    "color": "#95E1D3",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 48,
+      "maybe": 18,
+      "notGoing": 4
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 72,
+    "tags": [
+      "volleyball",
+      "tournament",
+      "sports"
+    ],
+    "createdAt": "2025-10-08T10:00:00Z",
+    "updatedAt": "2025-10-20T10:00:00Z"
+  },
+  {
+    "id": "evt-029",
+    "title": "Open Mic Night",
+    "description": "Share your music, poetry, or comedy. Sign up at the door or just watch!",
+    "startTime": "2025-10-24T19:00:00Z",
+    "endTime": "2025-10-24T22:00:00Z",
+    "location": "The Underground",
+    "categories": [
+      "Arts",
+      "Social"
+    ],
+    "organizer": {
+      "id": "org-020",
+      "name": "Student Activities",
+      "type": "club"
+    },
+    "color": "#C7A4FF",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 67,
+      "maybe": 34,
+      "notGoing": 9
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 100,
+    "tags": [
+      "open-mic",
+      "music",
+      "performance"
+    ],
+    "createdAt": "2025-10-10T10:00:00Z",
+    "updatedAt": "2025-10-18T10:00:00Z"
+  },
+  {
+    "id": "evt-030",
+    "title": "Sustainability Workshop",
+    "description": "Learn about sustainable living and campus green initiatives.",
+    "startTime": "2025-10-26T11:00:00Z",
+    "endTime": "2025-10-26T12:30:00Z",
+    "location": "Posner Hall 153",
+    "categories": [
+      "Academic",
+      "Events"
+    ],
+    "organizer": {
+      "id": "org-016",
+      "name": "Sustainability Committee",
+      "type": "club"
+    },
+    "color": "#6BCF7F",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 32,
+      "maybe": 18,
+      "notGoing": 5
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 50,
+    "tags": [
+      "sustainability",
+      "environment",
+      "workshop"
+    ],
+    "createdAt": "2025-10-05T10:00:00Z",
+    "updatedAt": "2025-10-15T10:00:00Z"
+  },
+  {
+    "id": "evt-031",
+    "title": "Brunch & Study Group",
+    "description": "Casual brunch meetup for 15-213 students. Bring your questions!",
+    "startTime": "2025-10-22T11:00:00Z",
+    "endTime": "2025-10-22T13:00:00Z",
+    "location": "Entropy Cafe",
+    "categories": [
+      "Academic",
+      "Food"
+    ],
+    "organizer": {
+      "id": "user-007",
+      "name": "David Liu",
+      "type": "individual"
+    },
+    "color": "#8B7FFF",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 9,
+      "maybe": 5,
+      "notGoing": 1
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 15,
+    "tags": [
+      "study-group",
+      "brunch",
+      "15-213"
+    ],
+    "createdAt": "2025-10-19T10:00:00Z",
+    "updatedAt": "2025-10-19T10:00:00Z"
+  },
+  {
+    "id": "evt-032",
+    "title": "Karaoke Night",
+    "description": "Sing your heart out! Private rooms available for groups.",
+    "startTime": "2025-10-27T21:00:00Z",
+    "endTime": "2025-10-28T00:00:00Z",
+    "location": "The Underground",
+    "categories": [
+      "Fun",
+      "Social"
+    ],
+    "organizer": {
+      "id": "org-009",
+      "name": "Student Activities",
+      "type": "club"
+    },
+    "color": "#FFD93D",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 94,
+      "maybe": 52,
+      "notGoing": 15
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 150,
+    "tags": [
+      "karaoke",
+      "music",
+      "fun"
+    ],
+    "createdAt": "2025-10-12T10:00:00Z",
+    "updatedAt": "2025-10-20T10:00:00Z"
+  },
+  {
+    "id": "evt-033",
+    "title": "3D Printing Workshop",
+    "description": "Learn to design and print 3D models. Beginners welcome!",
+    "startTime": "2025-10-29T15:00:00Z",
+    "endTime": "2025-10-29T17:00:00Z",
+    "location": "Hunt Library Maker Space",
+    "categories": [
+      "Tech",
+      "Academic"
+    ],
+    "organizer": {
+      "id": "org-021",
+      "name": "Maker Club",
+      "type": "club"
+    },
+    "color": "#5B9BD5",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 24,
+      "maybe": 11,
+      "notGoing": 2
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 30,
+    "tags": [
+      "3d-printing",
+      "maker",
+      "workshop"
+    ],
+    "createdAt": "2025-10-15T10:00:00Z",
+    "updatedAt": "2025-10-22T10:00:00Z"
+  },
+  {
+    "id": "evt-034",
+    "title": "Soccer Scrimmage",
+    "description": "Pickup soccer game on the Cut. All skill levels welcome!",
+    "startTime": "2025-10-23T16:30:00Z",
+    "endTime": "2025-10-23T18:30:00Z",
+    "location": "The Cut",
+    "categories": [
+      "Sports",
+      "Social"
+    ],
+    "organizer": {
+      "id": "user-008",
+      "name": "Carlos Rodriguez",
+      "type": "individual"
+    },
+    "color": "#95E1D3",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 16,
+      "maybe": 8,
+      "notGoing": 2
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 22,
+    "tags": [
+      "soccer",
+      "sports",
+      "pickup"
+    ],
+    "createdAt": "2025-10-21T10:00:00Z",
+    "updatedAt": "2025-10-21T10:00:00Z"
+  },
+  {
+    "id": "evt-035",
+    "title": "Film Screening: Indie Night",
+    "description": "Screening of award-winning indie films. Free popcorn!",
+    "startTime": "2025-10-25T19:30:00Z",
+    "endTime": "2025-10-25T22:00:00Z",
+    "location": "McConomy Auditorium",
+    "categories": [
+      "Arts",
+      "Events"
+    ],
+    "organizer": {
+      "id": "org-022",
+      "name": "Film Club",
+      "type": "club"
+    },
+    "color": "#C7A4FF",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 78,
+      "maybe": 39,
+      "notGoing": 11
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 120,
+    "tags": [
+      "film",
+      "movie",
+      "screening"
+    ],
+    "createdAt": "2025-10-08T10:00:00Z",
+    "updatedAt": "2025-10-18T10:00:00Z"
+  },
+  {
+    "id": "evt-036",
+    "title": "Data Science Meetup",
+    "description": "Network with data science professionals and students. Pizza provided!",
+    "startTime": "2025-10-28T18:30:00Z",
+    "endTime": "2025-10-28T20:30:00Z",
+    "location": "Tepper Quad",
+    "categories": [
+      "Tech",
+      "Networking",
+      "Food"
+    ],
+    "organizer": {
+      "id": "org-023",
+      "name": "Data Science Club",
+      "type": "club"
+    },
+    "color": "#5B9BD5",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 87,
+      "maybe": 43,
+      "notGoing": 9
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 100,
+    "tags": [
+      "data-science",
+      "networking",
+      "tech"
+    ],
+    "createdAt": "2025-10-10T10:00:00Z",
+    "updatedAt": "2025-10-20T10:00:00Z"
+  },
+  {
+    "id": "evt-037",
+    "title": "Acapella Concert",
+    "description": "CMU's acapella groups perform. Free admission!",
+    "startTime": "2025-10-26T20:00:00Z",
+    "endTime": "2025-10-26T22:00:00Z",
+    "location": "Kresge Theatre",
+    "categories": [
+      "Arts",
+      "Events"
+    ],
+    "organizer": {
+      "id": "org-024",
+      "name": "Acapella Council",
+      "type": "club"
+    },
+    "color": "#C7A4FF",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 156,
+      "maybe": 78,
+      "notGoing": 18
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 200,
+    "tags": [
+      "acapella",
+      "music",
+      "concert"
+    ],
+    "createdAt": "2025-10-05T10:00:00Z",
+    "updatedAt": "2025-10-18T10:00:00Z"
+  },
+  {
+    "id": "evt-038",
+    "title": "Cooking Class: Asian Cuisine",
+    "description": "Learn to make dumplings and fried rice. Ingredients provided!",
+    "startTime": "2025-10-29T17:00:00Z",
+    "endTime": "2025-10-29T19:30:00Z",
+    "location": "Resnik Kitchen",
+    "categories": [
+      "Food",
+      "Social"
+    ],
+    "organizer": {
+      "id": "org-025",
+      "name": "Cooking Club",
+      "type": "club"
+    },
+    "color": "#FFA07A",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 18,
+      "maybe": 8,
+      "notGoing": 2
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 20,
+    "tags": [
+      "cooking",
+      "food",
+      "asian-cuisine"
+    ],
+    "createdAt": "2025-10-15T10:00:00Z",
+    "updatedAt": "2025-10-22T10:00:00Z"
+  },
+  {
+    "id": "evt-039",
+    "title": "Mental Health Panel",
+    "description": "Discussion on student mental health with counselors and peer support.",
+    "startTime": "2025-10-24T16:00:00Z",
+    "endTime": "2025-10-24T17:30:00Z",
+    "location": "Cohon Center Conference Room",
+    "categories": [
+      "Wellness",
+      "Academic"
+    ],
+    "organizer": {
+      "id": "org-026",
+      "name": "Mental Health Initiative",
+      "type": "club"
+    },
+    "color": "#A8E6CF",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 45,
+      "maybe": 23,
+      "notGoing": 7
+    },
+    "attendees": [],
+    "attendeeVisibility": "private",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 60,
+    "tags": [
+      "mental-health",
+      "wellness",
+      "panel"
+    ],
+    "createdAt": "2025-10-08T10:00:00Z",
+    "updatedAt": "2025-10-18T10:00:00Z"
+  },
+  {
+    "id": "evt-040",
+    "title": "Frisbee on the Cut",
+    "description": "Casual ultimate frisbee. Just show up and play!",
+    "startTime": "2025-10-20T13:00:00Z",
+    "endTime": "2025-10-20T15:00:00Z",
+    "location": "The Cut",
+    "categories": [
+      "Sports",
+      "Social",
+      "Afternoon"
+    ],
+    "organizer": {
+      "id": "user-009",
+      "name": "Jessica Wu",
+      "type": "individual"
+    },
+    "color": "#95E1D3",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 11,
+      "maybe": 6,
+      "notGoing": 1
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 20,
+    "tags": [
+      "frisbee",
+      "sports",
+      "casual"
+    ],
+    "createdAt": "2025-10-18T10:00:00Z",
+    "updatedAt": "2025-10-18T10:00:00Z"
+  },
+  {
+    "id": "evt-current-001",
+    "title": "Morning Yoga Session",
+    "description": "Start your day with a relaxing yoga session",
+    "startTime": "2025-11-17T08:00:00.000Z",
+    "endTime": "2025-11-17T09:00:00.000Z",
+    "location": "UC Gym",
+    "categories": [
+      "Wellness",
+      "Social"
+    ],
+    "organizer": {
+      "id": "org-wellness",
+      "name": "Wellness Club",
+      "type": "club"
+    },
+    "color": "#95E1D3",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 15,
+      "maybe": 5,
+      "notGoing": 2
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 25,
+    "tags": [
+      "yoga",
+      "wellness",
+      "morning"
+    ],
+    "createdAt": "2025-11-10T10:00:00.000Z",
+    "updatedAt": "2025-11-10T10:00:00.000Z"
+  },
+  {
+    "id": "evt-current-002",
+    "title": "CS Study Group",
+    "description": "Study session for 15-213 exam prep",
+    "startTime": "2025-11-17T14:00:00.000Z",
+    "endTime": "2025-11-17T16:00:00.000Z",
+    "location": "Gates 4th Floor",
+    "categories": [
+      "Academic",
+      "Study"
+    ],
+    "organizer": {
+      "id": "user-001",
+      "name": "Alex Johnson",
+      "type": "student"
+    },
+    "color": "#8B7FFF",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 8,
+      "maybe": 3,
+      "notGoing": 0
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 12,
+    "tags": [
+      "study",
+      "cs",
+      "exam"
+    ],
+    "createdAt": "2025-11-12T10:00:00.000Z",
+    "updatedAt": "2025-11-12T10:00:00.000Z"
+  },
+  {
+    "id": "evt-current-003",
+    "title": "Basketball Pickup Game",
+    "description": "Casual basketball game, all skill levels welcome!",
+    "startTime": "2025-11-17T18:30:00.000Z",
+    "endTime": "2025-11-17T20:00:00.000Z",
+    "location": "Highmark Center",
+    "categories": [
+      "Sports",
+      "Social"
+    ],
+    "organizer": {
+      "id": "user-002",
+      "name": "Sarah Miller",
+      "type": "student"
+    },
+    "color": "#FF6BA8",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 10,
+      "maybe": 4,
+      "notGoing": 1
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 16,
+    "tags": [
+      "basketball",
+      "sports",
+      "pickup"
+    ],
+    "createdAt": "2025-11-13T10:00:00.000Z",
+    "updatedAt": "2025-11-13T10:00:00.000Z"
+  },
+  {
+    "id": "evt-current-004",
+    "title": "Tech Talk: AI in Healthcare",
+    "description": "Guest speaker from Google discussing AI applications in healthcare",
+    "startTime": "2025-11-18T17:00:00.000Z",
+    "endTime": "2025-11-18T18:30:00.000Z",
+    "location": "Gates Hillman Center",
+    "categories": [
+      "Tech",
+      "Career"
+    ],
+    "organizer": {
+      "id": "org-cs-club",
+      "name": "Computer Science Club",
+      "type": "club"
+    },
+    "color": "#4ECDC4",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 89,
+      "maybe": 23,
+      "notGoing": 5
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 150,
+    "tags": [
+      "tech",
+      "ai",
+      "healthcare",
+      "talk"
+    ],
+    "createdAt": "2025-11-05T10:00:00.000Z",
+    "updatedAt": "2025-11-08T10:00:00.000Z"
+  },
+  {
+    "id": "evt-current-005",
+    "title": "Coffee & Code",
+    "description": "Casual coding session at Entropy. Work on projects or just hang out!",
+    "startTime": "2025-11-18T10:00:00.000Z",
+    "endTime": "2025-11-18T12:00:00.000Z",
+    "location": "Entropy Coffee",
+    "categories": [
+      "Social",
+      "Tech"
+    ],
+    "organizer": {
+      "id": "user-003",
+      "name": "Mike Chen",
+      "type": "student"
+    },
+    "color": "#FFD93D",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 12,
+      "maybe": 7,
+      "notGoing": 2
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 20,
+    "tags": [
+      "coffee",
+      "coding",
+      "social"
+    ],
+    "createdAt": "2025-11-14T10:00:00.000Z",
+    "updatedAt": "2025-11-14T10:00:00.000Z"
+  },
+  {
+    "id": "evt-current-006",
+    "title": "Poker Night",
+    "description": "Texas Hold'em poker night in Wiegand. $5 buy-in, winner takes all!",
+    "startTime": "2025-11-18T20:00:00.000Z",
+    "endTime": "2025-11-18T23:00:00.000Z",
+    "location": "Wiegand Gym Lounge",
+    "categories": [
+      "Social",
+      "Games"
+    ],
+    "organizer": {
+      "id": "user-004",
+      "name": "Emma Davis",
+      "type": "student"
+    },
+    "color": "#FF6B6B",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 8,
+      "maybe": 5,
+      "notGoing": 1
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 10,
+    "tags": [
+      "poker",
+      "games",
+      "night"
+    ],
+    "createdAt": "2025-11-15T10:00:00.000Z",
+    "updatedAt": "2025-11-15T10:00:00.000Z"
+  },
+  {
+    "id": "evt-current-007",
+    "title": "Design Workshop: Figma Basics",
+    "description": "Learn the fundamentals of Figma for UI/UX design",
+    "startTime": "2025-11-19T15:00:00.000Z",
+    "endTime": "2025-11-19T17:00:00.000Z",
+    "location": "Hunt Library",
+    "categories": [
+      "Design",
+      "Academic"
+    ],
+    "organizer": {
+      "id": "org-design",
+      "name": "Design Club",
+      "type": "club"
+    },
+    "color": "#8B7FFF",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 34,
+      "maybe": 12,
+      "notGoing": 3
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 50,
+    "tags": [
+      "design",
+      "figma",
+      "workshop"
+    ],
+    "createdAt": "2025-11-08T10:00:00.000Z",
+    "updatedAt": "2025-11-10T10:00:00.000Z"
+  },
+  {
+    "id": "evt-current-008",
+    "title": "Lunch & Learn: Entrepreneurship",
+    "description": "Free lunch and discussion about starting your own company",
+    "startTime": "2025-11-19T12:00:00.000Z",
+    "endTime": "2025-11-19T13:30:00.000Z",
+    "location": "Tepper Quad",
+    "categories": [
+      "Career",
+      "Networking"
+    ],
+    "organizer": {
+      "id": "org-entrepreneur",
+      "name": "Entrepreneurship Club",
+      "type": "club"
+    },
+    "color": "#4ECDC4",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 45,
+      "maybe": 18,
+      "notGoing": 4
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 60,
+    "tags": [
+      "entrepreneurship",
+      "lunch",
+      "career"
+    ],
+    "createdAt": "2025-11-06T10:00:00.000Z",
+    "updatedAt": "2025-11-09T10:00:00.000Z"
+  },
+  {
+    "id": "evt-current-009",
+    "title": "Movie Night: The Social Network",
+    "description": "Watch The Social Network with free popcorn!",
+    "startTime": "2025-11-20T19:00:00.000Z",
+    "endTime": "2025-11-20T21:30:00.000Z",
+    "location": "McConomy Auditorium",
+    "categories": [
+      "Entertainment",
+      "Social"
+    ],
+    "organizer": {
+      "id": "org-activities",
+      "name": "Student Activities",
+      "type": "club"
+    },
+    "color": "#FF6BA8",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 67,
+      "maybe": 29,
+      "notGoing": 8
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 100,
+    "tags": [
+      "movie",
+      "social",
+      "entertainment"
+    ],
+    "createdAt": "2025-11-07T10:00:00.000Z",
+    "updatedAt": "2025-11-11T10:00:00.000Z"
+  },
+  {
+    "id": "evt-current-010",
+    "title": "Hackathon Kickoff",
+    "description": "24-hour hackathon starts now! Build something amazing!",
+    "startTime": "2025-11-21T18:00:00.000Z",
+    "endTime": "2025-11-22T18:00:00.000Z",
+    "location": "Gates Hillman Center",
+    "categories": [
+      "Tech",
+      "Competition"
+    ],
+    "organizer": {
+      "id": "org-hack",
+      "name": "HackCMU",
+      "type": "club"
+    },
+    "color": "#FFD93D",
+    "rsvpEnabled": true,
+    "rsvpCounts": {
+      "going": 156,
+      "maybe": 34,
+      "notGoing": 12
+    },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 200,
+    "tags": [
+      "hackathon",
+      "coding",
+      "competition"
+    ],
+    "createdAt": "2025-10-15T10:00:00.000Z",
+    "updatedAt": "2025-11-01T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-001",
+    "title": "December Study Session",
+    "description": "Final exam prep session with free coffee and snacks",
+    "startTime": "2025-12-01T09:00:00.000Z",
+    "endTime": "2025-12-01T12:00:00.000Z",
+    "location": "Hunt Library",
+    "categories": ["Academic", "Study"],
+    "organizer": {
+      "id": "org-academic",
+      "name": "Academic Support",
+      "type": "club"
+    },
+    "color": "#8B7FFF",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 42, "maybe": 18, "notGoing": 3 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 60,
+    "tags": ["study", "exams", "academic"],
+    "createdAt": "2025-11-25T10:00:00.000Z",
+    "updatedAt": "2025-11-25T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-002",
+    "title": "Holiday Cookie Decorating",
+    "description": "Decorate cookies and get into the holiday spirit!",
+    "startTime": "2025-12-01T15:00:00.000Z",
+    "endTime": "2025-12-01T17:00:00.000Z",
+    "location": "UC Activities Room",
+    "categories": ["Social", "Food"],
+    "organizer": {
+      "id": "org-activities",
+      "name": "Student Activities",
+      "type": "club"
+    },
+    "color": "#FF6BA8",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 28, "maybe": 12, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 40,
+    "tags": ["holiday", "cookies", "social"],
+    "createdAt": "2025-11-20T10:00:00.000Z",
+    "updatedAt": "2025-11-20T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-003",
+    "title": "Winter Career Networking Mixer",
+    "description": "Network with alumni and recruiters before the holidays",
+    "startTime": "2025-12-02T17:00:00.000Z",
+    "endTime": "2025-12-02T19:30:00.000Z",
+    "location": "Tepper Quad",
+    "categories": ["Career", "Networking"],
+    "organizer": {
+      "id": "org-career",
+      "name": "Career Services",
+      "type": "club"
+    },
+    "color": "#FF6B6B",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 89, "maybe": 34, "notGoing": 8 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 120,
+    "tags": ["networking", "career", "alumni"],
+    "createdAt": "2025-11-18T10:00:00.000Z",
+    "updatedAt": "2025-11-18T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-004",
+    "title": "Morning Meditation",
+    "description": "Start your day with guided meditation and mindfulness",
+    "startTime": "2025-12-02T07:30:00.000Z",
+    "endTime": "2025-12-02T08:30:00.000Z",
+    "location": "UC Wellness Center",
+    "categories": ["Wellness", "Social"],
+    "organizer": {
+      "id": "org-wellness",
+      "name": "Wellness Club",
+      "type": "club"
+    },
+    "color": "#95E1D3",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 15, "maybe": 8, "notGoing": 1 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 25,
+    "tags": ["meditation", "wellness", "morning"],
+    "createdAt": "2025-11-22T10:00:00.000Z",
+    "updatedAt": "2025-11-22T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-005",
+    "title": "Python Workshop: Data Analysis",
+    "description": "Learn pandas and numpy for data analysis projects",
+    "startTime": "2025-12-03T14:00:00.000Z",
+    "endTime": "2025-12-03T16:00:00.000Z",
+    "location": "Gates 5th Floor Lab",
+    "categories": ["Tech", "Academic"],
+    "organizer": {
+      "id": "org-cs-club",
+      "name": "Computer Science Club",
+      "type": "club"
+    },
+    "color": "#4ECDC4",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 56, "maybe": 23, "notGoing": 4 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 80,
+    "tags": ["python", "data", "workshop"],
+    "createdAt": "2025-11-19T10:00:00.000Z",
+    "updatedAt": "2025-11-19T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-006",
+    "title": "Basketball Tournament",
+    "description": "Intramural basketball tournament - sign up your team!",
+    "startTime": "2025-12-03T18:00:00.000Z",
+    "endTime": "2025-12-03T21:00:00.000Z",
+    "location": "Highmark Center",
+    "categories": ["Sports", "Competition"],
+    "organizer": {
+      "id": "org-sports",
+      "name": "Intramural Sports",
+      "type": "club"
+    },
+    "color": "#FF8C94",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 32, "maybe": 15, "notGoing": 3 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 50,
+    "tags": ["basketball", "tournament", "sports"],
+    "createdAt": "2025-11-17T10:00:00.000Z",
+    "updatedAt": "2025-11-17T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-007",
+    "title": "Holiday Movie Marathon",
+    "description": "Watch classic holiday movies with hot chocolate and popcorn",
+    "startTime": "2025-12-04T19:00:00.000Z",
+    "endTime": "2025-12-04T23:00:00.000Z",
+    "location": "McConomy Auditorium",
+    "categories": ["Entertainment", "Social"],
+    "organizer": {
+      "id": "org-activities",
+      "name": "Student Activities",
+      "type": "club"
+    },
+    "color": "#FFD93D",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 78, "maybe": 31, "notGoing": 6 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 150,
+    "tags": ["movies", "holiday", "social"],
+    "createdAt": "2025-11-21T10:00:00.000Z",
+    "updatedAt": "2025-11-21T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-008",
+    "title": "Final Project Help Session",
+    "description": "Get help with your final projects from TAs and peers",
+    "startTime": "2025-12-04T10:00:00.000Z",
+    "endTime": "2025-12-04T13:00:00.000Z",
+    "location": "Gates 4th Floor",
+    "categories": ["Academic", "Study"],
+    "organizer": {
+      "id": "user-005",
+      "name": "TA Office Hours",
+      "type": "individual"
+    },
+    "color": "#8B7FFF",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 24, "maybe": 11, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": false,
+    "capacity": 35,
+    "tags": ["projects", "help", "academic"],
+    "createdAt": "2025-11-23T10:00:00.000Z",
+    "updatedAt": "2025-11-23T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-009",
+    "title": "Holiday Potluck Dinner",
+    "description": "Bring a dish to share! Celebrate the end of the semester together",
+    "startTime": "2025-12-05T18:00:00.000Z",
+    "endTime": "2025-12-05T21:00:00.000Z",
+    "location": "UC Ballroom",
+    "categories": ["Food", "Social"],
+    "organizer": {
+      "id": "org-dining",
+      "name": "Dining Services",
+      "type": "club"
+    },
+    "color": "#FFA07A",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 134, "maybe": 56, "notGoing": 9 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 200,
+    "tags": ["potluck", "food", "holiday"],
+    "createdAt": "2025-11-16T10:00:00.000Z",
+    "updatedAt": "2025-11-16T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-010",
+    "title": "Gift Wrapping Workshop",
+    "description": "Learn to wrap gifts beautifully for the holidays",
+    "startTime": "2025-12-05T14:00:00.000Z",
+    "endTime": "2025-12-05T16:00:00.000Z",
+    "location": "Hunt Library Study Room",
+    "categories": ["Social", "Fun"],
+    "organizer": {
+      "id": "user-006",
+      "name": "Sarah Johnson",
+      "type": "individual"
+    },
+    "color": "#FF6BA8",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 19, "maybe": 9, "notGoing": 1 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 30,
+    "tags": ["gifts", "holiday", "workshop"],
+    "createdAt": "2025-11-24T10:00:00.000Z",
+    "updatedAt": "2025-11-24T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-011",
+    "title": "Winter Break Planning Session",
+    "description": "Discuss travel plans, internships, and break activities",
+    "startTime": "2025-12-06T11:00:00.000Z",
+    "endTime": "2025-12-06T12:30:00.000Z",
+    "location": "Tepper Quad",
+    "categories": ["Social", "Networking"],
+    "organizer": {
+      "id": "org-student-gov",
+      "name": "Student Government",
+      "type": "club"
+    },
+    "color": "#4ECDC4",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 37, "maybe": 18, "notGoing": 4 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 50,
+    "tags": ["planning", "break", "social"],
+    "createdAt": "2025-11-26T10:00:00.000Z",
+    "updatedAt": "2025-11-26T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-012",
+    "title": "Late Night Study Group",
+    "description": "Study together for finals - snacks and coffee provided",
+    "startTime": "2025-12-06T20:00:00.000Z",
+    "endTime": "2025-12-07T01:00:00.000Z",
+    "location": "Hunt Library 24/7 Study Space",
+    "categories": ["Academic", "Study"],
+    "organizer": {
+      "id": "user-007",
+      "name": "Study Group Leaders",
+      "type": "individual"
+    },
+    "color": "#8B7FFF",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 28, "maybe": 14, "notGoing": 3 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 40,
+    "tags": ["study", "finals", "late-night"],
+    "createdAt": "2025-11-27T10:00:00.000Z",
+    "updatedAt": "2025-11-27T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-013",
+    "title": "Holiday Card Making",
+    "description": "Create handmade holiday cards for friends and family",
+    "startTime": "2025-12-07T13:00:00.000Z",
+    "endTime": "2025-12-07T15:30:00.000Z",
+    "location": "UC Arts & Crafts Room",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "org-arts",
+      "name": "Arts Club",
+      "type": "club"
+    },
+    "color": "#FF6BA8",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 22, "maybe": 10, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 35,
+    "tags": ["cards", "arts", "holiday"],
+    "createdAt": "2025-11-28T10:00:00.000Z",
+    "updatedAt": "2025-11-28T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-014",
+    "title": "End of Semester Celebration",
+    "description": "Celebrate finishing the semester! Food, music, and fun",
+    "startTime": "2025-12-07T17:00:00.000Z",
+    "endTime": "2025-12-07T20:00:00.000Z",
+    "location": "Wiegand Gymnasium",
+    "categories": ["Social", "Fun"],
+    "organizer": {
+      "id": "org-activities",
+      "name": "Student Activities",
+      "type": "club"
+    },
+    "color": "#FFD93D",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 156, "maybe": 67, "notGoing": 12 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 300,
+    "tags": ["celebration", "semester", "social"],
+    "createdAt": "2025-11-15T10:00:00.000Z",
+    "updatedAt": "2025-11-15T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-015",
+    "title": "AI & Machine Learning Workshop",
+    "description": "Hands-on workshop on building neural networks and ML models",
+    "startTime": "2025-12-01T13:00:00.000Z",
+    "endTime": "2025-12-01T16:00:00.000Z",
+    "location": "Gates Hillman Center 4401",
+    "categories": ["Tech", "Academic"],
+    "organizer": {
+      "id": "org-ai-club",
+      "name": "AI Club",
+      "type": "club"
+    },
+    "color": "#9B59B6",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 89, "maybe": 34, "notGoing": 5 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 100,
+    "tags": ["ai", "machine-learning", "coding", "tech", "workshop"],
+    "createdAt": "2025-11-20T10:00:00.000Z",
+    "updatedAt": "2025-11-20T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-016",
+    "title": "Yoga & Meditation Session",
+    "description": "Relax and de-stress with guided yoga and meditation",
+    "startTime": "2025-12-01T18:00:00.000Z",
+    "endTime": "2025-12-01T19:30:00.000Z",
+    "location": "UC Fitness Center",
+    "categories": ["Wellness", "Health"],
+    "organizer": {
+      "id": "org-wellness",
+      "name": "Wellness Center",
+      "type": "club"
+    },
+    "color": "#2ECC71",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 45, "maybe": 18, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 50,
+    "tags": ["yoga", "meditation", "wellness", "mindfulness", "stress-relief"],
+    "createdAt": "2025-11-18T10:00:00.000Z",
+    "updatedAt": "2025-11-18T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-017",
+    "title": "Photography Walk",
+    "description": "Explore campus and practice photography techniques",
+    "startTime": "2025-12-02T10:00:00.000Z",
+    "endTime": "2025-12-02T12:00:00.000Z",
+    "location": "Meet at The Fence",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "user-008",
+      "name": "Photography Club",
+      "type": "individual"
+    },
+    "color": "#E74C3C",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 32, "maybe": 15, "notGoing": 3 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 40,
+    "tags": ["photography", "arts", "outdoor", "creative", "camera"],
+    "createdAt": "2025-11-22T10:00:00.000Z",
+    "updatedAt": "2025-11-22T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-018",
+    "title": "Entrepreneurship Pitch Night",
+    "description": "Students pitch startup ideas to judges and investors",
+    "startTime": "2025-12-02T19:00:00.000Z",
+    "endTime": "2025-12-02T22:00:00.000Z",
+    "location": "Tepper School of Business",
+    "categories": ["Career", "Networking"],
+    "organizer": {
+      "id": "org-entrepreneurship",
+      "name": "Entrepreneurship Club",
+      "type": "club"
+    },
+    "color": "#3498DB",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 112, "maybe": 45, "notGoing": 8 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 150,
+    "tags": ["entrepreneurship", "startup", "pitch", "business", "networking"],
+    "createdAt": "2025-11-19T10:00:00.000Z",
+    "updatedAt": "2025-11-19T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-019",
+    "title": "Board Game Night",
+    "description": "Play board games, card games, and tabletop RPGs",
+    "startTime": "2025-12-03T19:00:00.000Z",
+    "endTime": "2025-12-03T23:00:00.000Z",
+    "location": "UC Game Room",
+    "categories": ["Social", "Fun"],
+    "organizer": {
+      "id": "org-gaming",
+      "name": "Gaming Club",
+      "type": "club"
+    },
+    "color": "#F39C12",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 67, "maybe": 28, "notGoing": 4 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 80,
+    "tags": ["gaming", "board-games", "social", "fun", "tabletop"],
+    "createdAt": "2025-11-21T10:00:00.000Z",
+    "updatedAt": "2025-11-21T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-020",
+    "title": "Cooking Class: Holiday Treats",
+    "description": "Learn to bake cookies, pies, and other holiday desserts",
+    "startTime": "2025-12-03T14:00:00.000Z",
+    "endTime": "2025-12-03T17:00:00.000Z",
+    "location": "UC Kitchen",
+    "categories": ["Food", "Social"],
+    "organizer": {
+      "id": "org-cooking",
+      "name": "Cooking Club",
+      "type": "club"
+    },
+    "color": "#E67E22",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 41, "maybe": 19, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 50,
+    "tags": ["cooking", "baking", "food", "holiday", "desserts"],
+    "createdAt": "2025-11-23T10:00:00.000Z",
+    "updatedAt": "2025-11-23T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-021",
+    "title": "Debate Tournament",
+    "description": "Competitive debate on current events and policy",
+    "startTime": "2025-12-04T09:00:00.000Z",
+    "endTime": "2025-12-04T17:00:00.000Z",
+    "location": "Baker Hall",
+    "categories": ["Academic", "Social"],
+    "organizer": {
+      "id": "org-debate",
+      "name": "Debate Team",
+      "type": "club"
+    },
+    "color": "#1ABC9C",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 56, "maybe": 22, "notGoing": 6 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 100,
+    "tags": ["debate", "academic", "competition", "public-speaking", "policy"],
+    "createdAt": "2025-11-17T10:00:00.000Z",
+    "updatedAt": "2025-11-17T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-022",
+    "title": "Robotics Demo Day",
+    "description": "See student-built robots in action and learn about robotics",
+    "startTime": "2025-12-04T15:00:00.000Z",
+    "endTime": "2025-12-04T18:00:00.000Z",
+    "location": "Newell-Simon Hall",
+    "categories": ["Tech", "Academic"],
+    "organizer": {
+      "id": "org-robotics",
+      "name": "Robotics Club",
+      "type": "club"
+    },
+    "color": "#34495E",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 78, "maybe": 31, "notGoing": 4 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 120,
+    "tags": ["robotics", "tech", "engineering", "demos", "hands-on"],
+    "createdAt": "2025-11-25T10:00:00.000Z",
+    "updatedAt": "2025-11-25T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-023",
+    "title": "Language Exchange Meetup",
+    "description": "Practice languages with native speakers - Spanish, French, Chinese, Japanese, and more",
+    "startTime": "2025-12-05T16:00:00.000Z",
+    "endTime": "2025-12-05T18:00:00.000Z",
+    "location": "Hunt Library Study Room 3",
+    "categories": ["Social", "Academic"],
+    "organizer": {
+      "id": "org-languages",
+      "name": "Language Exchange Club",
+      "type": "club"
+    },
+    "color": "#16A085",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 54, "maybe": 24, "notGoing": 3 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 60,
+    "tags": ["language", "exchange", "multilingual", "social", "learning"],
+    "createdAt": "2025-11-26T10:00:00.000Z",
+    "updatedAt": "2025-11-26T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-024",
+    "title": "Theater Performance: One-Act Plays",
+    "description": "Student-written and performed one-act plays",
+    "startTime": "2025-12-05T19:30:00.000Z",
+    "endTime": "2025-12-05T22:00:00.000Z",
+    "location": "Kresge Theater",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "org-theater",
+      "name": "Theater Club",
+      "type": "club"
+    },
+    "color": "#C0392B",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 98, "maybe": 42, "notGoing": 7 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 200,
+    "tags": ["theater", "performance", "arts", "drama", "entertainment"],
+    "createdAt": "2025-11-20T10:00:00.000Z",
+    "updatedAt": "2025-11-20T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-025",
+    "title": "Volunteer Day: Community Service",
+    "description": "Help local community organizations - food bank, shelter, and more",
+    "startTime": "2025-12-06T08:00:00.000Z",
+    "endTime": "2025-12-06T14:00:00.000Z",
+    "location": "Meet at UC Main Entrance",
+    "categories": ["Social", "Volunteering"],
+    "organizer": {
+      "id": "org-volunteer",
+      "name": "Community Service Club",
+      "type": "club"
+    },
+    "color": "#27AE60",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 73, "maybe": 29, "notGoing": 5 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 100,
+    "tags": ["volunteering", "community", "service", "charity", "giving-back"],
+    "createdAt": "2025-11-18T10:00:00.000Z",
+    "updatedAt": "2025-11-18T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-026",
+    "title": "Hackathon Kickoff",
+    "description": "24-hour coding competition - build something awesome!",
+    "startTime": "2025-12-06T10:00:00.000Z",
+    "endTime": "2025-12-07T10:00:00.000Z",
+    "location": "Gates Hillman Center",
+    "categories": ["Tech", "Academic"],
+    "organizer": {
+      "id": "org-hackathon",
+      "name": "Hackathon Organizers",
+      "type": "club"
+    },
+    "color": "#8E44AD",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 145, "maybe": 58, "notGoing": 12 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 200,
+    "tags": ["hackathon", "coding", "tech", "competition", "programming"],
+    "createdAt": "2025-11-15T10:00:00.000Z",
+    "updatedAt": "2025-11-15T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-027",
+    "title": "Poetry Slam",
+    "description": "Share original poetry or just listen to amazing performances",
+    "startTime": "2025-12-06T19:00:00.000Z",
+    "endTime": "2025-12-06T21:30:00.000Z",
+    "location": "UC Coffeehouse",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "org-poetry",
+      "name": "Poetry Club",
+      "type": "club"
+    },
+    "color": "#D35400",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 38, "maybe": 16, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 50,
+    "tags": ["poetry", "arts", "performance", "creative", "spoken-word"],
+    "createdAt": "2025-11-24T10:00:00.000Z",
+    "updatedAt": "2025-11-24T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-028",
+    "title": "Sustainability Workshop",
+    "description": "Learn about climate change, recycling, and sustainable living",
+    "startTime": "2025-12-07T10:00:00.000Z",
+    "endTime": "2025-12-07T12:00:00.000Z",
+    "location": "Porter Hall",
+    "categories": ["Academic", "Social"],
+    "organizer": {
+      "id": "org-sustainability",
+      "name": "Sustainability Club",
+      "type": "club"
+    },
+    "color": "#229954",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 62, "maybe": 25, "notGoing": 4 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 80,
+    "tags": ["sustainability", "environment", "climate", "green", "eco-friendly"],
+    "createdAt": "2025-11-22T10:00:00.000Z",
+    "updatedAt": "2025-11-22T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-029",
+    "title": "Dance Workshop: Hip-Hop",
+    "description": "Learn hip-hop dance moves and choreography",
+    "startTime": "2025-12-07T15:00:00.000Z",
+    "endTime": "2025-12-07T17:00:00.000Z",
+    "location": "UC Dance Studio",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "org-dance",
+      "name": "Dance Club",
+      "type": "club"
+    },
+    "color": "#E91E63",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 51, "maybe": 21, "notGoing": 3 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 60,
+    "tags": ["dance", "hip-hop", "arts", "fitness", "music"],
+    "createdAt": "2025-11-27T10:00:00.000Z",
+    "updatedAt": "2025-11-27T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-030",
+    "title": "Music Jam Session",
+    "description": "Bring your instrument and jam with other musicians",
+    "startTime": "2025-12-01T20:00:00.000Z",
+    "endTime": "2025-12-01T23:00:00.000Z",
+    "location": "UC Music Room",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "org-music",
+      "name": "Music Club",
+      "type": "club"
+    },
+    "color": "#9B59B6",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 43, "maybe": 18, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 50,
+    "tags": ["music", "jam", "instruments", "arts", "collaboration"],
+    "createdAt": "2025-11-19T10:00:00.000Z",
+    "updatedAt": "2025-11-19T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-031",
+    "title": "Cybersecurity Workshop",
+    "description": "Learn about encryption, network security, and ethical hacking",
+    "startTime": "2025-12-02T14:00:00.000Z",
+    "endTime": "2025-12-02T17:00:00.000Z",
+    "location": "Gates Hillman Center 4307",
+    "categories": ["Tech", "Academic"],
+    "organizer": {
+      "id": "org-cyber",
+      "name": "Cybersecurity Club",
+      "type": "club"
+    },
+    "color": "#2C3E50",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 71, "maybe": 28, "notGoing": 5 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 90,
+    "tags": ["cybersecurity", "security", "tech", "hacking", "encryption"],
+    "createdAt": "2025-11-21T10:00:00.000Z",
+    "updatedAt": "2025-11-21T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-032",
+    "title": "Fitness Bootcamp",
+    "description": "High-intensity workout session - all fitness levels welcome",
+    "startTime": "2025-12-03T07:00:00.000Z",
+    "endTime": "2025-12-03T08:30:00.000Z",
+    "location": "UC Fitness Center",
+    "categories": ["Sports", "Health"],
+    "organizer": {
+      "id": "org-fitness",
+      "name": "Fitness Club",
+      "type": "club"
+    },
+    "color": "#E74C3C",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 59, "maybe": 23, "notGoing": 4 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 70,
+    "tags": ["fitness", "workout", "exercise", "health", "bootcamp"],
+    "createdAt": "2025-11-23T10:00:00.000Z",
+    "updatedAt": "2025-11-23T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-033",
+    "title": "Travel Planning Session",
+    "description": "Share travel tips, plan trips, and learn about study abroad programs",
+    "startTime": "2025-12-04T16:00:00.000Z",
+    "endTime": "2025-12-04T18:00:00.000Z",
+    "location": "Hunt Library Study Room 2",
+    "categories": ["Social", "Networking"],
+    "organizer": {
+      "id": "org-travel",
+      "name": "Travel Club",
+      "type": "club"
+    },
+    "color": "#3498DB",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 48, "maybe": 20, "notGoing": 3 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 60,
+    "tags": ["travel", "study-abroad", "adventure", "planning", "networking"],
+    "createdAt": "2025-11-25T10:00:00.000Z",
+    "updatedAt": "2025-11-25T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-034",
+    "title": "Video Game Tournament",
+    "description": "Competitive gaming tournament - multiple games and prizes",
+    "startTime": "2025-12-07T19:00:00.000Z",
+    "endTime": "2025-12-07T23:00:00.000Z",
+    "location": "UC Game Room",
+    "categories": ["Social", "Fun"],
+    "organizer": {
+      "id": "org-esports",
+      "name": "Esports Club",
+      "type": "club"
+    },
+    "color": "#F39C12",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 92, "maybe": 38, "notGoing": 7 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 120,
+    "tags": ["gaming", "esports", "tournament", "competition", "video-games"],
+    "createdAt": "2025-11-28T10:00:00.000Z",
+    "updatedAt": "2025-11-28T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-035",
+    "title": "Web Development Bootcamp",
+    "description": "Learn React, Node.js, and modern web development practices",
+    "startTime": "2025-12-01T10:00:00.000Z",
+    "endTime": "2025-12-01T15:00:00.000Z",
+    "location": "Gates Hillman Center 4405",
+    "categories": ["Tech", "Academic"],
+    "organizer": {
+      "id": "org-web-dev",
+      "name": "Web Development Club",
+      "type": "club"
+    },
+    "color": "#3498DB",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 95, "maybe": 37, "notGoing": 6 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 110,
+    "tags": ["web-dev", "react", "nodejs", "coding", "frontend"],
+    "createdAt": "2025-11-29T10:00:00.000Z",
+    "updatedAt": "2025-11-29T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-036",
+    "title": "Karaoke Night",
+    "description": "Sing your heart out with friends - all skill levels welcome!",
+    "startTime": "2025-12-01T20:00:00.000Z",
+    "endTime": "2025-12-02T00:00:00.000Z",
+    "location": "UC Coffeehouse",
+    "categories": ["Social", "Fun"],
+    "organizer": {
+      "id": "org-entertainment",
+      "name": "Entertainment Committee",
+      "type": "club"
+    },
+    "color": "#E91E63",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 84, "maybe": 35, "notGoing": 5 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 100,
+    "tags": ["karaoke", "music", "singing", "social", "fun"],
+    "createdAt": "2025-11-30T10:00:00.000Z",
+    "updatedAt": "2025-11-30T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-037",
+    "title": "Data Science Workshop",
+    "description": "Introduction to Python, pandas, and data visualization",
+    "startTime": "2025-12-02T13:00:00.000Z",
+    "endTime": "2025-12-02T16:00:00.000Z",
+    "location": "Gates Hillman Center 4303",
+    "categories": ["Tech", "Academic"],
+    "organizer": {
+      "id": "org-data-science",
+      "name": "Data Science Club",
+      "type": "club"
+    },
+    "color": "#9B59B6",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 76, "maybe": 30, "notGoing": 4 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 90,
+    "tags": ["data-science", "python", "pandas", "analytics", "statistics"],
+    "createdAt": "2025-11-29T10:00:00.000Z",
+    "updatedAt": "2025-11-29T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-038",
+    "title": "Rock Climbing Session",
+    "description": "Indoor rock climbing for all experience levels",
+    "startTime": "2025-12-02T18:00:00.000Z",
+    "endTime": "2025-12-02T20:00:00.000Z",
+    "location": "UC Fitness Center Climbing Wall",
+    "categories": ["Sports", "Health"],
+    "organizer": {
+      "id": "org-climbing",
+      "name": "Rock Climbing Club",
+      "type": "club"
+    },
+    "color": "#E74C3C",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 48, "maybe": 19, "notGoing": 3 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 60,
+    "tags": ["rock-climbing", "sports", "fitness", "adventure", "outdoor"],
+    "createdAt": "2025-11-30T10:00:00.000Z",
+    "updatedAt": "2025-11-30T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-039",
+    "title": "Creative Writing Workshop",
+    "description": "Improve your writing skills with exercises and peer feedback",
+    "startTime": "2025-12-03T10:00:00.000Z",
+    "endTime": "2025-12-03T12:30:00.000Z",
+    "location": "Hunt Library Study Room 1",
+    "categories": ["Arts", "Academic"],
+    "organizer": {
+      "id": "org-writing",
+      "name": "Creative Writing Club",
+      "type": "club"
+    },
+    "color": "#16A085",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 35, "maybe": 14, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 45,
+    "tags": ["writing", "creative", "literature", "arts", "storytelling"],
+    "createdAt": "2025-11-28T10:00:00.000Z",
+    "updatedAt": "2025-11-28T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-040",
+    "title": "Basketball Pickup Games",
+    "description": "Casual basketball games - all skill levels welcome",
+    "startTime": "2025-12-03T19:00:00.000Z",
+    "endTime": "2025-12-03T21:00:00.000Z",
+    "location": "Wiegand Gymnasium",
+    "categories": ["Sports", "Social"],
+    "organizer": {
+      "id": "org-basketball",
+      "name": "Basketball Club",
+      "type": "club"
+    },
+    "color": "#F39C12",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 52, "maybe": 22, "notGoing": 4 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 40,
+    "tags": ["basketball", "sports", "fitness", "team", "competitive"],
+    "createdAt": "2025-11-29T10:00:00.000Z",
+    "updatedAt": "2025-11-29T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-041",
+    "title": "3D Printing Workshop",
+    "description": "Learn to design and print 3D objects",
+    "startTime": "2025-12-04T11:00:00.000Z",
+    "endTime": "2025-12-04T14:00:00.000Z",
+    "location": "Hunt Library Maker Space",
+    "categories": ["Tech", "Arts"],
+    "organizer": {
+      "id": "org-maker",
+      "name": "Maker Club",
+      "type": "club"
+    },
+    "color": "#8E44AD",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 41, "maybe": 17, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 50,
+    "tags": ["3d-printing", "maker", "design", "tech", "prototyping"],
+    "createdAt": "2025-11-30T10:00:00.000Z",
+    "updatedAt": "2025-11-30T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-042",
+    "title": "Movie Night: Holiday Classics",
+    "description": "Watch classic holiday movies with popcorn and hot chocolate",
+    "startTime": "2025-12-04T19:00:00.000Z",
+    "endTime": "2025-12-04T22:30:00.000Z",
+    "location": "UC Theater",
+    "categories": ["Social", "Fun"],
+    "organizer": {
+      "id": "org-film",
+      "name": "Film Club",
+      "type": "club"
+    },
+    "color": "#C0392B",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 108, "maybe": 44, "notGoing": 8 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 150,
+    "tags": ["movies", "film", "holiday", "entertainment", "social"],
+    "createdAt": "2025-11-28T10:00:00.000Z",
+    "updatedAt": "2025-11-28T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-043",
+    "title": "Blockchain & Cryptocurrency Talk",
+    "description": "Learn about blockchain technology and cryptocurrency trends",
+    "startTime": "2025-12-05T10:00:00.000Z",
+    "endTime": "2025-12-05T12:00:00.000Z",
+    "location": "Tepper School of Business",
+    "categories": ["Tech", "Career"],
+    "organizer": {
+      "id": "org-blockchain",
+      "name": "Blockchain Club",
+      "type": "club"
+    },
+    "color": "#34495E",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 68, "maybe": 27, "notGoing": 5 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 85,
+    "tags": ["blockchain", "cryptocurrency", "crypto", "tech", "finance"],
+    "createdAt": "2025-11-29T10:00:00.000Z",
+    "updatedAt": "2025-11-29T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-044",
+    "title": "Origami Workshop",
+    "description": "Learn the art of paper folding - create beautiful origami pieces",
+    "startTime": "2025-12-05T15:00:00.000Z",
+    "endTime": "2025-12-05T17:00:00.000Z",
+    "location": "UC Arts & Crafts Room",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "user-009",
+      "name": "Origami Enthusiasts",
+      "type": "individual"
+    },
+    "color": "#FF6BA8",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 29, "maybe": 12, "notGoing": 1 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": true,
+    "capacity": 35,
+    "tags": ["origami", "arts", "crafts", "creative", "relaxing"],
+    "createdAt": "2025-11-30T10:00:00.000Z",
+    "updatedAt": "2025-11-30T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-045",
+    "title": "Speed Networking Event",
+    "description": "Meet professionals and students in quick networking sessions",
+    "startTime": "2025-12-06T13:00:00.000Z",
+    "endTime": "2025-12-06T15:30:00.000Z",
+    "location": "Tepper Quad",
+    "categories": ["Career", "Networking"],
+    "organizer": {
+      "id": "org-networking",
+      "name": "Professional Development Club",
+      "type": "club"
+    },
+    "color": "#3498DB",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 127, "maybe": 51, "notGoing": 9 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 160,
+    "tags": ["networking", "career", "professional", "connections", "business"],
+    "createdAt": "2025-11-27T10:00:00.000Z",
+    "updatedAt": "2025-11-27T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-046",
+    "title": "Chess Tournament",
+    "description": "Competitive chess tournament with prizes for winners",
+    "startTime": "2025-12-06T14:00:00.000Z",
+    "endTime": "2025-12-06T18:00:00.000Z",
+    "location": "UC Game Room",
+    "categories": ["Social", "Fun"],
+    "organizer": {
+      "id": "org-chess",
+      "name": "Chess Club",
+      "type": "club"
+    },
+    "color": "#2C3E50",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 56, "maybe": 23, "notGoing": 4 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 70,
+    "tags": ["chess", "strategy", "competition", "games", "intellectual"],
+    "createdAt": "2025-11-28T10:00:00.000Z",
+    "updatedAt": "2025-11-28T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-047",
+    "title": "Podcast Recording Session",
+    "description": "Record episodes for the student podcast - guests welcome",
+    "startTime": "2025-12-07T11:00:00.000Z",
+    "endTime": "2025-12-07T13:00:00.000Z",
+    "location": "Hunt Library Media Lab",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "org-podcast",
+      "name": "Student Podcast Team",
+      "type": "club"
+    },
+    "color": "#9B59B6",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 24, "maybe": 10, "notGoing": 1 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 30,
+    "tags": ["podcast", "media", "recording", "audio", "broadcasting"],
+    "createdAt": "2025-11-29T10:00:00.000Z",
+    "updatedAt": "2025-11-29T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-048",
+    "title": "Soccer Match",
+    "description": "Friendly soccer game - all skill levels welcome",
+    "startTime": "2025-12-01T16:00:00.000Z",
+    "endTime": "2025-12-01T18:00:00.000Z",
+    "location": "Gesling Stadium",
+    "categories": ["Sports", "Social"],
+    "organizer": {
+      "id": "org-soccer",
+      "name": "Soccer Club",
+      "type": "club"
+    },
+    "color": "#27AE60",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 63, "maybe": 25, "notGoing": 5 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 44,
+    "tags": ["soccer", "football", "sports", "team", "outdoor"],
+    "createdAt": "2025-11-30T10:00:00.000Z",
+    "updatedAt": "2025-11-30T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-049",
+    "title": "Mental Health Support Group",
+    "description": "Safe space to discuss stress, anxiety, and mental wellness",
+    "startTime": "2025-12-02T19:00:00.000Z",
+    "endTime": "2025-12-02T20:30:00.000Z",
+    "location": "UC Counseling Center",
+    "categories": ["Wellness", "Social"],
+    "organizer": {
+      "id": "org-mental-health",
+      "name": "Mental Health Awareness Club",
+      "type": "club"
+    },
+    "color": "#2ECC71",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 18, "maybe": 8, "notGoing": 1 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 25,
+    "tags": ["mental-health", "wellness", "support", "self-care", "therapy"],
+    "createdAt": "2025-11-28T10:00:00.000Z",
+    "updatedAt": "2025-11-28T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-050",
+    "title": "Virtual Reality Demo",
+    "description": "Try VR headsets and experience immersive technology",
+    "startTime": "2025-12-03T15:00:00.000Z",
+    "endTime": "2025-12-03T18:00:00.000Z",
+    "location": "Gates Hillman Center VR Lab",
+    "categories": ["Tech", "Social"],
+    "organizer": {
+      "id": "org-vr",
+      "name": "VR/AR Club",
+      "type": "club"
+    },
+    "color": "#8E44AD",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 72, "maybe": 29, "notGoing": 5 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 90,
+    "tags": ["vr", "virtual-reality", "ar", "tech", "immersive"],
+    "createdAt": "2025-11-29T10:00:00.000Z",
+    "updatedAt": "2025-11-29T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-051",
+    "title": "Comedy Night",
+    "description": "Stand-up comedy performances by students",
+    "startTime": "2025-12-04T20:00:00.000Z",
+    "endTime": "2025-12-04T22:00:00.000Z",
+    "location": "UC Coffeehouse",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "org-comedy",
+      "name": "Comedy Club",
+      "type": "club"
+    },
+    "color": "#F39C12",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 89, "maybe": 36, "notGoing": 6 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 110,
+    "tags": ["comedy", "stand-up", "entertainment", "humor", "performance"],
+    "createdAt": "2025-11-30T10:00:00.000Z",
+    "updatedAt": "2025-11-30T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-052",
+    "title": "Investment Club Meeting",
+    "description": "Discuss stock market trends and investment strategies",
+    "startTime": "2025-12-05T18:00:00.000Z",
+    "endTime": "2025-12-05T20:00:00.000Z",
+    "location": "Tepper School of Business",
+    "categories": ["Career", "Academic"],
+    "organizer": {
+      "id": "org-investment",
+      "name": "Investment Club",
+      "type": "club"
+    },
+    "color": "#3498DB",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 47, "maybe": 19, "notGoing": 3 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 60,
+    "tags": ["investment", "finance", "stocks", "trading", "business"],
+    "createdAt": "2025-11-28T10:00:00.000Z",
+    "updatedAt": "2025-11-28T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-053",
+    "title": "Tennis Tournament",
+    "description": "Singles and doubles tennis tournament",
+    "startTime": "2025-12-06T09:00:00.000Z",
+    "endTime": "2025-12-06T17:00:00.000Z",
+    "location": "Tennis Courts",
+    "categories": ["Sports", "Social"],
+    "organizer": {
+      "id": "org-tennis",
+      "name": "Tennis Club",
+      "type": "club"
+    },
+    "color": "#27AE60",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 34, "maybe": 14, "notGoing": 3 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 32,
+    "tags": ["tennis", "sports", "competition", "outdoor", "fitness"],
+    "createdAt": "2025-11-29T10:00:00.000Z",
+    "updatedAt": "2025-11-29T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-054",
+    "title": "Study Abroad Info Session",
+    "description": "Learn about study abroad opportunities and application process",
+    "startTime": "2025-12-07T14:00:00.000Z",
+    "endTime": "2025-12-07T16:00:00.000Z",
+    "location": "Baker Hall",
+    "categories": ["Academic", "Networking"],
+    "organizer": {
+      "id": "org-study-abroad",
+      "name": "Study Abroad Office",
+      "type": "club"
+    },
+    "color": "#16A085",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 81, "maybe": 33, "notGoing": 6 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 100,
+    "tags": ["study-abroad", "travel", "education", "international", "academic"],
+    "createdAt": "2025-11-30T10:00:00.000Z",
+    "updatedAt": "2025-11-30T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-055",
+    "title": "Afternoon Coding Workshop",
+    "description": "Build a web app from scratch - React and Node.js",
+    "startTime": "2025-12-06T15:00:00.000Z",
+    "endTime": "2025-12-06T17:00:00.000Z",
+    "location": "Gates Hillman Center 4401",
+    "categories": ["Tech", "Academic"],
+    "organizer": {
+      "id": "org-coding",
+      "name": "Coding Club",
+      "type": "club"
+    },
+    "color": "#3498DB",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 64, "maybe": 26, "notGoing": 4 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 80,
+    "tags": ["coding", "react", "web-dev", "workshop", "tech"],
+    "createdAt": "2025-12-01T10:00:00.000Z",
+    "updatedAt": "2025-12-01T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-056",
+    "title": "Coffee & Study Session",
+    "description": "Study together with free coffee and snacks",
+    "startTime": "2025-12-06T15:30:00.000Z",
+    "endTime": "2025-12-06T17:30:00.000Z",
+    "location": "Hunt Library Study Room 2",
+    "categories": ["Academic", "Social"],
+    "organizer": {
+      "id": "org-study",
+      "name": "Study Group",
+      "type": "club"
+    },
+    "color": "#8B7FFF",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 38, "maybe": 15, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 50,
+    "tags": ["study", "coffee", "academic", "social", "finals"],
+    "createdAt": "2025-12-01T10:00:00.000Z",
+    "updatedAt": "2025-12-01T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-057",
+    "title": "Guitar Lessons",
+    "description": "Learn basic guitar chords and strumming patterns",
+    "startTime": "2025-12-06T16:00:00.000Z",
+    "endTime": "2025-12-06T18:00:00.000Z",
+    "location": "UC Music Room",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "org-music-lessons",
+      "name": "Music Instruction",
+      "type": "club"
+    },
+    "color": "#9B59B6",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 22, "maybe": 9, "notGoing": 1 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 30,
+    "tags": ["guitar", "music", "lessons", "arts", "learning"],
+    "createdAt": "2025-12-01T10:00:00.000Z",
+    "updatedAt": "2025-12-01T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-058",
+    "title": "Product Design Workshop",
+    "description": "Learn UX/UI design principles and create mockups",
+    "startTime": "2025-12-06T16:30:00.000Z",
+    "endTime": "2025-12-06T18:30:00.000Z",
+    "location": "Hunt Library Design Lab",
+    "categories": ["Tech", "Arts"],
+    "organizer": {
+      "id": "org-design",
+      "name": "Design Club",
+      "type": "club"
+    },
+    "color": "#E74C3C",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 45, "maybe": 18, "notGoing": 3 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 55,
+    "tags": ["design", "ux", "ui", "product", "creative"],
+    "createdAt": "2025-12-01T10:00:00.000Z",
+    "updatedAt": "2025-12-01T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-059",
+    "title": "Basketball Practice",
+    "description": "Team practice and drills",
+    "startTime": "2025-12-06T17:00:00.000Z",
+    "endTime": "2025-12-06T19:00:00.000Z",
+    "location": "Wiegand Gymnasium",
+    "categories": ["Sports", "Social"],
+    "organizer": {
+      "id": "org-basketball-team",
+      "name": "Basketball Team",
+      "type": "club"
+    },
+    "color": "#F39C12",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 28, "maybe": 11, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 20,
+    "tags": ["basketball", "sports", "practice", "team", "fitness"],
+    "createdAt": "2025-12-01T10:00:00.000Z",
+    "updatedAt": "2025-12-01T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-060",
+    "title": "Book Club Discussion",
+    "description": "Discuss this month's book selection",
+    "startTime": "2025-12-06T15:00:00.000Z",
+    "endTime": "2025-12-06T16:30:00.000Z",
+    "location": "Hunt Library Study Room 3",
+    "categories": ["Social", "Academic"],
+    "organizer": {
+      "id": "org-book-club",
+      "name": "Book Club",
+      "type": "club"
+    },
+    "color": "#16A085",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 31, "maybe": 13, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 40,
+    "tags": ["books", "reading", "literature", "discussion", "social"],
+    "createdAt": "2025-12-01T10:00:00.000Z",
+    "updatedAt": "2025-12-01T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-061",
+    "title": "Python Programming Session",
+    "description": "Advanced Python topics and coding practice",
+    "startTime": "2025-12-06T16:00:00.000Z",
+    "endTime": "2025-12-06T18:00:00.000Z",
+    "location": "Gates Hillman Center 4305",
+    "categories": ["Tech", "Academic"],
+    "organizer": {
+      "id": "org-python",
+      "name": "Python Club",
+      "type": "club"
+    },
+    "color": "#3498DB",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 52, "maybe": 21, "notGoing": 3 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 65,
+    "tags": ["python", "programming", "coding", "tech", "academic"],
+    "createdAt": "2025-12-01T10:00:00.000Z",
+    "updatedAt": "2025-12-01T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-062",
+    "title": "Yoga & Stretching",
+    "description": "Relaxing yoga session to unwind after classes",
+    "startTime": "2025-12-06T17:30:00.000Z",
+    "endTime": "2025-12-06T19:00:00.000Z",
+    "location": "UC Fitness Center",
+    "categories": ["Wellness", "Health"],
+    "organizer": {
+      "id": "org-yoga",
+      "name": "Yoga Club",
+      "type": "club"
+    },
+    "color": "#2ECC71",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 41, "maybe": 17, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 50,
+    "tags": ["yoga", "wellness", "stretching", "relaxation", "health"],
+    "createdAt": "2025-12-01T10:00:00.000Z",
+    "updatedAt": "2025-12-01T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-063",
+    "title": "Resume Review Session",
+    "description": "Get feedback on your resume from career advisors",
+    "startTime": "2025-12-06T15:00:00.000Z",
+    "endTime": "2025-12-06T17:00:00.000Z",
+    "location": "Tepper School of Business",
+    "categories": ["Career", "Networking"],
+    "organizer": {
+      "id": "org-career-services",
+      "name": "Career Services",
+      "type": "club"
+    },
+    "color": "#E67E22",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 73, "maybe": 29, "notGoing": 5 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 90,
+    "tags": ["resume", "career", "job-search", "professional", "advice"],
+    "createdAt": "2025-12-01T10:00:00.000Z",
+    "updatedAt": "2025-12-01T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-064",
+    "title": "Dungeons & Dragons Session",
+    "description": "Epic D&D campaign - all experience levels welcome",
+    "startTime": "2025-12-06T16:00:00.000Z",
+    "endTime": "2025-12-06T19:00:00.000Z",
+    "location": "UC Game Room",
+    "categories": ["Social", "Fun"],
+    "organizer": {
+      "id": "org-dnd",
+      "name": "D&D Club",
+      "type": "club"
+    },
+    "color": "#8E44AD",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 19, "maybe": 8, "notGoing": 1 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 8,
+    "tags": ["dnd", "dungeons-dragons", "gaming", "rpg", "tabletop"],
+    "createdAt": "2025-12-01T10:00:00.000Z",
+    "updatedAt": "2025-12-01T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-065",
+    "title": "Machine Learning Study Group",
+    "description": "Review ML concepts and work on projects together",
+    "startTime": "2025-12-06T15:30:00.000Z",
+    "endTime": "2025-12-06T17:30:00.000Z",
+    "location": "Gates Hillman Center 4403",
+    "categories": ["Tech", "Academic"],
+    "organizer": {
+      "id": "org-ml-study",
+      "name": "ML Study Group",
+      "type": "club"
+    },
+    "color": "#9B59B6",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 36, "maybe": 14, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": false,
+    "isSocialEvent": false,
+    "capacity": 45,
+    "tags": ["machine-learning", "ml", "ai", "study", "academic"],
+    "createdAt": "2025-12-01T10:00:00.000Z",
+    "updatedAt": "2025-12-01T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-066",
+    "title": "Pottery Workshop",
+    "description": "Create ceramic pieces - materials provided",
+    "startTime": "2025-12-06T17:00:00.000Z",
+    "endTime": "2025-12-06T19:00:00.000Z",
+    "location": "UC Arts & Crafts Room",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "org-pottery",
+      "name": "Arts & Crafts Club",
+      "type": "club"
+    },
+    "color": "#E91E63",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 27, "maybe": 11, "notGoing": 1 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 35,
+    "tags": ["pottery", "ceramics", "arts", "crafts", "creative"],
+    "createdAt": "2025-12-01T10:00:00.000Z",
+    "updatedAt": "2025-12-01T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-067",
+    "title": "Financial Planning Workshop",
+    "description": "Learn about budgeting, investing, and financial literacy",
+    "startTime": "2025-12-06T16:30:00.000Z",
+    "endTime": "2025-12-06T18:00:00.000Z",
+    "location": "Tepper School of Business",
+    "categories": ["Career", "Academic"],
+    "organizer": {
+      "id": "org-finance",
+      "name": "Finance Club",
+      "type": "club"
+    },
+    "color": "#27AE60",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 58, "maybe": 23, "notGoing": 4 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 70,
+    "tags": ["finance", "money", "investing", "budgeting", "career"],
+    "createdAt": "2025-12-01T10:00:00.000Z",
+    "updatedAt": "2025-12-01T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-068",
+    "title": "Salsa Dancing Class",
+    "description": "Learn salsa dance moves - no experience needed",
+    "startTime": "2025-12-06T18:00:00.000Z",
+    "endTime": "2025-12-06T19:00:00.000Z",
+    "location": "UC Dance Studio",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "org-salsa",
+      "name": "Dance Club",
+      "type": "club"
+    },
+    "color": "#C0392B",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 33, "maybe": 13, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 40,
+    "tags": ["salsa", "dancing", "dance", "social", "fun"],
+    "createdAt": "2025-12-01T10:00:00.000Z",
+    "updatedAt": "2025-12-01T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-069",
+    "title": "Watercolor Painting Workshop",
+    "description": "Learn watercolor techniques and create your own masterpiece",
+    "startTime": "2025-12-06T14:00:00.000Z",
+    "endTime": "2025-12-06T16:00:00.000Z",
+    "location": "UC Arts & Crafts Room",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "org-watercolor",
+      "name": "Arts Club",
+      "type": "club"
+    },
+    "color": "#E91E63",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 28, "maybe": 11, "notGoing": 1 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 35,
+    "tags": ["watercolor", "painting", "arts", "creative", "workshop"],
+    "createdAt": "2025-12-02T10:00:00.000Z",
+    "updatedAt": "2025-12-02T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-070",
+    "title": "Digital Art & Illustration Class",
+    "description": "Learn digital art techniques using tablets and software",
+    "startTime": "2025-12-06T15:00:00.000Z",
+    "endTime": "2025-12-06T17:00:00.000Z",
+    "location": "Hunt Library Design Lab",
+    "categories": ["Arts", "Tech"],
+    "organizer": {
+      "id": "org-digital-art",
+      "name": "Digital Arts Club",
+      "type": "club"
+    },
+    "color": "#9B59B6",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 42, "maybe": 17, "notGoing": 3 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": false,
+    "capacity": 50,
+    "tags": ["digital-art", "illustration", "arts", "tech", "creative"],
+    "createdAt": "2025-12-02T10:00:00.000Z",
+    "updatedAt": "2025-12-02T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-071",
+    "title": "Sculpture Making Session",
+    "description": "Create sculptures using clay and other materials",
+    "startTime": "2025-12-06T16:00:00.000Z",
+    "endTime": "2025-12-06T18:00:00.000Z",
+    "location": "UC Arts & Crafts Room",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "org-sculpture",
+      "name": "Sculpture Club",
+      "type": "club"
+    },
+    "color": "#D35400",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 19, "maybe": 8, "notGoing": 1 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 25,
+    "tags": ["sculpture", "clay", "arts", "crafts", "creative"],
+    "createdAt": "2025-12-02T10:00:00.000Z",
+    "updatedAt": "2025-12-02T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-072",
+    "title": "Calligraphy Workshop",
+    "description": "Learn beautiful handwriting and calligraphy techniques",
+    "startTime": "2025-12-06T17:00:00.000Z",
+    "endTime": "2025-12-06T19:00:00.000Z",
+    "location": "Hunt Library Study Room 1",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "org-calligraphy",
+      "name": "Calligraphy Club",
+      "type": "club"
+    },
+    "color": "#16A085",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 31, "maybe": 13, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 40,
+    "tags": ["calligraphy", "handwriting", "arts", "creative", "meditation"],
+    "createdAt": "2025-12-02T10:00:00.000Z",
+    "updatedAt": "2025-12-02T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-073",
+    "title": "Art Gallery Opening",
+    "description": "View student artwork and meet the artists",
+    "startTime": "2025-12-06T18:00:00.000Z",
+    "endTime": "2025-12-06T20:00:00.000Z",
+    "location": "UC Gallery",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "org-gallery",
+      "name": "Student Art Gallery",
+      "type": "club"
+    },
+    "color": "#C0392B",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 67, "maybe": 27, "notGoing": 4 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 100,
+    "tags": ["gallery", "exhibition", "arts", "social", "networking"],
+    "createdAt": "2025-12-02T10:00:00.000Z",
+    "updatedAt": "2025-12-02T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-074",
+    "title": "Sketching & Drawing Session",
+    "description": "Practice drawing skills with live models and still life",
+    "startTime": "2025-12-06T13:00:00.000Z",
+    "endTime": "2025-12-06T15:00:00.000Z",
+    "location": "UC Arts Studio",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "org-sketching",
+      "name": "Drawing Club",
+      "type": "club"
+    },
+    "color": "#8E44AD",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 35, "maybe": 14, "notGoing": 2 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 45,
+    "tags": ["sketching", "drawing", "arts", "creative", "practice"],
+    "createdAt": "2025-12-02T10:00:00.000Z",
+    "updatedAt": "2025-12-02T10:00:00.000Z"
+  },
+  {
+    "id": "evt-dec-075",
+    "title": "Collage Making Workshop",
+    "description": "Create collages from magazines, photos, and mixed media",
+    "startTime": "2025-12-06T15:30:00.000Z",
+    "endTime": "2025-12-06T17:30:00.000Z",
+    "location": "UC Arts & Crafts Room",
+    "categories": ["Arts", "Social"],
+    "organizer": {
+      "id": "org-collage",
+      "name": "Mixed Media Club",
+      "type": "club"
+    },
+    "color": "#FF6BA8",
+    "rsvpEnabled": true,
+    "rsvpCounts": { "going": 24, "maybe": 10, "notGoing": 1 },
+    "attendees": [],
+    "attendeeVisibility": "public",
+    "isClubEvent": true,
+    "isSocialEvent": true,
+    "capacity": 30,
+    "tags": ["collage", "mixed-media", "arts", "creative", "crafts"],
+    "createdAt": "2025-12-02T10:00:00.000Z",
+    "updatedAt": "2025-12-02T10:00:00.000Z"
+  }
+]

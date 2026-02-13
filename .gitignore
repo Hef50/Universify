@@ -4,9 +4,10 @@ node_modules/
 # pnpm
 .pnpm-store/
 
-# Secrets
+# Secrets (keep .env.example as template)
 .env
 .env.*
+!.env.example
 
 # Expo
 .expo/

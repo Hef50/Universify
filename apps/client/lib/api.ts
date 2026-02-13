@@ -1,115 +1,127 @@
-/**
- * API Service for Events
- * 
- * This file provides a centralized API interface for event operations.
- * Currently uses localStorage, but can be easily swapped for a real database.
- * 
- * To connect to a database (e.g., Supabase):
- * 1. Install the database client library
- * 2. Replace the implementation functions below with actual API calls
- * 3. Update EventsContext.tsx to use these functions
- */
-
+import { supabase } from '@/lib/supabase';
 import { Event, EventFormData } from '@/types/event';
 
-// TODO: Replace with actual API endpoint
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
+function transformDbEventToEvent(dbEvent: Record<string, unknown>): Event {
+  return {
+    id: dbEvent.id as string,
+    title: dbEvent.title as string,
+    description: (dbEvent.description as string) || '',
+    startTime: dbEvent.start_time as string,
+    endTime: dbEvent.end_time as string,
+    location: (dbEvent.location as string) || '',
+    categories: (dbEvent.categories as string[]) || [],
+    organizer: {
+      id: (dbEvent.organizer_id as string) || '',
+      name: (dbEvent.organizer_name as string) || '',
+      type: ((dbEvent.organizer_type as string) as 'club' | 'individual') || 'individual',
+    },
+    color: (dbEvent.color as string) || '#FF6B6B',
+    rsvpEnabled: (dbEvent.rsvp_enabled as boolean) ?? true,
+    rsvpCounts: (dbEvent.rsvp_counts as { going: number; maybe: number; notGoing: number }) || {
+      going: 0,
+      maybe: 0,
+      notGoing: 0,
+    },
+    attendees: (dbEvent.attendees as Event['attendees']) || [],
+    attendeeVisibility: ((dbEvent.attendee_visibility as string) as 'public' | 'private') || 'public',
+    isClubEvent: (dbEvent.is_club_event as boolean) || false,
+    isSocialEvent: (dbEvent.is_social_event as boolean) || false,
+    capacity: dbEvent.capacity as number | undefined,
+    recurring: dbEvent.recurring as Event['recurring'],
+    tags: (dbEvent.tags as string[]) || [],
+    createdAt: dbEvent.created_at as string,
+    updatedAt: dbEvent.updated_at as string,
+    imageUrl: dbEvent.image_url as string | undefined,
+  };
+}
 
-/**
- * Fetch all events from the database
- */
+function transformEventFormToDb(eventData: EventFormData, userId: string, organizerName: string) {
+  const startTime = new Date(`${eventData.startDate}T${eventData.startTime}:00Z`);
+  const endTime = new Date(`${eventData.endDate}T${eventData.endTime}:00Z`);
+
+  return {
+    id: `evt-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+    title: eventData.title,
+    description: eventData.description,
+    start_time: startTime.toISOString(),
+    end_time: endTime.toISOString(),
+    location: eventData.location,
+    categories: eventData.categories,
+    organizer_id: userId,
+    organizer_name: organizerName,
+    organizer_type: eventData.isClubEvent ? 'club' : 'individual',
+    color: eventData.color,
+    rsvp_enabled: eventData.rsvpEnabled,
+    rsvp_counts: { going: 0, maybe: 0, notGoing: 0 },
+    attendees: [],
+    attendee_visibility: eventData.attendeeVisibility,
+    is_club_event: eventData.isClubEvent,
+    is_social_event: eventData.isSocialEvent,
+    capacity: eventData.capacity,
+    recurring: eventData.recurring,
+    tags: eventData.tags,
+  };
+}
+
+function transformEventToDb(updates: Partial<Event>): Record<string, unknown> {
+  const db: Record<string, unknown> = {};
+  if (updates.title !== undefined) db.title = updates.title;
+  if (updates.description !== undefined) db.description = updates.description;
+  if (updates.startTime !== undefined) db.start_time = updates.startTime;
+  if (updates.endTime !== undefined) db.end_time = updates.endTime;
+  if (updates.location !== undefined) db.location = updates.location;
+  if (updates.categories !== undefined) db.categories = updates.categories;
+  if (updates.color !== undefined) db.color = updates.color;
+  if (updates.rsvpEnabled !== undefined) db.rsvp_enabled = updates.rsvpEnabled;
+  if (updates.rsvpCounts !== undefined) db.rsvp_counts = updates.rsvpCounts;
+  if (updates.attendees !== undefined) db.attendees = updates.attendees;
+  if (updates.attendeeVisibility !== undefined) db.attendee_visibility = updates.attendeeVisibility;
+  if (updates.isClubEvent !== undefined) db.is_club_event = updates.isClubEvent;
+  if (updates.isSocialEvent !== undefined) db.is_social_event = updates.isSocialEvent;
+  if (updates.capacity !== undefined) db.capacity = updates.capacity;
+  if (updates.recurring !== undefined) db.recurring = updates.recurring;
+  if (updates.tags !== undefined) db.tags = updates.tags;
+  if (updates.imageUrl !== undefined) db.image_url = updates.imageUrl;
+  if (updates.organizer !== undefined) {
+    db.organizer_id = updates.organizer.id;
+    db.organizer_name = updates.organizer.name;
+    db.organizer_type = updates.organizer.type;
+  }
+  return db;
+}
+
 export const fetchEvents = async (): Promise<Event[]> => {
-  try {
-    // TODO: Replace with actual API call
-    // Example for Supabase:
-    // const { data, error } = await supabase.from('events').select('*');
-    // if (error) throw error;
-    // return data;
-    
-    // For now, return empty array - events are loaded from localStorage in EventsContext
-    return [];
-  } catch (error) {
-    console.error('Error fetching events:', error);
-    throw error;
-  }
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .order('start_time', { ascending: true });
+
+  if (error) throw error;
+  return (data || []).map((row) => transformDbEventToEvent(row as Record<string, unknown>));
 };
 
-/**
- * Create a new event
- */
-export const createEventAPI = async (eventData: EventFormData, userId: string): Promise<Event> => {
-  try {
-    // TODO: Replace with actual API call
-    // Example for Supabase:
-    // const { data, error } = await supabase
-    //   .from('events')
-    //   .insert([{ ...eventData, organizer_id: userId }])
-    //   .select()
-    //   .single();
-    // if (error) throw error;
-    // return data;
-    
-    throw new Error('API not implemented - using localStorage');
-  } catch (error) {
-    console.error('Error creating event:', error);
-    throw error;
-  }
+export const createEventAPI = async (
+  eventData: EventFormData,
+  userId: string,
+  organizerName: string = 'Current User'
+): Promise<Event> => {
+  const dbEvent = transformEventFormToDb(eventData, userId, organizerName);
+
+  const { data, error } = await supabase.from('events').insert([dbEvent]).select().single();
+
+  if (error) throw error;
+  return transformDbEventToEvent(data as Record<string, unknown>);
 };
 
-/**
- * Update an existing event
- */
 export const updateEventAPI = async (eventId: string, updates: Partial<Event>): Promise<void> => {
-  try {
-    // TODO: Replace with actual API call
-    // Example for Supabase:
-    // const { error } = await supabase
-    //   .from('events')
-    //   .update(updates)
-    //   .eq('id', eventId);
-    // if (error) throw error;
-    
-    throw new Error('API not implemented - using localStorage');
-  } catch (error) {
-    console.error('Error updating event:', error);
-    throw error;
-  }
+  const dbUpdates = transformEventToDb(updates);
+  const { error } = await supabase.from('events').update(dbUpdates).eq('id', eventId);
+
+  if (error) throw error;
 };
 
-/**
- * Delete an event
- */
 export const deleteEventAPI = async (eventId: string): Promise<void> => {
-  try {
-    // TODO: Replace with actual API call
-    // Example for Supabase:
-    // const { error } = await supabase
-    //   .from('events')
-    //   .delete()
-    //   .eq('id', eventId);
-    // if (error) throw error;
-    
-    throw new Error('API not implemented - using localStorage');
-  } catch (error) {
-    console.error('Error deleting event:', error);
-    throw error;
-  }
+  const { error } = await supabase.from('events').delete().eq('id', eventId);
+
+  if (error) throw error;
 };
-
-/**
- * Example Supabase setup (commented out - uncomment and configure when ready)
- * 
- * 1. Install Supabase: npm install @supabase/supabase-js
- * 2. Create a .env file with:
- *    EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
- *    EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
- * 3. Uncomment and configure:
- * 
- * import { createClient } from '@supabase/supabase-js';
- * 
- * const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
- * const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
- * 
- * export const supabase = createClient(supabaseUrl, supabaseAnonKey);
- */
-

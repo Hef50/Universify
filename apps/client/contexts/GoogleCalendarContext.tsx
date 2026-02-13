@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { Platform } from 'react-native';
+import { storage } from '@/lib/storage';
 import { useGoogleAuth } from './GoogleAuthContext';
 import { useAuth } from './AuthContext';
 import {
@@ -58,18 +59,17 @@ export const GoogleCalendarProvider: React.FC<{ children: ReactNode }> = ({ chil
     }
   }, [isGoogleAuthenticated, providerToken, currentUser]);
 
-  const loadCachedEvents = () => {
-    if (Platform.OS !== 'web') return;
-
+  const loadCachedEvents = async () => {
     try {
-      const cachedEvents = localStorage.getItem(GOOGLE_EVENTS_STORAGE_KEY);
-      const lastSync = localStorage.getItem(GOOGLE_EVENTS_LAST_SYNC_KEY);
+      const [cachedEvents, lastSync] = await Promise.all([
+        storage.getItem(GOOGLE_EVENTS_STORAGE_KEY),
+        storage.getItem(GOOGLE_EVENTS_LAST_SYNC_KEY),
+      ]);
 
       if (cachedEvents) {
         const events = JSON.parse(cachedEvents);
         setGoogleEvents(events);
       }
-
       if (lastSync) {
         setLastSyncTime(new Date(lastSync));
       }
@@ -78,12 +78,10 @@ export const GoogleCalendarProvider: React.FC<{ children: ReactNode }> = ({ chil
     }
   };
 
-  const saveCachedEvents = (events: Event[]) => {
-    if (Platform.OS !== 'web') return;
-
+  const saveCachedEvents = async (events: Event[]) => {
     try {
-      localStorage.setItem(GOOGLE_EVENTS_STORAGE_KEY, JSON.stringify(events));
-      localStorage.setItem(GOOGLE_EVENTS_LAST_SYNC_KEY, new Date().toISOString());
+      await storage.setItem(GOOGLE_EVENTS_STORAGE_KEY, JSON.stringify(events));
+      await storage.setItem(GOOGLE_EVENTS_LAST_SYNC_KEY, new Date().toISOString());
     } catch (err) {
       console.error('Failed to cache Google Calendar events:', err);
     }

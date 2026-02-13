@@ -1,44 +1,44 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, StyleSheet, Text, ActivityIndicator, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { useEvents } from '@/contexts/EventsContext';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useResponsive } from '@/hooks/useResponsive';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useGoogleCalendar } from '@/contexts/GoogleCalendarContext';
 import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
+import { useScheduledEvents, getWeekKey } from '@/hooks/useScheduledEvents';
 import { supabase } from '@/lib/supabase';
 import { CalendarHeader } from '@/components/calendar/CalendarHeader';
 import { WeekView } from '@/components/calendar/WeekView';
 import { ResizableSidebar } from '@/components/layout/ResizableSidebar';
 import { EventDisplayCard } from '@/components/calendar/EventDisplayCard';
 import { Event } from '@/types/event';
-import {
-  getWeekKey,
-  getScheduledEventIds,
-  getAllScheduledEventIds,
-  scheduleEvent,
-  unscheduleEvent,
-} from '@/utils/scheduledEvents';
 
 export default function CalendarScreen() {
   const { events, isLoading } = useEvents();
+  const { currentUser } = useAuth();
   const { settings, updateSettings } = useSettings();
   const { isMobile, isDesktop } = useResponsive();
   const { googleEvents, isLoading: isGoogleLoading } = useGoogleCalendar();
   const { isGoogleAuthenticated, googleSession, providerToken, refreshSession } = useGoogleAuth();
-  
+
+  const calendar = useCalendar(isMobile ? 3 : settings.calendarViewDays);
+  const weekKey = getWeekKey(calendar.currentDate);
+  const {
+    scheduledEventIds,
+    allScheduledIds: allScheduledEventIds,
+    isLoading: isLoadingScheduled,
+    scheduleEvent: scheduleEventForWeek,
+    unscheduleEvent: unscheduleEventForWeek,
+  } = useScheduledEvents(currentUser?.id, weekKey);
+
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [scheduledEventIds, setScheduledEventIds] = useState<string[]>([]);
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
-  const [isLoadingScheduled, setIsLoadingScheduled] = useState(true);
   const [customDays, setCustomDays] = useState(settings.calendarViewDays.toString());
   const [timeSelection, setTimeSelection] = useState<{ startDate: Date; endDate: Date } | null>(null);
 
-  // Use view days from settings
   const viewDays = settings.calendarViewDays;
-
-  const calendar = useCalendar(isMobile ? 3 : viewDays);
-  const weekKey = getWeekKey(calendar.currentDate);
 
   // Get days to display based on view mode
   const displayDays = useMemo(() => {
@@ -59,48 +59,6 @@ export default function CalendarScreen() {
     }
     return days;
   }, [calendar.currentDate, viewDays]);
-
-  // Load scheduled events for current week (synchronous for web)
-  useEffect(() => {
-    setIsLoadingScheduled(true);
-    const ids = getScheduledEventIds(weekKey);
-    setScheduledEventIds([...ids]); // Create new array for state update
-    setIsLoadingScheduled(false);
-  }, [weekKey]);
-
-  // Initialize: Schedule events with "dance" and "arts" tags in 12/3-12/7 range
-  useEffect(() => {
-    // Only run once on mount
-    const hasInitialized = localStorage.getItem('universify_dance_arts_initialized');
-    if (hasInitialized) return;
-
-    // Find events with "dance" and "arts" tags in 12/3-12/7
-    const targetEventIds: string[] = [];
-    const dateRangeStart = new Date('2025-12-03T00:00:00Z');
-    const dateRangeEnd = new Date('2025-12-07T23:59:59Z');
-
-    events.forEach(event => {
-      const eventStart = new Date(event.startTime);
-      if (eventStart >= dateRangeStart && eventStart <= dateRangeEnd) {
-        const hasDance = event.tags?.some(tag => tag.toLowerCase().includes('dance') || tag.toLowerCase() === 'dancing');
-        const hasArts = event.tags?.some(tag => tag.toLowerCase() === 'arts');
-        
-        if (hasDance || hasArts) {
-          const eventWeekKey = getWeekKey(eventStart);
-          targetEventIds.push(event.id);
-          scheduleEvent(event.id, eventWeekKey);
-        }
-      }
-    });
-
-    if (targetEventIds.length > 0) {
-      localStorage.setItem('universify_dance_arts_initialized', 'true');
-      console.log(`Initialized: Scheduled ${targetEventIds.length} events with dance/arts tags in 12/3-12/7`);
-      // Refresh scheduled events
-      const ids = getScheduledEventIds(weekKey);
-      setScheduledEventIds([...ids]);
-    }
-  }, [events, weekKey]);
 
   // Filter Google events for the current view
   const googleViewEvents = useMemo(() => {
@@ -124,11 +82,6 @@ export default function CalendarScreen() {
     const local = events.filter((event) => scheduledEventIds.includes(event.id));
     return [...local, ...googleViewEvents];
   }, [events, scheduledEventIds, googleViewEvents]);
-
-  // Get all scheduled event IDs across all weeks to calculate relevance
-  const allScheduledEventIds = useMemo(() => {
-    return getAllScheduledEventIds();
-  }, [weekKey, scheduledEventIds]); // Recalculate when scheduled events change
 
   // Get tags from all scheduled events to calculate relevance
   const scheduledEventTags = useMemo(() => {
@@ -168,47 +121,29 @@ export default function CalendarScreen() {
   // When time selection is active, show only top 3 most relevant events
   const sortedEvents = useMemo(() => {
     let filteredEvents = [...events];
-    
-    console.log(`Calendar: Starting with ${filteredEvents.length} total events`);
-    
-    // Filter by time selection if active
+
     if (timeSelection) {
       const { startDate, endDate } = timeSelection;
-      const beforeTimeFilter = filteredEvents.length;
       filteredEvents = filteredEvents.filter(event => {
         const eventStart = new Date(event.startTime);
         const eventEnd = new Date(event.endTime);
-        
-        // Check if event overlaps with selected time range
-        // Event overlaps if it starts before selection ends and ends after selection starts
         return eventStart < endDate && eventEnd > startDate;
       });
-      console.log(`Calendar: After time selection filter: ${filteredEvents.length} events (removed ${beforeTimeFilter - filteredEvents.length} events)`);
-      
-      // Calculate relevance and show only top 3 most relevant events
+
       if (filteredEvents.length > 0 && Object.keys(scheduledEventTags).length > 0) {
         const eventsWithRelevance = filteredEvents.map(event => ({
           event,
           relevance: calculateRelevance(event)
         }));
-        
-        // Sort by relevance (descending), then by start time
         eventsWithRelevance.sort((a, b) => {
-          if (b.relevance !== a.relevance) {
-            return b.relevance - a.relevance;
-          }
+          if (b.relevance !== a.relevance) return b.relevance - a.relevance;
           return new Date(a.event.startTime).getTime() - new Date(b.event.startTime).getTime();
         });
-        
-        // Take only top 3
         filteredEvents = eventsWithRelevance.slice(0, 3).map(item => item.event);
-        console.log(`Calendar: Showing top 3 most relevant events based on scheduled event tags`);
       }
     }
-    
-    console.log(`Calendar: Final filtered events: ${filteredEvents.length}`);
-    
-    return filteredEvents.sort((a, b) => 
+
+    return filteredEvents.sort((a, b) =>
       new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
     );
   }, [events, timeSelection, scheduledEventTags]);
@@ -297,9 +232,7 @@ export default function CalendarScreen() {
   };
 
   const handleUnscheduleEvent = (event: Event) => {
-    unscheduleEvent(event.id, weekKey);
-    const updatedIds = getScheduledEventIds(weekKey);
-    setScheduledEventIds([...updatedIds]);
+    unscheduleEventForWeek(event.id);
   };
 
   // Navigation handlers

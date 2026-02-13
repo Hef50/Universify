@@ -1,8 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase configuration (same as GCal project)
-const supabaseUrl = 'https://yjfmijtqacsnhicpyqzk.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlqZm1panRxYWNzbmhpY3B5cXprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5OTQ2MzQsImV4cCI6MjA3NzU3MDYzNH0.F-mYSFVvrkJUETuEA2AimNebGWdHnsLRdM6XEBUL6-k';
+// Supabase configuration - uses environment variables from .env
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn(
+    'Missing Supabase credentials. Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to .env'
+  );
+}
 
 // Create and export Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);

@@ -158,10 +158,8 @@ export default function CalendarScreen() {
   };
 
   const handleScheduleEvent = async (event: Event) => {
-    // Schedule locally
-    scheduleEvent(event.id, weekKey);
-    const updatedIds = getScheduledEventIds(weekKey);
-    setScheduledEventIds([...updatedIds]); 
+    // Schedule locally (handles both localStorage and Supabase)
+    await scheduleEventForWeek(event.id);
 
     // Sync to Google Calendar if authenticated
     if (isGoogleAuthenticated) {

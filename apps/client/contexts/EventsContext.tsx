@@ -21,6 +21,7 @@ const storage = {
 };
 
 const EVENTS_STORAGE_KEY = 'universify_events';
+const SLACK_EVENTS_KEY = 'universify_slack_events';
 
 interface EventsContextType {
   events: Event[];
@@ -32,6 +33,8 @@ interface EventsContextType {
   getRSVPStatus: (eventId: string, userId: string) => RSVPStatus;
   getEventById: (eventId: string) => Event | undefined;
   refreshEvents: () => Promise<void>;
+  addExternalEvents: (newEvents: Event[]) => void;
+  removeExternalEvents: (idPrefix: string) => void;
 }
 
 const EventsContext = createContext<EventsContextType | undefined>(undefined);
@@ -67,13 +70,27 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }
       }
       
-      // Merge base events with user-created events
-      const allEvents = [...baseEvents, ...userCreatedEvents];
-      console.log(`Loaded ${allEvents.length} events (${baseEvents.length} from allEvents.json, ${userCreatedEvents.length} user-created)`);
+      // Load cached Slack events from localStorage
+      let slackEvents: Event[] = [];
+      const storedSlackEvents = await storage.getItem(SLACK_EVENTS_KEY);
+      if (storedSlackEvents) {
+        try {
+          const parsed = JSON.parse(storedSlackEvents);
+          if (Array.isArray(parsed)) {
+            slackEvents = parsed;
+          }
+        } catch (e) {
+          console.error('Failed to parse stored Slack events:', e);
+        }
+      }
+
+      // Merge base events with user-created events and Slack events
+      const allEvents = [...baseEvents, ...userCreatedEvents, ...slackEvents];
+      console.log(`Loaded ${allEvents.length} events (${baseEvents.length} from allEvents.json, ${userCreatedEvents.length} user-created, ${slackEvents.length} from Slack)`);
       setEvents(allEvents);
       
-      // Update localStorage with merged events
-      await storage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(allEvents));
+      // Update localStorage with merged events (excluding Slack events — they have their own key)
+      await storage.setItem(EVENTS_STORAGE_KEY, JSON.stringify([...baseEvents, ...userCreatedEvents]));
     } catch (error) {
       console.error('Failed to load events:', error);
       // Always fallback to allEvents.json
@@ -195,6 +212,27 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     await loadEvents();
   };
 
+  /**
+   * Add externally-sourced events (e.g. from Slack) into the events list.
+   * Deduplicates by event id — existing events with the same id are replaced.
+   */
+  const addExternalEvents = (newEvents: Event[]) => {
+    setEvents((prev) => {
+      const newIds = new Set(newEvents.map((e) => e.id));
+      // Remove old versions of these events, then append the new ones
+      const filtered = prev.filter((e) => !newIds.has(e.id));
+      return [...filtered, ...newEvents];
+    });
+  };
+
+  /**
+   * Remove all events whose id starts with the given prefix.
+   * Used to clear Slack-imported events (prefix "slack-").
+   */
+  const removeExternalEvents = (idPrefix: string) => {
+    setEvents((prev) => prev.filter((e) => !e.id.startsWith(idPrefix)));
+  };
+
   const value: EventsContextType = {
     events,
     isLoading,
@@ -205,6 +243,8 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     getRSVPStatus,
     getEventById,
     refreshEvents,
+    addExternalEvents,
+    removeExternalEvents,
   };
 
   return <EventsContext.Provider value={value}>{children}</EventsContext.Provider>;

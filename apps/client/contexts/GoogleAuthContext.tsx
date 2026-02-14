@@ -102,18 +102,19 @@ export const GoogleAuthProvider: React.FC<{ children: ReactNode }> = ({ children
       setError(null);
       setIsLoading(true);
 
+      const redirectUrl = Platform.OS === 'web' && typeof window !== 'undefined'
+        ? `${window.location.origin}/callback`
+        : undefined;
+
       const { error: signInError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          scopes: 'https://www.googleapis.com/auth/calendar',
+          scopes: 'openid email profile https://www.googleapis.com/auth/calendar.events',
           queryParams: {
-            access_type: 'offline', // Ask Google for refresh token
-            prompt: 'consent', // Force Google to show the consent screen
-            include_granted_scopes: 'true', // Merge with old scopes
+            access_type: 'offline',
+            prompt: 'consent',
           },
-          redirectTo: Platform.OS === 'web' 
-            ? (typeof window !== 'undefined' ? window.location.origin : undefined)
-            : undefined,
+          redirectTo: redirectUrl,
         },
       });
 

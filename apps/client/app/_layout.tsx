@@ -28,6 +28,7 @@ export default function RootLayout() {
                   <Stack.Screen name="index" options={{ headerShown: false }} />
                   <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
                   <Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
+                  <Stack.Screen name="(auth)/callback" options={{ headerShown: false }} />
                   <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                   <Stack.Screen name="settings" options={{ headerShown: false }} />
                   <Stack.Screen name="event/[id]" options={{ presentation: 'modal', title: 'Event Details' }} />

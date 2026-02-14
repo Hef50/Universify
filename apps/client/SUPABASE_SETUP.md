@@ -31,10 +31,14 @@ This app uses Supabase for auth and backend. Follow these steps to connect your 
 1. In Supabase Dashboard → **Authentication** → **Providers**
 2. Enable **Google**
 3. Add your Google OAuth Client ID and Secret (from Google Cloud Console)
-4. Under **Redirect URLs**, add your app URLs:
-   - For web dev: `http://localhost:8081/**`
+4. Under **Redirect URLs**, add your app URLs (Supabase Dashboard → Authentication → URL Configuration):
+   - For web dev: `http://localhost:8081/**` and `http://localhost:8081/callback`
    - For Expo web: `https://auth.expo.io/@your-username/your-app-slug`
-   - For production: your production URL
+   - For production: your production URL and `https://your-domain.com/callback`
+
+5. **Google Calendar scope**: For "Add to Google Calendar" to work:
+   - In Google Cloud Console → **OAuth consent screen** → **Scopes**, add `https://www.googleapis.com/auth/calendar.events`
+   - **Important**: After changing scopes, sign out and sign back in (Google may cache the old consent)
 
 ## 4. Restart the Dev Server
 

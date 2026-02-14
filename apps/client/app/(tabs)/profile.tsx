@@ -7,11 +7,14 @@ import {
   StyleSheet,
   Platform,
   Switch,
+  TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEvents } from '@/contexts/EventsContext';
 import { useResponsive } from '@/hooks/useResponsive';
+import { useSlack } from '@/contexts/SlackContext';
 import { Ionicons } from '@expo/vector-icons';
 
 type ProfileTab = 'activity' | 'account' | 'preferences' | 'appearance';
@@ -20,7 +23,9 @@ export default function ProfileScreen() {
   const { currentUser, logout } = useAuth();
   const { events } = useEvents();
   const { isDesktop } = useResponsive();
+  const slack = useSlack();
   const [activeTab, setActiveTab] = useState<ProfileTab>('activity');
+  const [botUrlInput, setBotUrlInput] = useState(slack.config.botUrl);
 
   if (!currentUser) {
     return null;
@@ -93,6 +98,152 @@ export default function ProfileScreen() {
               <Text style={styles.settingLabel}>Public Profile</Text>
               <Switch value={false} trackColor={{ false: '#767577', true: '#FF6B6B' }} />
             </View>
+
+            {/* ─── Slack Integration ─── */}
+            <View style={slackStyles.divider} />
+            <Text style={styles.sectionTitle}>Slack Integration</Text>
+            <Text style={slackStyles.description}>
+              Import events from your Slack workspace channels (e.g. #announcements)
+            </Text>
+
+            {/* Bot URL */}
+            <View style={slackStyles.inputRow}>
+              <TextInput
+                style={slackStyles.input}
+                value={botUrlInput}
+                onChangeText={setBotUrlInput}
+                placeholder="http://localhost:3001"
+                placeholderTextColor="#9CA3AF"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              <TouchableOpacity
+                style={[slackStyles.button, slack.isConnecting && slackStyles.buttonDisabled]}
+                onPress={() => {
+                  slack.setBotUrl(botUrlInput.trim());
+                  setTimeout(() => slack.connect(), 100);
+                }}
+                disabled={slack.isConnecting}
+              >
+                {slack.isConnecting ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={slackStyles.buttonText}>
+                    {slack.isConnected ? 'Reconnect' : 'Connect'}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+
+            {/* Connection status */}
+            {slack.isConnected && (
+              <View style={slackStyles.statusRow}>
+                <View style={slackStyles.statusDot} />
+                <Text style={slackStyles.statusText}>Connected to Slack bot</Text>
+              </View>
+            )}
+            {slack.connectionError && (
+              <View style={slackStyles.errorRow}>
+                <Text style={slackStyles.errorText}>{slack.connectionError}</Text>
+              </View>
+            )}
+
+            {/* Channel selector */}
+            {slack.isConnected && (
+              <>
+                <Text style={[styles.sectionTitle, { marginTop: 12, fontSize: 15 }]}>Select Channels</Text>
+                {slack.isLoadingChannels ? (
+                  <ActivityIndicator size="small" color="#611f69" style={{ marginVertical: 12 }} />
+                ) : slack.channels.length === 0 ? (
+                  <Text style={slackStyles.description}>
+                    No channels found. Make sure the bot is added to channels in Slack.
+                  </Text>
+                ) : (
+                  <View style={slackStyles.channelList}>
+                    {slack.channels.map((channel) => {
+                      const isSelected = slack.config.selectedChannelIds.includes(channel.id);
+                      return (
+                        <TouchableOpacity
+                          key={channel.id}
+                          style={[slackStyles.channel, isSelected && slackStyles.channelSelected]}
+                          onPress={() => slack.toggleChannel(channel.id)}
+                        >
+                          <View style={{ flex: 1, marginRight: 12 }}>
+                            <Text style={[slackStyles.channelName, isSelected && slackStyles.channelNameSelected]}>
+                              #{channel.name}
+                            </Text>
+                            {channel.purpose ? (
+                              <Text style={slackStyles.channelPurpose} numberOfLines={1}>
+                                {channel.purpose}
+                              </Text>
+                            ) : null}
+                          </View>
+                          <View style={[slackStyles.checkbox, isSelected && slackStyles.checkboxChecked]}>
+                            {isSelected && <Text style={slackStyles.checkboxMark}>✓</Text>}
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                )}
+
+                {/* Import button */}
+                <TouchableOpacity
+                  style={[
+                    slackStyles.importButton,
+                    (slack.isImporting || slack.config.selectedChannelIds.length === 0) &&
+                      slackStyles.buttonDisabled,
+                  ]}
+                  onPress={() => slack.importEvents()}
+                  disabled={slack.isImporting || slack.config.selectedChannelIds.length === 0}
+                >
+                  {slack.isImporting ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <Text style={slackStyles.importButtonText}>
+                      Import Events from Slack
+                    </Text>
+                  )}
+                </TouchableOpacity>
+
+                {slack.importError && (
+                  <View style={slackStyles.errorRow}>
+                    <Text style={slackStyles.errorText}>{slack.importError}</Text>
+                  </View>
+                )}
+
+                {/* Import status */}
+                {slack.lastImportTime && (
+                  <View style={{ paddingVertical: 8 }}>
+                    <Text style={{ fontSize: 13, color: '#6B7280' }}>
+                      Last import: {slack.lastImportTime.toLocaleString()} ({slack.importedCount} events)
+                    </Text>
+                  </View>
+                )}
+
+                {/* Auto-import toggle */}
+                <View style={styles.settingRow}>
+                  <Text style={styles.settingLabel}>Auto-import on app load</Text>
+                  <Switch
+                    value={slack.config.autoImport}
+                    onValueChange={slack.setAutoImport}
+                    trackColor={{ false: '#767577', true: '#611f69' }}
+                  />
+                </View>
+
+                {/* Clear imported events */}
+                {slack.slackEvents.length > 0 && (
+                  <TouchableOpacity
+                    style={slackStyles.clearButton}
+                    onPress={slack.clearImportedEvents}
+                  >
+                    <Text style={slackStyles.clearButtonText}>
+                      Clear Imported Events ({slack.slackEvents.length})
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </>
+            )}
           </View>
         );
       case 'appearance':
@@ -504,5 +655,156 @@ const styles = StyleSheet.create({
   placeholderText: {
     color: '#9CA3AF',
     fontStyle: 'italic',
+  },
+});
+
+const slackStyles = StyleSheet.create({
+  divider: {
+    height: 1,
+    backgroundColor: '#E5E7EB',
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  description: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginBottom: 12,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 8,
+  },
+  input: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: '#1F2937',
+  },
+  button: {
+    backgroundColor: '#611f69',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 90,
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+    paddingVertical: 4,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#10B981',
+  },
+  statusText: {
+    fontSize: 13,
+    color: '#10B981',
+    fontWeight: '500',
+  },
+  errorRow: {
+    backgroundColor: '#FEF2F2',
+    borderRadius: 8,
+    padding: 12,
+    marginVertical: 4,
+  },
+  errorText: {
+    fontSize: 13,
+    color: '#DC2626',
+  },
+  channelList: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  channel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  channelSelected: {
+    backgroundColor: '#F5F0F6',
+  },
+  channelName: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#1F2937',
+  },
+  channelNameSelected: {
+    color: '#611f69',
+    fontWeight: '600',
+  },
+  channelPurpose: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    marginTop: 2,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkboxChecked: {
+    borderColor: '#611f69',
+    backgroundColor: '#611f69',
+  },
+  checkboxMark: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  importButton: {
+    backgroundColor: '#611f69',
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  importButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  clearButton: {
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#DC2626',
+    paddingVertical: 10,
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  clearButtonText: {
+    color: '#DC2626',
+    fontWeight: '500',
+    fontSize: 14,
   },
 });

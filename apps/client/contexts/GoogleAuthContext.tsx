@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { Platform } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { storage } from '@/lib/storage';
@@ -34,6 +34,8 @@ export const GoogleAuthProvider: React.FC<{ children: ReactNode }> = ({ children
   const [googleSession, setGoogleSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setErrorState] = useState<string | null>(null);
+  // Supabase refreshSession/TOKEN_REFRESHED strip provider_token; cache it so we don't lose it
+  const providerTokenRef = useRef<string | null>(null);
 
   const setError = (msg: string | null) => {
     setErrorState(msg);
@@ -49,11 +51,18 @@ export const GoogleAuthProvider: React.FC<{ children: ReactNode }> = ({ children
       if (session?.user?.email && !isCmuEmail(session.user.email)) {
         await supabase.auth.signOut();
         setGoogleSession(null);
+        providerTokenRef.current = null;
         setError(CMU_ERROR_MESSAGE);
         setIsLoading(false);
         return;
       }
 
+      // #region agent log
+      if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'GoogleAuthContext.tsx:onAuthStateChange',message:'Session from onAuthStateChange',data:{hasSession:!!session,hasProviderToken:!!session?.provider_token},timestamp:Date.now(),hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+
+      if (session?.provider_token) providerTokenRef.current = session.provider_token;
+      if (!session) providerTokenRef.current = null;
       setGoogleSession(session);
       setError(null);
 
@@ -84,10 +93,12 @@ export const GoogleAuthProvider: React.FC<{ children: ReactNode }> = ({ children
       if (session?.user?.email && !isCmuEmail(session.user.email)) {
         await supabase.auth.signOut();
         setGoogleSession(null);
+        providerTokenRef.current = null;
         setError(CMU_ERROR_MESSAGE);
         return;
       }
 
+      if (session?.provider_token) providerTokenRef.current = session.provider_token;
       setGoogleSession(session);
     } catch (err) {
       console.error('Failed to load session:', err);
@@ -142,6 +153,7 @@ export const GoogleAuthProvider: React.FC<{ children: ReactNode }> = ({ children
         setError(signOutError.message || 'Sign-out failed');
       } else {
         setGoogleSession(null);
+        providerTokenRef.current = null;
         storage.removeItem(GOOGLE_AUTH_STORAGE_KEY).catch((err) => console.error('Failed to clear stored session:', err));
       }
     } catch (err) {
@@ -171,6 +183,10 @@ export const GoogleAuthProvider: React.FC<{ children: ReactNode }> = ({ children
         expiresAt: session.expires_at,
       });
       
+      // #region agent log
+      if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'GoogleAuthContext.tsx:refreshSession',message:'refreshSession returned',data:{hasSession:!!session,hasProviderToken:!!session?.provider_token},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+
       setGoogleSession(session);
       return session;
     } catch (err) {
@@ -179,8 +195,8 @@ export const GoogleAuthProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   };
 
-  // Get provider token from session
-  const providerToken = googleSession?.provider_token || null;
+  // Session may be overwritten by refresh without provider_token; use ref as fallback
+  const providerToken = googleSession?.provider_token ?? providerTokenRef.current ?? null;
 
   const value: GoogleAuthContextType = {
     isGoogleAuthenticated: !!googleSession,

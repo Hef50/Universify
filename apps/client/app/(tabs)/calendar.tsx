@@ -163,15 +163,19 @@ export default function CalendarScreen() {
 
     // Sync to Google Calendar if authenticated
     if (isGoogleAuthenticated) {
-      // Refresh session first to ensure we have the latest provider_token
-      await refreshSession();
-      
-      // Get fresh session after refresh
+      // #region agent log
+      const _beforeRefresh = { hasProviderToken: !!providerToken, hasGoogleSessionToken: !!googleSession?.provider_token };
+      if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'calendar.tsx:handleScheduleEvent',message:'BEFORE refreshSession',data:_beforeRefresh,timestamp:Date.now(),hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
+
+      // refreshSession() returns session WITHOUT provider_token (Supabase known issue) - do NOT call it or we overwrite good session
       const { data: { session } } = await supabase.auth.getSession();
-      
-      // Use provider_token from fresh session
       const token = session?.provider_token || providerToken || googleSession?.provider_token;
-      
+
+      // #region agent log
+      if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'calendar.tsx:handleScheduleEvent',message:'Token check',data:{hasToken:!!token,fromSession:!!session?.provider_token,fromContext:!!providerToken,fromGoogleSession:!!googleSession?.provider_token},timestamp:Date.now(),hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
+
       if (!token) {
         console.error('No provider_token available after refresh');
         alert("No Google access token from Supabase. Try signing in again.");

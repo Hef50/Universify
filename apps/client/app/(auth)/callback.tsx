@@ -29,6 +29,9 @@ export default function AuthCallbackScreen() {
       }
 
       if (!code) {
+        // #region agent log
+        if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'callback.tsx:noCode',message:'Callback hit but no code in URL',data:{url:typeof window!=='undefined'?window.location.href:''},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
         // No code - might already have session or direct visit; go to app
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
@@ -40,10 +43,17 @@ export default function AuthCallbackScreen() {
       }
 
       try {
-        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+        const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+
+        // #region agent log
+        if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'callback.tsx:exchange',message:'After exchangeCodeForSession',data:{hasCode:!!code,hasError:!!exchangeError,hasSession:!!exchangeData?.session,hasProviderToken:!!exchangeData?.session?.provider_token},timestamp:Date.now(),hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
 
         if (exchangeError) {
           console.error('Code exchange error:', exchangeError);
+          // #region agent log
+          if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'callback.tsx:exchangeError',message:'Code exchange failed',data:{error:exchangeError.message},timestamp:Date.now(),hypothesisId:'B'})}).catch(()=>{});
+          // #endregion
           setError(exchangeError.message);
           setTimeout(() => router.replace('/(auth)/login'), 3000);
           return;

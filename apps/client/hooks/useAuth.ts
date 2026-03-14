@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Platform } from 'react-native';
 import { User, AuthCredentials, SignupData } from '@/types/user';
 import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
-import { upsertUserProfile, updateUserProfilePreferences } from '@/lib/userProfilesApi';
+import { fetchUserProfile, upsertUserProfile, updateUserProfile, updateUserProfilePreferences } from '@/lib/userProfilesApi';
+import { fetchCreatedEventIds } from '@/lib/api';
 
 function extractUniversityFromEmail(email: string): string {
   if (!email) return '';
@@ -32,6 +32,7 @@ const defaultUserPreferences = {
     eventReminders: true,
     newEventsInCategories: true,
   },
+  publicProfile: false,
 };
 
 const defaultUserSettings = {
@@ -40,6 +41,7 @@ const defaultUserSettings = {
   calendarViewDays: 7,
   colorScheme: 'default',
   fontSize: 'medium' as const,
+  compactView: false,
   accessibility: {
     highContrast: false,
     reduceMotion: false,
@@ -75,20 +77,57 @@ export const useAuth = () => {
   } = useGoogleAuth();
 
   useEffect(() => {
-    if (isGoogleAuthenticated && googleSession?.user) {
-      const user = sessionToUser(googleSession);
-      setCurrentUser(user);
-      upsertUserProfile({
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        university: user.university,
-        preferences: user.preferences,
-        settings: user.settings,
-      }).catch((err) => console.error('Failed to upsert user profile:', err));
-    } else {
+    if (!isGoogleAuthenticated || !googleSession?.user) {
       setCurrentUser(null);
+      return;
     }
+    const user = sessionToUser(googleSession);
+    setCurrentUser(user);
+    (async () => {
+      try {
+        await upsertUserProfile({
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          university: user.university,
+          preferences: user.preferences,
+          settings: user.settings,
+        });
+      } catch (err) {
+        console.error('Failed to upsert user profile:', err);
+      }
+      try {
+        const [profile, createdIds] = await Promise.all([
+          fetchUserProfile(user.id),
+          fetchCreatedEventIds(user.id),
+        ]);
+        setCurrentUser((prev) => {
+          if (!prev || prev.id !== user.id) return prev;
+          const merged: User = {
+            ...prev,
+            createdEvents: createdIds,
+          };
+          if (profile) {
+            if (profile.name != null) merged.name = profile.name;
+            if (profile.email != null) merged.email = profile.email;
+            if (profile.university != null) merged.university = profile.university;
+            const prefs = profile.preferences;
+            if (prefs?.preferences) {
+              merged.preferences = { ...merged.preferences, ...prefs.preferences };
+            }
+            if (prefs?.settings) {
+              merged.settings = { ...merged.settings, ...prefs.settings };
+            }
+            if (Array.isArray(prefs?.savedEvents)) {
+              merged.savedEvents = prefs.savedEvents;
+            }
+          }
+          return merged;
+        });
+      } catch (err) {
+        console.error('Failed to load profile or created events:', err);
+      }
+    })();
   }, [isGoogleAuthenticated, googleSession]);
 
   const logout = useCallback(async () => {
@@ -96,14 +135,29 @@ export const useAuth = () => {
     setCurrentUser(null);
   }, [googleSignOut]);
 
+  const addCreatedEvent = useCallback((eventId: string) => {
+    setCurrentUser((prev) =>
+      prev && !prev.createdEvents.includes(eventId)
+        ? { ...prev, createdEvents: [...prev.createdEvents, eventId] }
+        : prev
+    );
+  }, []);
+
   const updateUser = useCallback(async (updates: Partial<User>) => {
     if (!currentUser) return;
     setCurrentUser((prev) => (prev ? { ...prev, ...updates } : null));
     try {
-      if (updates.preferences || updates.settings) {
+      if (updates.name !== undefined || updates.university !== undefined) {
+        await updateUserProfile(currentUser.id, {
+          name: updates.name,
+          university: updates.university,
+        });
+      }
+      if (updates.preferences || updates.settings || updates.savedEvents !== undefined) {
         await updateUserProfilePreferences(currentUser.id, {
           preferences: updates.preferences,
           settings: updates.settings,
+          savedEvents: updates.savedEvents,
         });
       }
     } catch (err) {
@@ -126,6 +180,7 @@ export const useAuth = () => {
     },
     logout,
     updateUser,
+    addCreatedEvent,
     clearError: clearGoogleError,
   };
 };

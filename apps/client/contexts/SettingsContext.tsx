@@ -14,6 +14,7 @@ const defaultSettings: UserSettings = {
   calendarViewDays: 7,
   colorScheme: 'default',
   fontSize: 'medium',
+  compactView: false,
   accessibility: {
     highContrast: false,
     reduceMotion: false,

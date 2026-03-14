@@ -13,6 +13,7 @@ export interface UserPreferences {
     eventReminders: boolean;
     newEventsInCategories: boolean;
   };
+  publicProfile?: boolean;
 }
 
 export interface UserSettings {
@@ -21,6 +22,7 @@ export interface UserSettings {
   calendarViewDays: number; // 1-15
   colorScheme: string; // Color palette identifier
   fontSize: 'small' | 'medium' | 'large';
+  compactView?: boolean;
   accessibility: {
     highContrast: boolean;
     reduceMotion: boolean;

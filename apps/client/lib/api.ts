@@ -100,6 +100,15 @@ export const fetchEvents = async (): Promise<Event[]> => {
   return (data || []).map((row) => transformDbEventToEvent(row as Record<string, unknown>));
 };
 
+export const fetchCreatedEventIds = async (userId: string): Promise<string[]> => {
+  const { data, error } = await supabase
+    .from('events')
+    .select('id')
+    .eq('organizer_id', userId);
+  if (error) throw error;
+  return (data || []).map((row) => row.id as string);
+};
+
 export const createEventAPI = async (
   eventData: EventFormData,
   userId: string,

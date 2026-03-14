@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Event, RSVPStatus, EventFormData } from '@/types/event';
 import { fetchEvents, createEventAPI, updateEventAPI, deleteEventAPI } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 import allEventsData from '@/data/allEvents.json';
 
 interface EventsContextType {
@@ -20,6 +21,7 @@ interface EventsContextType {
 const EventsContext = createContext<EventsContextType | undefined>(undefined);
 
 export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { addCreatedEvent } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -51,6 +53,7 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const organizerName = 'Current User';
     const newEvent = await createEventAPI(eventData, userId, organizerName);
     setEvents((prev) => [...prev, newEvent]);
+    addCreatedEvent(newEvent.id);
     return newEvent;
   };
 

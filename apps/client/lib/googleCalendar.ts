@@ -35,7 +35,16 @@ export interface GoogleCalendarEventsResponse {
 }
 
 /**
- * Fetch events from Google Calendar API
+ * True when the event has a specific start time (dateTime).
+ * Excludes all-day events and header/untimed entries that only have start.date.
+ */
+function isTimedEvent(item: GoogleCalendarEvent): boolean {
+  return Boolean(item.start?.dateTime);
+}
+
+/**
+ * Fetch events from Google Calendar API.
+ * Only returns timed events (excludes all-day and untimed/header events).
  */
 export async function fetchGoogleCalendarEvents(
   accessToken: string,
@@ -66,7 +75,8 @@ export async function fetchGoogleCalendarEvents(
     }
 
     const data: GoogleCalendarEventsResponse = await response.json();
-    return data.items || [];
+    const items = data.items || [];
+    return items.filter(isTimedEvent);
   } catch (error) {
     console.error('Error fetching Google Calendar events:', error);
     throw error;

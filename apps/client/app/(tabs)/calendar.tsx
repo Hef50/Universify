@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { View, StyleSheet, Text, ActivityIndicator, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { useEvents } from '@/contexts/EventsContext';
 import { useCalendar } from '@/hooks/useCalendar';
@@ -14,13 +14,14 @@ import { WeekView } from '@/components/calendar/WeekView';
 import { ResizableSidebar } from '@/components/layout/ResizableSidebar';
 import { EventDisplayCard } from '@/components/calendar/EventDisplayCard';
 import { Event } from '@/types/event';
+import { deleteGoogleCalendarEvent } from '@/lib/googleCalendar';
 
 export default function CalendarScreen() {
   const { events, isLoading } = useEvents();
   const { currentUser } = useAuth();
   const { settings, updateSettings } = useSettings();
   const { isMobile, isDesktop } = useResponsive();
-  const { googleEvents, isLoading: isGoogleLoading } = useGoogleCalendar();
+  const { googleEvents, isLoading: isGoogleLoading, refreshGoogleCalendar } = useGoogleCalendar();
   const { isGoogleAuthenticated, googleSession, providerToken, refreshSession } = useGoogleAuth();
 
   const calendar = useCalendar(isMobile ? 3 : settings.calendarViewDays);
@@ -37,6 +38,8 @@ export default function CalendarScreen() {
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
   const [customDays, setCustomDays] = useState(settings.calendarViewDays.toString());
   const [timeSelection, setTimeSelection] = useState<{ startDate: Date; endDate: Date } | null>(null);
+  // Map Universify event id -> Google Calendar event id when we create in Google on schedule (so we can delete on unschedule)
+  const scheduleEventToGoogleIdRef = useRef<Map<string, string>>(new Map());
 
   const viewDays = settings.calendarViewDays;
 
@@ -117,10 +120,14 @@ export default function CalendarScreen() {
 
   // Get all events for sidebar (sorted by date)
   // Only include Universify events (Google events are already on the calendar)
+  // Only show future/current events (end time >= now) so past events don't clutter the list
   // Filter by time selection if active
   // When time selection is active, show only top 3 most relevant events
   const sortedEvents = useMemo(() => {
-    let filteredEvents = [...events];
+    const now = new Date();
+    let filteredEvents = events.filter(
+      (event) => new Date(event.endTime) >= now
+    );
 
     if (timeSelection) {
       const { startDate, endDate } = timeSelection;
@@ -224,6 +231,7 @@ export default function CalendarScreen() {
           return;
         }
 
+        if (json.id) scheduleEventToGoogleIdRef.current.set(event.id, json.id);
         console.log("Created event in Google Calendar:", json);
         alert("Event added to Google Calendar ✅");
       } catch (err) {
@@ -233,7 +241,27 @@ export default function CalendarScreen() {
     }
   };
 
-  const handleUnscheduleEvent = (event: Event) => {
+  const handleUnscheduleEvent = async (event: Event) => {
+    if (isGoogleAuthenticated) {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.provider_token || providerToken || googleSession?.provider_token;
+      if (token) {
+        try {
+          if (event.id.startsWith('gcal-')) {
+            await deleteGoogleCalendarEvent(token, event.id);
+          } else {
+            const googleId = scheduleEventToGoogleIdRef.current.get(event.id);
+            if (googleId) {
+              await deleteGoogleCalendarEvent(token, googleId);
+              scheduleEventToGoogleIdRef.current.delete(event.id);
+            }
+          }
+          await refreshGoogleCalendar();
+        } catch (err) {
+          console.error('Failed to delete from Google Calendar:', err);
+        }
+      }
+    }
     unscheduleEventForWeek(event.id);
   };
 

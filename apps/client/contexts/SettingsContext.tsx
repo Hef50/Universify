@@ -1,21 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Platform, Appearance } from 'react-native';
+import { Appearance } from 'react-native';
 import { UserSettings } from '@/types/user';
+import { useAuth } from '@/contexts/AuthContext';
+import { fetchUserProfile, updateUserProfilePreferences } from '@/lib/userProfilesApi';
 
-// Mock localStorage for React Native
-const storage = {
-  getItem: async (key: string): Promise<string | null> => {
-    if (Platform.OS === 'web') {
-      return localStorage.getItem(key);
-    }
-    return null;
-  },
-  setItem: async (key: string, value: string): Promise<void> => {
-    if (Platform.OS === 'web') {
-      localStorage.setItem(key, value);
-    }
-  },
-};
+import { storage } from '@/lib/storage';
 
 const SETTINGS_STORAGE_KEY = 'universify_settings';
 
@@ -41,24 +30,21 @@ interface SettingsContextType {
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { currentUser } = useAuth();
   const [settings, setSettings] = useState<UserSettings>(defaultSettings);
   const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
     loadSettings();
-  }, []);
+  }, [currentUser?.id]);
 
   useEffect(() => {
-    // Update current theme based on settings
     if (settings.theme === 'system') {
       const colorScheme = Appearance.getColorScheme();
       setCurrentTheme(colorScheme === 'dark' ? 'dark' : 'light');
-
-      // Listen for system theme changes
       const subscription = Appearance.addChangeListener(({ colorScheme }) => {
         setCurrentTheme(colorScheme === 'dark' ? 'dark' : 'light');
       });
-
       return () => subscription.remove();
     } else {
       setCurrentTheme(settings.theme as 'light' | 'dark');
@@ -67,9 +53,16 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const loadSettings = async () => {
     try {
+      if (currentUser) {
+        const profile = await fetchUserProfile(currentUser.id);
+        if (profile?.preferences?.settings) {
+          setSettings({ ...defaultSettings, ...profile.preferences.settings });
+          return;
+        }
+      }
       const storedSettings = await storage.getItem(SETTINGS_STORAGE_KEY);
       if (storedSettings) {
-        setSettings(JSON.parse(storedSettings));
+        setSettings({ ...defaultSettings, ...JSON.parse(storedSettings) });
       }
     } catch (error) {
       console.error('Failed to load settings:', error);
@@ -79,8 +72,13 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
   const updateSettings = async (updates: Partial<UserSettings>) => {
     try {
       const newSettings = { ...settings, ...updates };
-      await storage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(newSettings));
       setSettings(newSettings);
+
+      if (currentUser) {
+        await updateUserProfilePreferences(currentUser.id, { settings: newSettings });
+      } else {
+        await storage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(newSettings));
+      }
     } catch (error) {
       console.error('Failed to update settings:', error);
     }
@@ -88,21 +86,29 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const resetSettings = async () => {
     try {
-      await storage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(defaultSettings));
       setSettings(defaultSettings);
+      if (currentUser) {
+        await updateUserProfilePreferences(currentUser.id, { settings: defaultSettings });
+      } else {
+        await storage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(defaultSettings));
+      }
     } catch (error) {
       console.error('Failed to reset settings:', error);
     }
   };
 
-  const value: SettingsContextType = {
-    settings,
-    updateSettings,
-    resetSettings,
-    currentTheme,
-  };
-
-  return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
+  return (
+    <SettingsContext.Provider
+      value={{
+        settings,
+        updateSettings,
+        resetSettings,
+        currentTheme,
+      }}
+    >
+      {children}
+    </SettingsContext.Provider>
+  );
 };
 
 export const useSettings = (): SettingsContextType => {
@@ -112,4 +118,3 @@ export const useSettings = (): SettingsContextType => {
   }
   return context;
 };
-

@@ -51,6 +51,16 @@ export interface UniversifyEvent {
 // Slack purple color for imported events
 const SLACK_EVENT_COLOR = '#611f69';
 
+function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ');
+}
+
 // ─── Date / Time extraction helpers ────────────────────────────────────
 
 const MONTH_NAMES: Record<string, number> = {
@@ -183,16 +193,16 @@ function inferCategories(text: string): EventCategory[] {
   const lower = text.toLowerCase();
   const categories: EventCategory[] = [];
 
-  if (/career|job|interview|hiring|recruit/.test(lower)) categories.push('Career');
-  if (/food|lunch|dinner|breakfast|pizza|snack|coffee|tea|boba/.test(lower)) categories.push('Food');
-  if (/fun|party|game night|trivia|karaoke/.test(lower)) categories.push('Fun');
-  if (/academic|class|lecture|study|homework|exam|office hours/.test(lower)) categories.push('Academic');
-  if (/network|meetup|mixer/.test(lower)) categories.push('Networking');
-  if (/social|hangout|meet people|casual/.test(lower)) categories.push('Social');
-  if (/sport|fitness|gym|basketball|soccer|volleyball|yoga|run|pickup/.test(lower)) categories.push('Sports');
-  if (/art|music|theater|theatre|dance|paint|drawing|creative/.test(lower)) categories.push('Arts');
-  if (/tech|code|coding|hackathon|workshop|programming|ai|ml/.test(lower)) categories.push('Tech');
-  if (/wellness|health|meditation|mindful|self[- ]care/.test(lower)) categories.push('Wellness');
+  if (/\b(?:career|job|interview|hiring|recruit)\b/.test(lower)) categories.push('Career');
+  if (/\b(?:food|lunch|dinner|breakfast|pizza|snack|coffee|tea|boba)\b/.test(lower)) categories.push('Food');
+  if (/\b(?:fun|party|game night|trivia|karaoke)\b/.test(lower)) categories.push('Fun');
+  if (/\b(?:academic|class|lecture|study|homework|exam|office hours)\b/.test(lower)) categories.push('Academic');
+  if (/\b(?:network|meetup|mixer)\b/.test(lower)) categories.push('Networking');
+  if (/\b(?:social|hangout|meet people|casual)\b/.test(lower)) categories.push('Social');
+  if (/\b(?:sport|fitness|gym|basketball|soccer|volleyball|yoga|run|pickup)\b/.test(lower)) categories.push('Sports');
+  if (/\b(?:art|music|theater|theatre|dance|paint|drawing|creative)\b/.test(lower)) categories.push('Arts');
+  if (/\b(?:tech|code|coding|hackathon|workshop|programming|ai|ml)\b/.test(lower)) categories.push('Tech');
+  if (/\b(?:wellness|health|meditation|mindful|self[- ]care)\b/.test(lower)) categories.push('Wellness');
 
   return categories.length > 0 ? categories : ['Events'];
 }
@@ -219,7 +229,7 @@ export function parseSlackMessage(
   channelName: string,
   channelId: string
 ): UniversifyEvent | null {
-  const text = (message.text || '').trim();
+  const text = decodeHtmlEntities((message.text || '').trim());
   if (!text) return null;
 
   // Skip system / join / leave messages

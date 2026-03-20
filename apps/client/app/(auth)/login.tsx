@@ -67,6 +67,13 @@ export default function LoginScreen() {
       }
   };
 
+  const handleAdminLogin = async () => {
+      const success = await login({ email: 'admin@cmu.edu', password: 'Admin123!' });
+      if (success) {
+          router.replace('/(tabs)');
+      }
+  };
+
 
   return (
     <KeyboardAvoidingView
@@ -201,15 +208,24 @@ export default function LoginScreen() {
             </View>
           )}
 
-          {/* Auto Login Button (For Testing) */}
+          {/* Auto Login Buttons (For Testing) */}
           {SHOW_AUTO_LOGIN && (
-            <TouchableOpacity
-              style={[styles.secondaryButton, isLoading && styles.buttonDisabled]}
-              onPress={handleAutoLogin}
-              disabled={isLoading}
-            >
-               <Text style={styles.secondaryButtonText}>Auto Login (Demo)</Text>
-            </TouchableOpacity>
+            <>
+              <TouchableOpacity
+                style={[styles.secondaryButton, isLoading && styles.buttonDisabled]}
+                onPress={handleAutoLogin}
+                disabled={isLoading}
+              >
+                <Text style={styles.secondaryButtonText}>Auto Login (Demo)</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.adminButton, isLoading && styles.buttonDisabled]}
+                onPress={handleAdminLogin}
+                disabled={isLoading}
+              >
+                <Text style={styles.adminButtonText}>Admin Demo Login</Text>
+              </TouchableOpacity>
+            </>
           )}
 
           {/* Demo Accounts Info */}
@@ -217,6 +233,7 @@ export default function LoginScreen() {
             <Text style={styles.demoTitle}>Demo Accounts:</Text>
             <Text style={styles.demoText}>demo@cmu.edu / Demo123!</Text>
             <Text style={styles.demoText}>student@andrew.cmu.edu / Student123!</Text>
+            <Text style={styles.demoText}>admin@cmu.edu / Admin123! (Admin)</Text>
           </View>
 
           {/* Sign Up Link */}
@@ -395,6 +412,19 @@ const styles = StyleSheet.create({
       color: '#FF6B6B',
       fontSize: 16,
       fontWeight: '600',
+  },
+  adminButton: {
+    height: 48,
+    backgroundColor: '#4A154B',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  adminButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
   demoInfo: {
     backgroundColor: '#F3F4F6',

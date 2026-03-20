@@ -21,7 +21,7 @@ import {
 } from '@/utils/scheduledEvents';
 
 export default function CalendarScreen() {
-  const { events, isLoading } = useEvents();
+  const { events, isLoading, refreshSlackEvents } = useEvents();
   const { settings, updateSettings } = useSettings();
   const { isMobile, isDesktop } = useResponsive();
   const { googleEvents, isLoading: isGoogleLoading } = useGoogleCalendar();
@@ -400,14 +400,22 @@ export default function CalendarScreen() {
               <Text style={styles.sidebarTitle}>
                 {timeSelection ? 'Selected Time Range' : 'All Events'}
               </Text>
-              {timeSelection && (
+              <View style={styles.sidebarHeaderActions}>
+                {timeSelection && (
+                  <TouchableOpacity
+                    onPress={() => setTimeSelection(null)}
+                    style={styles.resetButton}
+                  >
+                    <Text style={styles.resetButtonText}>Reset</Text>
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
-                  onPress={() => setTimeSelection(null)}
-                  style={styles.resetButton}
+                  onPress={refreshSlackEvents}
+                  style={styles.refreshButton}
                 >
-                  <Text style={styles.resetButtonText}>Reset</Text>
+                  <Text style={styles.refreshButtonText}>Refresh</Text>
                 </TouchableOpacity>
-              )}
+              </View>
             </View>
             {isLoading || isLoadingScheduled ? (
               <View style={styles.loadingContainer}>
@@ -573,6 +581,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1F2937',
   },
+  sidebarHeaderActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
   resetButton: {
     paddingVertical: 6,
     paddingHorizontal: 12,
@@ -585,6 +597,17 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500',
     color: '#6B7280',
+  },
+  refreshButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    backgroundColor: '#611f69',
+  },
+  refreshButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   sidebarContent: {
     flex: 1,

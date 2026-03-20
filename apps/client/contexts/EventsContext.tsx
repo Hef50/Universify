@@ -1,11 +1,14 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { Platform } from 'react-native';
 import { Event, RSVPStatus, EventFormData } from '@/types/event';
 import mockEventsData from '@/data/mockEvents.json';
 import currentWeekEvents from '@/data/currentWeekEvents.json';
 import allEventsData from '@/data/allEvents.json';
+import { convertSlackResponseToEvents } from '@/lib/slack';
 
-// Mock localStorage for React Native
+const BOT_URL = 'http://localhost:3001';
+const POLL_INTERVAL_MS = 15_000;
+
 const storage = {
   getItem: async (key: string): Promise<string | null> => {
     if (Platform.OS === 'web') {
@@ -33,6 +36,7 @@ interface EventsContextType {
   getRSVPStatus: (eventId: string, userId: string) => RSVPStatus;
   getEventById: (eventId: string) => Event | undefined;
   refreshEvents: () => Promise<void>;
+  refreshSlackEvents: () => Promise<void>;
   addExternalEvents: (newEvents: Event[]) => void;
   removeExternalEvents: (idPrefix: string) => void;
 }
@@ -43,8 +47,48 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const slackEventsRef = useRef<Map<string, Event>>(new Map());
+
+  const fetchApprovedSlackEvents = async () => {
+    try {
+      const res = await fetch(`${BOT_URL}/api/slack/cached`);
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) return;
+      const data = await res.json();
+      if (!data.ok || !Array.isArray(data.events) || data.events.length === 0) return;
+
+      const converted = convertSlackResponseToEvents(data.events);
+      const newMap = new Map(converted.map((e) => [e.id, e]));
+
+      const changed =
+        newMap.size !== slackEventsRef.current.size ||
+        converted.some((e) => !slackEventsRef.current.has(e.id));
+
+      if (!changed) return;
+
+      slackEventsRef.current = newMap;
+
+      if (Platform.OS === 'web') {
+        try { localStorage.setItem(SLACK_EVENTS_KEY, JSON.stringify(converted)); } catch {}
+      }
+
+      setEvents((prev) => {
+        const withoutSlack = prev.filter((e) => !e.id.startsWith('slack-'));
+        return [...withoutSlack, ...converted];
+      });
+    } catch {
+      // Bot not reachable — silent
+    }
+  };
+
   useEffect(() => {
     loadEvents();
+  }, []);
+
+  useEffect(() => {
+    fetchApprovedSlackEvents();
+    const interval = setInterval(fetchApprovedSlackEvents, POLL_INTERVAL_MS);
+    return () => clearInterval(interval);
   }, []);
 
   const loadEvents = async () => {
@@ -243,6 +287,7 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     getRSVPStatus,
     getEventById,
     refreshEvents,
+    refreshSlackEvents: fetchApprovedSlackEvents,
     addExternalEvents,
     removeExternalEvents,
   };

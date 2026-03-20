@@ -1,45 +1,27 @@
-/**
- * Bolt.js real-time event listener.
- *
- * Subscribes to message events in Slack channels.
- * When a new message arrives in a monitored channel, it parses the message
- * and stores the result in the in-memory store.
- */
-
 import { App } from '@slack/bolt';
 import { parseSlackMessage } from './parser';
-import { addEvent, isChannelMonitored, getMonitoredChannels } from './store';
+import { isChannelMonitored, getMonitoredChannels } from './store';
+import { addPendingEvent, buildEventBlocks } from './actions';
+import { checkForDuplicate } from './duplicate-checker';
 
-/**
- * Register Slack event listeners on the Bolt app.
- *
- * The app listens for `message` events in channels.
- * If the channel is in the monitored list (or if no channels are explicitly
- * monitored, it listens to ALL channels the bot is in), it parses the message
- * and stores it as a Universify event.
- */
 export function registerListeners(app: App): void {
-  // Listen for all messages in channels the bot is a member of
   app.message(async ({ message, client }) => {
     try {
-      // Type guard: only handle regular messages (not edits, deletes, etc.)
       if (message.subtype && message.subtype !== 'bot_message') return;
 
       const msg = message as any;
       const channelId = msg.channel as string;
       const text = msg.text as string;
       const ts = msg.ts as string;
+      const userId = msg.user as string | undefined;
 
-      // Skip if empty
       if (!text || !text.trim()) return;
 
-      // If we have a monitored channel list, only process those
       const monitored = getMonitoredChannels();
       if (monitored.length > 0 && !isChannelMonitored(channelId)) {
         return;
       }
 
-      // Look up channel name
       let channelName = channelId;
       try {
         const info = await client.conversations.info({ channel: channelId });
@@ -48,11 +30,10 @@ export function registerListeners(app: App): void {
         // Non-critical
       }
 
-      // Look up user display name
       let username: string | undefined;
-      if (msg.user) {
+      if (userId) {
         try {
-          const userInfo = await client.users.info({ user: msg.user });
+          const userInfo = await client.users.info({ user: userId });
           username =
             (userInfo.user as any)?.real_name ||
             (userInfo.user as any)?.name ||
@@ -62,26 +43,59 @@ export function registerListeners(app: App): void {
         }
       }
 
-      // Parse and store
       const event = parseSlackMessage(
-        {
-          text,
-          ts,
-          user: msg.user,
-          channel: channelId,
-          username,
-        },
+        { text, ts, user: userId, channel: channelId, username },
         channelName,
         channelId
       );
 
-      if (event) {
-        const isNew = addEvent(event);
-        if (isNew) {
+      if (!event) return;
+
+      const pendingKey = `pending-${channelId}-${ts}`;
+
+      let duplicateWarning: string | undefined;
+      try {
+        const dupResult = await checkForDuplicate(event);
+        if (dupResult.isDuplicate) {
+          duplicateWarning =
+            dupResult.reason ||
+            `Similar to existing event: "${dupResult.matchedEventTitle || 'unknown'}"`;
           console.log(
-            `[Listener] New event from #${channelName}: "${event.title}" (${event.startTime})`
+            `[Listener] Duplicate detected for "${event.title}": ${duplicateWarning}`
           );
         }
+      } catch (err) {
+        console.error('[Listener] Duplicate check failed, proceeding anyway:', err);
+      }
+
+      addPendingEvent(pendingKey, {
+        event,
+        channelId,
+        channelName,
+        duplicateWarning,
+        createdAt: Date.now(),
+      });
+
+      const blocks = buildEventBlocks(event, pendingKey, duplicateWarning);
+
+      if (userId) {
+        try {
+          await client.chat.postEphemeral({
+            channel: channelId,
+            user: userId,
+            text: `New event parsed: "${event.title}" — approve or reject?`,
+            blocks,
+          });
+          console.log(
+            `[Listener] Ephemeral confirmation sent to ${username || userId} for "${event.title}"`
+          );
+        } catch (ephErr: any) {
+          console.error('[Listener] Failed to send ephemeral:', ephErr.message);
+        }
+      } else {
+        console.warn(
+          '[Listener] No user ID on message; cannot send ephemeral. Skipping confirmation.'
+        );
       }
     } catch (error) {
       console.error('[Listener] Error processing message:', error);

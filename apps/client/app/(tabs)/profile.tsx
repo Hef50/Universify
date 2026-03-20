@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,204 @@ import { useEvents } from '@/contexts/EventsContext';
 import { useResponsive } from '@/hooks/useResponsive';
 import { useSlack } from '@/contexts/SlackContext';
 import { Ionicons } from '@expo/vector-icons';
+
+const BOT_URL = 'http://localhost:3001';
+
+interface OpenRouterUsage {
+  label?: string;
+  usage?: number;
+  usage_daily?: number;
+  usage_weekly?: number;
+  usage_monthly?: number;
+  limit?: number | null;
+  limit_remaining?: number | null;
+  is_free_tier?: boolean;
+  rate_limit?: { requests: number; interval: string };
+}
+
+function OpenRouterPanel() {
+  const [data, setData] = useState<OpenRouterUsage | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${BOT_URL}/api/openrouter/usage`);
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) throw new Error('Bot not running');
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error);
+      setData(json.key);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { refresh(); }, []);
+
+  if (loading) {
+    return (
+      <View style={orStyles.container}>
+        <Text style={orStyles.title}>OpenRouter API Usage</Text>
+        <ActivityIndicator size="small" color="#611f69" style={{ marginVertical: 12 }} />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={orStyles.container}>
+        <Text style={orStyles.title}>OpenRouter API Usage</Text>
+        <Text style={orStyles.error}>{error}</Text>
+        <TouchableOpacity style={orStyles.refreshBtn} onPress={refresh}>
+          <Text style={orStyles.refreshBtnText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  if (!data) return null;
+
+  const usageTotal = (data.usage ?? 0).toFixed(4);
+  const usageDaily = (data.usage_daily ?? 0).toFixed(4);
+  const usageWeekly = (data.usage_weekly ?? 0).toFixed(4);
+  const usageMonthly = (data.usage_monthly ?? 0).toFixed(4);
+  const limitDollars = data.limit != null ? `$${data.limit.toFixed(2)}` : 'Unlimited';
+  const remaining = data.limit_remaining != null ? `$${data.limit_remaining.toFixed(4)}` : '--';
+  const pct = data.limit ? Math.min(100, ((data.usage ?? 0) / data.limit) * 100) : 0;
+
+  return (
+    <View style={orStyles.container}>
+      <View style={orStyles.headerRow}>
+        <Text style={orStyles.title}>OpenRouter API Usage</Text>
+        <TouchableOpacity style={orStyles.refreshBtn} onPress={refresh}>
+          <Text style={orStyles.refreshBtnText}>Refresh</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={orStyles.row}>
+        <Text style={orStyles.label}>API Key</Text>
+        <Text style={orStyles.value}>{data.label || 'Default'}</Text>
+      </View>
+
+      <View style={orStyles.row}>
+        <Text style={orStyles.label}>Total Used</Text>
+        <Text style={orStyles.value}>${usageTotal}</Text>
+      </View>
+
+      <View style={orStyles.row}>
+        <Text style={orStyles.label}>Today</Text>
+        <Text style={orStyles.value}>${usageDaily}</Text>
+      </View>
+
+      <View style={orStyles.row}>
+        <Text style={orStyles.label}>This Week</Text>
+        <Text style={orStyles.value}>${usageWeekly}</Text>
+      </View>
+
+      <View style={orStyles.row}>
+        <Text style={orStyles.label}>This Month</Text>
+        <Text style={orStyles.value}>${usageMonthly}</Text>
+      </View>
+
+      <View style={orStyles.divider} />
+
+      <View style={orStyles.row}>
+        <Text style={orStyles.label}>Credit Limit</Text>
+        <Text style={orStyles.value}>{limitDollars}</Text>
+      </View>
+
+      <View style={orStyles.row}>
+        <Text style={orStyles.label}>Remaining</Text>
+        <Text style={[orStyles.value, pct > 80 && { color: '#DC2626' }]}>{remaining}</Text>
+      </View>
+
+      {data.limit != null && (
+        <View style={orStyles.barOuter}>
+          <View style={[orStyles.barInner, { width: `${pct}%`, backgroundColor: pct > 80 ? '#DC2626' : '#611f69' }]} />
+        </View>
+      )}
+
+      <View style={orStyles.row}>
+        <Text style={orStyles.label}>Tier</Text>
+        <Text style={orStyles.value}>{data.is_free_tier ? 'Free' : 'Paid'}</Text>
+      </View>
+    </View>
+  );
+}
+
+const orStyles = StyleSheet.create({
+  container: {
+    backgroundColor: '#F5F0FF',
+    borderRadius: 10,
+    padding: 16,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: '#DDD6FE',
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#374151',
+  },
+  refreshBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    backgroundColor: '#611f69',
+    borderRadius: 6,
+  },
+  refreshBtnText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+  },
+  label: {
+    fontSize: 13,
+    color: '#6B7280',
+  },
+  value: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1F2937',
+  },
+  barOuter: {
+    height: 8,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 4,
+    marginVertical: 8,
+    overflow: 'hidden',
+  },
+  barInner: {
+    height: '100%',
+    backgroundColor: '#611f69',
+    borderRadius: 4,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#DDD6FE',
+    marginVertical: 8,
+  },
+  error: {
+    fontSize: 13,
+    color: '#DC2626',
+    marginBottom: 8,
+  },
+});
 
 type ProfileTab = 'activity' | 'account' | 'preferences' | 'appearance';
 
@@ -275,6 +473,8 @@ export default function ProfileScreen() {
             <View style={styles.desktopContentSection}>
               <Text style={styles.sectionTitle}>My Activity</Text>
               <Text style={styles.placeholderText}>Recent activity and saved events will appear here.</Text>
+
+              <OpenRouterPanel />
             </View>
           </>
         );

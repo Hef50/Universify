@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useSlack } from '@/contexts/SlackContext';
+import { useEmail } from '@/contexts/EmailContext';
 import { CategoryPill } from '@/components/ui/CategoryPill';
 import { EventCategory } from '@/types/event';
 
@@ -26,7 +27,9 @@ export default function PreferencesScreen() {
   const { currentUser, updateUser } = useAuth();
   const { settings, updateSettings } = useSettings();
   const slack = useSlack();
+  const email = useEmail();
   const [botUrlInput, setBotUrlInput] = useState(slack.config.botUrl);
+  const [emailBotUrlInput, setEmailBotUrlInput] = useState(email.config.botUrl);
 
   if (!currentUser) return null;
 
@@ -310,6 +313,139 @@ export default function PreferencesScreen() {
             )}
           </>
         )}
+        {/* ─── Email Newsletter Integration ─── */}
+        <View style={styles.slackDivider} />
+        <Text style={styles.sectionTitle}>Email Newsletter Integration</Text>
+        <Text style={styles.sectionDescription}>
+          Import events from newsletters sent to cmunify@gmail.com. Start the email-bot server first.
+        </Text>
+
+        {/* Bot URL */}
+        <View style={styles.slackInputRow}>
+          <TextInput
+            style={styles.slackInput}
+            value={emailBotUrlInput}
+            onChangeText={setEmailBotUrlInput}
+            placeholder="http://localhost:3002"
+            placeholderTextColor="#9CA3AF"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <TouchableOpacity
+            style={[styles.slackButton, { backgroundColor: '#1a73e8' }, email.isConnecting && styles.slackButtonDisabled]}
+            onPress={() => {
+              email.setBotUrl(emailBotUrlInput.trim());
+              setTimeout(() => email.connect(), 100);
+            }}
+            disabled={email.isConnecting}
+          >
+            {email.isConnecting ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Text style={styles.slackButtonText}>
+                {email.isConnected ? 'Reconnect' : 'Connect'}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* Connection status */}
+        {email.isConnected && (
+          <View style={styles.slackStatusRow}>
+            <View style={styles.slackStatusDot} />
+            <Text style={styles.slackStatusText}>Connected to email bot</Text>
+          </View>
+        )}
+        {email.connectionError && (
+          <View style={styles.slackErrorRow}>
+            <Text style={styles.slackErrorText}>{email.connectionError}</Text>
+          </View>
+        )}
+
+        {/* Import days selector */}
+        {email.isConnected && (
+          <>
+            <Text style={[styles.sectionTitle, { marginTop: 12, fontSize: 15 }]}>
+              Scan inbox for last N days
+            </Text>
+            <View style={styles.daysSelector}>
+              {[7, 14, 30].map((d) => (
+                <TouchableOpacity
+                  key={d}
+                  style={[
+                    styles.dayOption,
+                    email.config.importDays === d && { borderColor: '#1a73e8', backgroundColor: '#EBF3FE' },
+                  ]}
+                  onPress={() => email.setImportDays(d)}
+                >
+                  <Text
+                    style={[
+                      styles.dayOptionText,
+                      email.config.importDays === d && { color: '#1a73e8' },
+                    ]}
+                  >
+                    {d}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Import button */}
+            <TouchableOpacity
+              style={[
+                styles.slackImportButton,
+                { backgroundColor: '#1a73e8' },
+                email.isImporting && styles.slackButtonDisabled,
+              ]}
+              onPress={() => email.importEvents()}
+              disabled={email.isImporting}
+            >
+              {email.isImporting ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Text style={styles.slackImportButtonText}>Import Events from Email</Text>
+              )}
+            </TouchableOpacity>
+
+            {email.importError && (
+              <View style={styles.slackErrorRow}>
+                <Text style={styles.slackErrorText}>{email.importError}</Text>
+              </View>
+            )}
+
+            {/* Last import status */}
+            {email.lastImportTime && (
+              <View style={styles.slackImportStatus}>
+                <Text style={styles.slackImportStatusText}>
+                  Last import: {email.lastImportTime.toLocaleString()} ({email.importedCount} events)
+                </Text>
+              </View>
+            )}
+
+            {/* Auto-import toggle */}
+            <View style={[styles.switchRow, { marginTop: 8 }]}>
+              <Text style={styles.switchLabel}>Auto-import on app load</Text>
+              <Switch
+                value={email.config.autoImport}
+                onValueChange={email.setAutoImport}
+                trackColor={{ false: '#D1D5DB', true: '#1a73e8' }}
+              />
+            </View>
+
+            {/* Clear imported events */}
+            {email.emailEvents.length > 0 && (
+              <TouchableOpacity
+                style={styles.slackClearButton}
+                onPress={email.clearImportedEvents}
+              >
+                <Text style={styles.slackClearButtonText}>
+                  Clear Imported Events ({email.emailEvents.length})
+                </Text>
+              </TouchableOpacity>
+            )}
+          </>
+        )}
+
       </ScrollView>
     </View>
   );

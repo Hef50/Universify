@@ -10,6 +10,7 @@ import { GoogleCalendarProvider } from '@/contexts/GoogleCalendarContext';
 import { EventsProvider } from '@/contexts/EventsContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { SlackProvider } from '@/contexts/SlackContext';
+import { EmailProvider } from '@/contexts/EmailContext';
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -25,18 +26,20 @@ export default function RootLayout() {
           <SettingsProvider>
             <EventsProvider>
               <SlackProvider>
-                <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-                  <Stack>
-                    <Stack.Screen name="index" options={{ headerShown: false }} />
-                    <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
-                    <Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
-                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                    <Stack.Screen name="settings" options={{ headerShown: false }} />
-                    <Stack.Screen name="event/[id]" options={{ presentation: 'modal', title: 'Event Details' }} />
-                    <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-                  </Stack>
-                  <StatusBar style="auto" />
-                </ThemeProvider>
+                <EmailProvider>
+                  <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                    <Stack>
+                      <Stack.Screen name="index" options={{ headerShown: false }} />
+                      <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
+                      <Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
+                      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                      <Stack.Screen name="settings" options={{ headerShown: false }} />
+                      <Stack.Screen name="event/[id]" options={{ presentation: 'modal', title: 'Event Details' }} />
+                      <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+                    </Stack>
+                    <StatusBar style="auto" />
+                  </ThemeProvider>
+                </EmailProvider>
               </SlackProvider>
             </EventsProvider>
           </SettingsProvider>

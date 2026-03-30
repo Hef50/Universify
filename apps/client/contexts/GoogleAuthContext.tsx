@@ -1,7 +1,18 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { Platform } from 'react-native';
 import { supabase } from '@/lib/supabase';
+import { storage } from '@/lib/storage';
 import type { Session } from '@supabase/supabase-js';
+
+const ALLOWED_EMAIL_DOMAINS = ['andrew.cmu.edu', 'cmu.edu'];
+const CMU_ERROR_MESSAGE =
+  'This app is for CMU students only. Please sign in with your @andrew.cmu.edu account.';
+
+function isCmuEmail(email: string | undefined): boolean {
+  if (!email) return false;
+  const domain = email.split('@')[1]?.toLowerCase();
+  return domain ? ALLOWED_EMAIL_DOMAINS.includes(domain) : false;
+}
 
 interface GoogleAuthContextType {
   isGoogleAuthenticated: boolean;
@@ -12,56 +23,83 @@ interface GoogleAuthContextType {
   googleSignOut: () => Promise<void>;
   refreshSession: () => Promise<Session | null>;
   error: string | null;
+  clearError: () => void;
 }
 
 const GoogleAuthContext = createContext<GoogleAuthContextType | undefined>(undefined);
 
-// Storage keys for web
 const GOOGLE_AUTH_STORAGE_KEY = 'universify_google_auth';
 
 export const GoogleAuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [googleSession, setGoogleSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setErrorState] = useState<string | null>(null);
+  // Supabase refreshSession/TOKEN_REFRESHED strip provider_token; cache it so we don't lose it
+  const providerTokenRef = useRef<string | null>(null);
 
-  // Load session on mount
+  const setError = (msg: string | null) => {
+    setErrorState(msg);
+  };
+
+  const clearError = () => setErrorState(null);
+
+  // Load session on mount and listen for auth state changes
   useEffect(() => {
     loadSession();
-    
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user?.email && !isCmuEmail(session.user.email)) {
+        await supabase.auth.signOut();
+        setGoogleSession(null);
+        providerTokenRef.current = null;
+        setError(CMU_ERROR_MESSAGE);
+        setIsLoading(false);
+        return;
+      }
+
+      // #region agent log
+      if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'GoogleAuthContext.tsx:onAuthStateChange',message:'Session from onAuthStateChange',data:{hasSession:!!session,hasProviderToken:!!session?.provider_token},timestamp:Date.now(),hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+
+      if (session?.provider_token) providerTokenRef.current = session.provider_token;
+      if (!session) providerTokenRef.current = null;
       setGoogleSession(session);
-      if (Platform.OS === 'web' && session) {
-        // Store session info in localStorage
-        try {
-          localStorage.setItem(GOOGLE_AUTH_STORAGE_KEY, JSON.stringify({
-            access_token: session.access_token,
-            provider_token: session.provider_token,
-            expires_at: session.expires_at,
-          }));
-        } catch (err) {
-          console.error('Failed to store Google auth session:', err);
-        }
+      setError(null);
+
+      if (session) {
+        storage.setItem(GOOGLE_AUTH_STORAGE_KEY, JSON.stringify({
+          access_token: session.access_token,
+          provider_token: session.provider_token,
+          expires_at: session.expires_at,
+        })).catch((err) => console.error('Failed to store Google auth session:', err));
       }
       setIsLoading(false);
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   const loadSession = async () => {
     try {
       setIsLoading(true);
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
+
       if (sessionError) {
         console.error('Error loading session:', sessionError);
         setError(sessionError.message);
-      } else {
-        setGoogleSession(session);
+        return;
       }
+
+      if (session?.user?.email && !isCmuEmail(session.user.email)) {
+        await supabase.auth.signOut();
+        setGoogleSession(null);
+        providerTokenRef.current = null;
+        setError(CMU_ERROR_MESSAGE);
+        return;
+      }
+
+      if (session?.provider_token) providerTokenRef.current = session.provider_token;
+      setGoogleSession(session);
     } catch (err) {
       console.error('Failed to load session:', err);
       setError('Failed to load authentication session');
@@ -75,18 +113,19 @@ export const GoogleAuthProvider: React.FC<{ children: ReactNode }> = ({ children
       setError(null);
       setIsLoading(true);
 
+      const redirectUrl = Platform.OS === 'web' && typeof window !== 'undefined'
+        ? `${window.location.origin}/callback`
+        : undefined;
+
       const { error: signInError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          scopes: 'https://www.googleapis.com/auth/calendar',
+          scopes: 'openid email profile https://www.googleapis.com/auth/calendar.events',
           queryParams: {
-            access_type: 'offline', // Ask Google for refresh token
-            prompt: 'consent', // Force Google to show the consent screen
-            include_granted_scopes: 'true', // Merge with old scopes
+            access_type: 'offline',
+            prompt: 'consent',
           },
-          redirectTo: Platform.OS === 'web' 
-            ? (typeof window !== 'undefined' ? window.location.origin : undefined)
-            : undefined,
+          redirectTo: redirectUrl,
         },
       });
 
@@ -114,14 +153,8 @@ export const GoogleAuthProvider: React.FC<{ children: ReactNode }> = ({ children
         setError(signOutError.message || 'Sign-out failed');
       } else {
         setGoogleSession(null);
-        // Clear stored session
-        if (Platform.OS === 'web') {
-          try {
-            localStorage.removeItem(GOOGLE_AUTH_STORAGE_KEY);
-          } catch (err) {
-            console.error('Failed to clear stored session:', err);
-          }
-        }
+        providerTokenRef.current = null;
+        storage.removeItem(GOOGLE_AUTH_STORAGE_KEY).catch((err) => console.error('Failed to clear stored session:', err));
       }
     } catch (err) {
       console.error('Google sign-out exception:', err);
@@ -150,6 +183,10 @@ export const GoogleAuthProvider: React.FC<{ children: ReactNode }> = ({ children
         expiresAt: session.expires_at,
       });
       
+      // #region agent log
+      if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'GoogleAuthContext.tsx:refreshSession',message:'refreshSession returned',data:{hasSession:!!session,hasProviderToken:!!session?.provider_token},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+
       setGoogleSession(session);
       return session;
     } catch (err) {
@@ -158,8 +195,8 @@ export const GoogleAuthProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   };
 
-  // Get provider token from session
-  const providerToken = googleSession?.provider_token || null;
+  // Session may be overwritten by refresh without provider_token; use ref as fallback
+  const providerToken = googleSession?.provider_token ?? providerTokenRef.current ?? null;
 
   const value: GoogleAuthContextType = {
     isGoogleAuthenticated: !!googleSession,
@@ -170,6 +207,7 @@ export const GoogleAuthProvider: React.FC<{ children: ReactNode }> = ({ children
     googleSignOut,
     refreshSession,
     error,
+    clearError,
   };
 
   return (

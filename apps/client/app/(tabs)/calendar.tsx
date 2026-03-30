@@ -1,44 +1,47 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { View, StyleSheet, Text, ActivityIndicator, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { useEvents } from '@/contexts/EventsContext';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useResponsive } from '@/hooks/useResponsive';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useGoogleCalendar } from '@/contexts/GoogleCalendarContext';
 import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
+import { useScheduledEvents, getWeekKey } from '@/hooks/useScheduledEvents';
 import { supabase } from '@/lib/supabase';
 import { CalendarHeader } from '@/components/calendar/CalendarHeader';
 import { WeekView } from '@/components/calendar/WeekView';
 import { ResizableSidebar } from '@/components/layout/ResizableSidebar';
 import { EventDisplayCard } from '@/components/calendar/EventDisplayCard';
 import { Event } from '@/types/event';
-import {
-  getWeekKey,
-  getScheduledEventIds,
-  getAllScheduledEventIds,
-  scheduleEvent,
-  unscheduleEvent,
-} from '@/utils/scheduledEvents';
+import { deleteGoogleCalendarEvent } from '@/lib/googleCalendar';
 
 export default function CalendarScreen() {
   const { events, isLoading } = useEvents();
+  const { currentUser } = useAuth();
   const { settings, updateSettings } = useSettings();
   const { isMobile, isDesktop } = useResponsive();
-  const { googleEvents, isLoading: isGoogleLoading } = useGoogleCalendar();
+  const { googleEvents, isLoading: isGoogleLoading, refreshGoogleCalendar } = useGoogleCalendar();
   const { isGoogleAuthenticated, googleSession, providerToken, refreshSession } = useGoogleAuth();
-  
+
+  const calendar = useCalendar(isMobile ? 3 : settings.calendarViewDays);
+  const weekKey = getWeekKey(calendar.currentDate);
+  const {
+    scheduledEventIds,
+    allScheduledIds: allScheduledEventIds,
+    isLoading: isLoadingScheduled,
+    scheduleEvent: scheduleEventForWeek,
+    unscheduleEvent: unscheduleEventForWeek,
+  } = useScheduledEvents(currentUser?.id, weekKey);
+
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [scheduledEventIds, setScheduledEventIds] = useState<string[]>([]);
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
-  const [isLoadingScheduled, setIsLoadingScheduled] = useState(true);
   const [customDays, setCustomDays] = useState(settings.calendarViewDays.toString());
   const [timeSelection, setTimeSelection] = useState<{ startDate: Date; endDate: Date } | null>(null);
+  // Map Universify event id -> Google Calendar event id when we create in Google on schedule (so we can delete on unschedule)
+  const scheduleEventToGoogleIdRef = useRef<Map<string, string>>(new Map());
 
-  // Use view days from settings
   const viewDays = settings.calendarViewDays;
-
-  const calendar = useCalendar(isMobile ? 3 : viewDays);
-  const weekKey = getWeekKey(calendar.currentDate);
 
   // Get days to display based on view mode
   const displayDays = useMemo(() => {
@@ -59,48 +62,6 @@ export default function CalendarScreen() {
     }
     return days;
   }, [calendar.currentDate, viewDays]);
-
-  // Load scheduled events for current week (synchronous for web)
-  useEffect(() => {
-    setIsLoadingScheduled(true);
-    const ids = getScheduledEventIds(weekKey);
-    setScheduledEventIds([...ids]); // Create new array for state update
-    setIsLoadingScheduled(false);
-  }, [weekKey]);
-
-  // Initialize: Schedule events with "dance" and "arts" tags in 12/3-12/7 range
-  useEffect(() => {
-    // Only run once on mount
-    const hasInitialized = localStorage.getItem('universify_dance_arts_initialized');
-    if (hasInitialized) return;
-
-    // Find events with "dance" and "arts" tags in 12/3-12/7
-    const targetEventIds: string[] = [];
-    const dateRangeStart = new Date('2025-12-03T00:00:00Z');
-    const dateRangeEnd = new Date('2025-12-07T23:59:59Z');
-
-    events.forEach(event => {
-      const eventStart = new Date(event.startTime);
-      if (eventStart >= dateRangeStart && eventStart <= dateRangeEnd) {
-        const hasDance = event.tags?.some(tag => tag.toLowerCase().includes('dance') || tag.toLowerCase() === 'dancing');
-        const hasArts = event.tags?.some(tag => tag.toLowerCase() === 'arts');
-        
-        if (hasDance || hasArts) {
-          const eventWeekKey = getWeekKey(eventStart);
-          targetEventIds.push(event.id);
-          scheduleEvent(event.id, eventWeekKey);
-        }
-      }
-    });
-
-    if (targetEventIds.length > 0) {
-      localStorage.setItem('universify_dance_arts_initialized', 'true');
-      console.log(`Initialized: Scheduled ${targetEventIds.length} events with dance/arts tags in 12/3-12/7`);
-      // Refresh scheduled events
-      const ids = getScheduledEventIds(weekKey);
-      setScheduledEventIds([...ids]);
-    }
-  }, [events, weekKey]);
 
   // Filter Google events for the current view
   const googleViewEvents = useMemo(() => {
@@ -124,11 +85,6 @@ export default function CalendarScreen() {
     const local = events.filter((event) => scheduledEventIds.includes(event.id));
     return [...local, ...googleViewEvents];
   }, [events, scheduledEventIds, googleViewEvents]);
-
-  // Get all scheduled event IDs across all weeks to calculate relevance
-  const allScheduledEventIds = useMemo(() => {
-    return getAllScheduledEventIds();
-  }, [weekKey, scheduledEventIds]); // Recalculate when scheduled events change
 
   // Get tags from all scheduled events to calculate relevance
   const scheduledEventTags = useMemo(() => {
@@ -164,51 +120,37 @@ export default function CalendarScreen() {
 
   // Get all events for sidebar (sorted by date)
   // Only include Universify events (Google events are already on the calendar)
+  // Only show future/current events (end time >= now) so past events don't clutter the list
   // Filter by time selection if active
   // When time selection is active, show only top 3 most relevant events
   const sortedEvents = useMemo(() => {
-    let filteredEvents = [...events];
-    
-    console.log(`Calendar: Starting with ${filteredEvents.length} total events`);
-    
-    // Filter by time selection if active
+    const now = new Date();
+    let filteredEvents = events.filter(
+      (event) => new Date(event.endTime) >= now
+    );
+
     if (timeSelection) {
       const { startDate, endDate } = timeSelection;
-      const beforeTimeFilter = filteredEvents.length;
       filteredEvents = filteredEvents.filter(event => {
         const eventStart = new Date(event.startTime);
         const eventEnd = new Date(event.endTime);
-        
-        // Check if event overlaps with selected time range
-        // Event overlaps if it starts before selection ends and ends after selection starts
         return eventStart < endDate && eventEnd > startDate;
       });
-      console.log(`Calendar: After time selection filter: ${filteredEvents.length} events (removed ${beforeTimeFilter - filteredEvents.length} events)`);
-      
-      // Calculate relevance and show only top 3 most relevant events
+
       if (filteredEvents.length > 0 && Object.keys(scheduledEventTags).length > 0) {
         const eventsWithRelevance = filteredEvents.map(event => ({
           event,
           relevance: calculateRelevance(event)
         }));
-        
-        // Sort by relevance (descending), then by start time
         eventsWithRelevance.sort((a, b) => {
-          if (b.relevance !== a.relevance) {
-            return b.relevance - a.relevance;
-          }
+          if (b.relevance !== a.relevance) return b.relevance - a.relevance;
           return new Date(a.event.startTime).getTime() - new Date(b.event.startTime).getTime();
         });
-        
-        // Take only top 3
         filteredEvents = eventsWithRelevance.slice(0, 3).map(item => item.event);
-        console.log(`Calendar: Showing top 3 most relevant events based on scheduled event tags`);
       }
     }
-    
-    console.log(`Calendar: Final filtered events: ${filteredEvents.length}`);
-    
-    return filteredEvents.sort((a, b) => 
+
+    return filteredEvents.sort((a, b) =>
       new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
     );
   }, [events, timeSelection, scheduledEventTags]);
@@ -223,22 +165,24 @@ export default function CalendarScreen() {
   };
 
   const handleScheduleEvent = async (event: Event) => {
-    // Schedule locally
-    scheduleEvent(event.id, weekKey);
-    const updatedIds = getScheduledEventIds(weekKey);
-    setScheduledEventIds([...updatedIds]); 
+    // Schedule locally (handles both localStorage and Supabase)
+    await scheduleEventForWeek(event.id);
 
     // Sync to Google Calendar if authenticated
     if (isGoogleAuthenticated) {
-      // Refresh session first to ensure we have the latest provider_token
-      await refreshSession();
-      
-      // Get fresh session after refresh
+      // #region agent log
+      const _beforeRefresh = { hasProviderToken: !!providerToken, hasGoogleSessionToken: !!googleSession?.provider_token };
+      if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'calendar.tsx:handleScheduleEvent',message:'BEFORE refreshSession',data:_beforeRefresh,timestamp:Date.now(),hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
+
+      // refreshSession() returns session WITHOUT provider_token (Supabase known issue) - do NOT call it or we overwrite good session
       const { data: { session } } = await supabase.auth.getSession();
-      
-      // Use provider_token from fresh session
       const token = session?.provider_token || providerToken || googleSession?.provider_token;
-      
+
+      // #region agent log
+      if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'calendar.tsx:handleScheduleEvent',message:'Token check',data:{hasToken:!!token,fromSession:!!session?.provider_token,fromContext:!!providerToken,fromGoogleSession:!!googleSession?.provider_token},timestamp:Date.now(),hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
+
       if (!token) {
         console.error('No provider_token available after refresh');
         alert("No Google access token from Supabase. Try signing in again.");
@@ -287,6 +231,7 @@ export default function CalendarScreen() {
           return;
         }
 
+        if (json.id) scheduleEventToGoogleIdRef.current.set(event.id, json.id);
         console.log("Created event in Google Calendar:", json);
         alert("Event added to Google Calendar ✅");
       } catch (err) {
@@ -296,10 +241,28 @@ export default function CalendarScreen() {
     }
   };
 
-  const handleUnscheduleEvent = (event: Event) => {
-    unscheduleEvent(event.id, weekKey);
-    const updatedIds = getScheduledEventIds(weekKey);
-    setScheduledEventIds([...updatedIds]);
+  const handleUnscheduleEvent = async (event: Event) => {
+    if (isGoogleAuthenticated) {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.provider_token || providerToken || googleSession?.provider_token;
+      if (token) {
+        try {
+          if (event.id.startsWith('gcal-')) {
+            await deleteGoogleCalendarEvent(token, event.id);
+          } else {
+            const googleId = scheduleEventToGoogleIdRef.current.get(event.id);
+            if (googleId) {
+              await deleteGoogleCalendarEvent(token, googleId);
+              scheduleEventToGoogleIdRef.current.delete(event.id);
+            }
+          }
+          await refreshGoogleCalendar();
+        } catch (err) {
+          console.error('Failed to delete from Google Calendar:', err);
+        }
+      }
+    }
+    unscheduleEventForWeek(event.id);
   };
 
   // Navigation handlers

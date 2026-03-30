@@ -3,6 +3,7 @@ import { View, StyleSheet, FlatList, TouchableOpacity, Text } from 'react-native
 import { useLocalSearchParams } from 'expo-router';
 import { useEvents } from '@/contexts/EventsContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import { FilterProvider, useFilters } from '@/contexts/FilterContext';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { CategoryPill } from '@/components/ui/CategoryPill';
@@ -33,6 +34,7 @@ function FindScreenContent() {
     clearAllFilters,
   } = useFilters();
 
+  const { settings } = useSettings();
   const { isMobile } = useResponsive();
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -167,7 +169,7 @@ function FindScreenContent() {
             </View>
           )}
           numColumns={numColumns}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[styles.listContent, settings.compactView && styles.listContentCompact]}
           showsVerticalScrollIndicator={true}
         />
       )}
@@ -328,6 +330,9 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
+  },
+  listContentCompact: {
+    padding: 8,
   },
   gridItem: {
     flex: 1,

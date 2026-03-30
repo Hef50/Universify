@@ -1,27 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Platform,
   Switch,
   TextInput,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEvents } from '@/contexts/EventsContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import { useResponsive } from '@/hooks/useResponsive';
 import { useSlack } from '@/contexts/SlackContext';
 import { useEmail } from '@/contexts/EmailContext';
+import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
 
 type ProfileTab = 'activity' | 'account' | 'preferences' | 'appearance';
 
 export default function ProfileScreen() {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, updateUser } = useAuth();
+  const { settings, updateSettings } = useSettings();
   const { events } = useEvents();
   const { isDesktop } = useResponsive();
   const slack = useSlack();
@@ -29,6 +32,15 @@ export default function ProfileScreen() {
   const [activeTab, setActiveTab] = useState<ProfileTab>('activity');
   const [botUrlInput, setBotUrlInput] = useState(slack.config.botUrl);
   const [emailBotUrlInput, setEmailBotUrlInput] = useState(email.config.botUrl);
+  const [editingAccount, setEditingAccount] = useState(false);
+  const [editName, setEditName] = useState(currentUser?.name ?? '');
+  const [editUniversity, setEditUniversity] = useState(currentUser?.university ?? '');
+  useEffect(() => {
+    if (currentUser) {
+      setEditName(currentUser.name);
+      setEditUniversity(currentUser.university);
+    }
+  }, [currentUser?.name, currentUser?.university]);
 
   if (!currentUser) {
     return null;
@@ -55,51 +67,142 @@ export default function ProfileScreen() {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'account':
+      case 'account': {
+        const saveAccountEdit = async () => {
+          try {
+            await updateUser({ name: editName, university: editUniversity });
+            await supabase.auth.updateUser({ data: { full_name: editName } });
+            setEditingAccount(false);
+          } catch (err) {
+            Alert.alert('Error', err instanceof Error ? err.message : 'Failed to save.');
+          }
+        };
         return (
           <View style={styles.settingsSection}>
             <Text style={styles.sectionTitle}>Account Settings</Text>
             <View style={styles.settingRow}>
-              <View>
+              <View style={styles.settingLabelValue}>
+                <Text style={styles.settingLabel}>Name</Text>
+                {editingAccount ? (
+                  <TextInput
+                    style={styles.settingInput}
+                    value={editName}
+                    onChangeText={setEditName}
+                    placeholder="Your name"
+                    autoCapitalize="words"
+                  />
+                ) : (
+                  <Text style={styles.settingValue}>{currentUser.name}</Text>
+                )}
+              </View>
+              {editingAccount ? (
+                <View style={styles.editRow}>
+                  <TouchableOpacity style={styles.editButton} onPress={saveAccountEdit}>
+                    <Text style={styles.editButtonText}>Save</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.cancelButton} onPress={() => { setEditingAccount(false); setEditName(currentUser.name); setEditUniversity(currentUser.university); }}>
+                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity style={styles.editButton} onPress={() => setEditingAccount(true)}>
+                  <Text style={styles.editButtonText}>Edit</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+            <View style={styles.settingRow}>
+              <View style={styles.settingLabelValue}>
                 <Text style={styles.settingLabel}>Email</Text>
                 <Text style={styles.settingValue}>{currentUser.email}</Text>
               </View>
-              <TouchableOpacity style={styles.editButton}>
-                <Text style={styles.editButtonText}>Edit</Text>
-              </TouchableOpacity>
             </View>
+            {editingAccount && (
+              <View style={styles.settingRow}>
+                <View style={styles.settingLabelValue}>
+                  <Text style={styles.settingLabel}>University</Text>
+                  <TextInput
+                    style={styles.settingInput}
+                    value={editUniversity}
+                    onChangeText={setEditUniversity}
+                    placeholder="Your university"
+                  />
+                </View>
+              </View>
+            )}
+            {!editingAccount && (
+              <View style={styles.settingRow}>
+                <View style={styles.settingLabelValue}>
+                  <Text style={styles.settingLabel}>University</Text>
+                  <Text style={styles.settingValue}>{currentUser.university}</Text>
+                </View>
+              </View>
+            )}
             <View style={styles.settingRow}>
-              <View>
+              <View style={styles.settingLabelValue}>
                 <Text style={styles.settingLabel}>Password</Text>
                 <Text style={styles.settingValue}>••••••••</Text>
               </View>
-              <TouchableOpacity style={styles.editButton}>
+              <TouchableOpacity style={styles.editButton} onPress={() => router.push('/settings/account')}>
                 <Text style={styles.editButtonText}>Change</Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.settingRow}>
-              <View>
-                <Text style={styles.settingLabel}>University</Text>
-                <Text style={styles.settingValue}>{currentUser.university}</Text>
-              </View>
-            </View>
           </View>
         );
+      }
       case 'preferences':
         return (
           <View style={styles.settingsSection}>
             <Text style={styles.sectionTitle}>Preferences</Text>
             <View style={styles.settingRow}>
               <Text style={styles.settingLabel}>Email Notifications</Text>
-              <Switch value={true} trackColor={{ false: '#767577', true: '#FF6B6B' }} />
+              <Switch
+                value={currentUser.preferences.notificationPreferences.email}
+                onValueChange={(value) =>
+                  updateUser({
+                    preferences: {
+                      ...currentUser.preferences,
+                      notificationPreferences: {
+                        ...currentUser.preferences.notificationPreferences,
+                        email: value,
+                      },
+                    },
+                  })
+                }
+                trackColor={{ false: '#767577', true: '#FF6B6B' }}
+              />
             </View>
             <View style={styles.settingRow}>
               <Text style={styles.settingLabel}>Event Reminders</Text>
-              <Switch value={true} trackColor={{ false: '#767577', true: '#FF6B6B' }} />
+              <Switch
+                value={currentUser.preferences.notificationPreferences.eventReminders}
+                onValueChange={(value) =>
+                  updateUser({
+                    preferences: {
+                      ...currentUser.preferences,
+                      notificationPreferences: {
+                        ...currentUser.preferences.notificationPreferences,
+                        eventReminders: value,
+                      },
+                    },
+                  })
+                }
+                trackColor={{ false: '#767577', true: '#FF6B6B' }}
+              />
             </View>
             <View style={styles.settingRow}>
               <Text style={styles.settingLabel}>Public Profile</Text>
-              <Switch value={false} trackColor={{ false: '#767577', true: '#FF6B6B' }} />
+              <Switch
+                value={currentUser.preferences.publicProfile ?? false}
+                onValueChange={(value) =>
+                  updateUser({
+                    preferences: {
+                      ...currentUser.preferences,
+                      publicProfile: value,
+                    },
+                  })
+                }
+                trackColor={{ false: '#767577', true: '#FF6B6B' }}
+              />
             </View>
 
             {/* ─── Slack Integration ─── */}
@@ -362,16 +465,28 @@ export default function ProfileScreen() {
             <Text style={styles.sectionTitle}>Appearance</Text>
             <View style={styles.settingRow}>
               <Text style={styles.settingLabel}>Dark Mode</Text>
-              <Switch value={false} trackColor={{ false: '#767577', true: '#FF6B6B' }} />
+              <Switch
+                value={settings.theme === 'dark'}
+                onValueChange={(value) => updateSettings({ theme: value ? 'dark' : 'light' })}
+                trackColor={{ false: '#767577', true: '#FF6B6B' }}
+              />
             </View>
             <View style={styles.settingRow}>
               <Text style={styles.settingLabel}>Compact View</Text>
-              <Switch value={false} trackColor={{ false: '#767577', true: '#FF6B6B' }} />
+              <Switch
+                value={settings.compactView ?? false}
+                onValueChange={(value) => updateSettings({ compactView: value })}
+                trackColor={{ false: '#767577', true: '#FF6B6B' }}
+              />
             </View>
           </View>
         );
       case 'activity':
-      default:
+      default: {
+        const activityEvents = [
+          ...myEvents.map((e) => ({ event: e, type: 'created' as const })),
+          ...savedEvents.filter((e) => !currentUser.createdEvents.includes(e.id)).map((e) => ({ event: e, type: 'saved' as const })),
+        ].sort((a, b) => new Date(b.event.startTime).getTime() - new Date(a.event.startTime).getTime());
         return (
           <>
             <View style={styles.desktopStatsRow}>
@@ -384,10 +499,33 @@ export default function ProfileScreen() {
 
             <View style={styles.desktopContentSection}>
               <Text style={styles.sectionTitle}>My Activity</Text>
-              <Text style={styles.placeholderText}>Recent activity and saved events will appear here.</Text>
+              {activityEvents.length === 0 ? (
+                <Text style={styles.placeholderText}>Recent activity and saved events will appear here.</Text>
+              ) : (
+                <View style={styles.activityList}>
+                  {activityEvents.slice(0, 20).map(({ event, type }) => (
+                    <TouchableOpacity
+                      key={event.id}
+                      style={styles.activityItem}
+                      onPress={() => router.push(`/event/${event.id}`)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={styles.activityItemContent}>
+                        <Text style={styles.activityItemTitle} numberOfLines={1}>{event.title}</Text>
+                        <Text style={styles.activityItemMeta}>
+                          {new Date(event.startTime).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {' · '}{type === 'created' ? 'Created' : 'Saved'}
+                        </Text>
+                      </View>
+                      <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
             </View>
           </>
         );
+      }
     }
   };
 
@@ -741,6 +879,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6',
   },
+  settingLabelValue: {
+    flex: 1,
+    minWidth: 0,
+  },
   settingLabel: {
     fontSize: 15,
     color: '#374151',
@@ -750,6 +892,20 @@ const styles = StyleSheet.create({
   settingValue: {
     fontSize: 14,
     color: '#6B7280',
+  },
+  settingInput: {
+    fontSize: 14,
+    color: '#1F2937',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginTop: 4,
+  },
+  editRow: {
+    flexDirection: 'row',
+    gap: 8,
   },
   editButton: {
     paddingHorizontal: 12,
@@ -762,9 +918,46 @@ const styles = StyleSheet.create({
     color: '#374151',
     fontWeight: '500',
   },
+  cancelButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: '#E5E7EB',
+  },
+  cancelButtonText: {
+    fontSize: 13,
+    color: '#374151',
+    fontWeight: '500',
+  },
   placeholderText: {
     color: '#9CA3AF',
     fontStyle: 'italic',
+  },
+  activityList: {
+    gap: 0,
+  },
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  activityItemContent: {
+    flex: 1,
+    minWidth: 0,
+  },
+  activityItemTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 2,
+  },
+  activityItemMeta: {
+    fontSize: 13,
+    color: '#6B7280',
   },
 });
 

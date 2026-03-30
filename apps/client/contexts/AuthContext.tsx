@@ -11,6 +11,7 @@ interface AuthContextType {
   signup: (data: SignupData) => Promise<boolean>;
   logout: () => Promise<void>;
   updateUser: (updates: Partial<User>) => Promise<void>;
+  addCreatedEvent: (eventId: string) => void;
   clearError: () => void;
 }
 

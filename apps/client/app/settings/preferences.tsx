@@ -114,7 +114,7 @@ export default function PreferencesScreen() {
         {/* Category Interests */}
         <Text style={styles.sectionTitle}>Category Interests</Text>
         <Text style={styles.sectionDescription}>
-          Select categories you're interested in for personalized recommendations
+          Select categories you&apos;re interested in for personalized recommendations
         </Text>
         <View style={styles.categoryGrid}>
           {ALL_CATEGORIES.map((category) => (

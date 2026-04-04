@@ -4,6 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
+    "build": "expo export:web",
+    "vercel-build": "expo export:web",
     "reset-project": "node ./scripts/reset-project.js",
     "seed": "npx tsx scripts/seedEvents.ts",
     "test:backend": "npx tsx scripts/test-backend.ts",

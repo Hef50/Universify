@@ -1,5 +1,6 @@
 {
   "name": "slack-bot",
+  "private": true,
   "version": "1.0.0",
   "description": "Universify Slack integration bot - fetches events from Slack channels",
   "main": "src/index.ts",
@@ -23,5 +24,6 @@
     "ts-node": "^10.9.2",
     "typescript": "~5.9.2"
   },
+  "packageManager": "pnpm@10.18.3",
   "private": true
 }

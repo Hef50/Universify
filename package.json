@@ -5,7 +5,7 @@
   "description": "Universify monorepo",
   "main": "index.js",
   "scripts": {
-    "install": "pnpm install",
+    "setup": "pnpm install",
     "build": "pnpm --filter client build",
     "dev": "pnpm --filter client start",
     "dev:discord": "pnpm --filter discord-event-bot dev",

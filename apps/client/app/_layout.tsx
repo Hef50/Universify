@@ -9,6 +9,7 @@ import { GoogleCalendarProvider } from '@/contexts/GoogleCalendarContext';
 import { EventsProvider } from '@/contexts/EventsContext';
 import { SettingsProvider, useSettings } from '@/contexts/SettingsContext';
 import { SlackProvider } from '@/contexts/SlackContext';
+import { EmailProvider } from '@/contexts/EmailContext';
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -41,7 +42,9 @@ export default function RootLayout() {
           <SettingsProvider>
             <EventsProvider>
               <SlackProvider>
-                <ThemedStack />
+                <EmailProvider>
+                  <ThemedStack />
+                </EmailProvider>
               </SlackProvider>
             </EventsProvider>
           </SettingsProvider>

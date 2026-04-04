@@ -10,6 +10,7 @@ import { EventsProvider } from '@/contexts/EventsContext';
 import { SettingsProvider, useSettings } from '@/contexts/SettingsContext';
 import { SlackProvider } from '@/contexts/SlackContext';
 import { EmailProvider } from '@/contexts/EmailContext';
+import { ClubProvider } from '@/contexts/ClubContext';
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -43,7 +44,9 @@ export default function RootLayout() {
             <EventsProvider>
               <SlackProvider>
                 <EmailProvider>
-                  <ThemedStack />
+                  <ClubProvider>
+                    <ThemedStack />
+                  </ClubProvider>
                 </EmailProvider>
               </SlackProvider>
             </EventsProvider>

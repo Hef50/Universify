@@ -21,6 +21,7 @@ export const DesktopNav = () => {
   const navItems = [
     { path: '/(tabs)/calendar', label: 'Calendar', icon: 'calendar-outline', activeIcon: 'calendar' },
     { path: '/(tabs)/find', label: 'Find Activities', icon: 'search-outline', activeIcon: 'search' },
+    { path: '/(tabs)/clubs', label: 'Clubs', icon: 'people-outline', activeIcon: 'people' },
     { path: '/(tabs)/create', label: 'Create Event', icon: 'add-circle-outline', activeIcon: 'add-circle' },
     { path: '/(tabs)/profile', label: 'Profile', icon: 'person-outline', activeIcon: 'person' },
   ];

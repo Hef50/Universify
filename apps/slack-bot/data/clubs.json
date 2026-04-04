@@ -1,0 +1,237 @@
+{
+  "clubs": [
+    {
+      "id": "club-scottylabs",
+      "name": "ScottyLabs",
+      "description": "CMU's premier student-run tech organization. We run TartanHacks, build open-source tools for campus, and host workshops on web dev, systems, and more.",
+      "integrations": [
+        {
+          "type": "slack",
+          "label": "#scottylabs",
+          "channelId": "C0SCOTTY01"
+        },
+        {
+          "type": "discord",
+          "label": "ScottyLabs Discord",
+          "url": "https://discord.gg/scottylabs"
+        },
+        {
+          "type": "email",
+          "label": "hello@scottylabs.org"
+        },
+        {
+          "type": "website",
+          "label": "scottylabs.org",
+          "url": "https://scottylabs.org"
+        }
+      ],
+      "memberIds": [
+        "user-demo-002"
+      ],
+      "adminIds": [
+        "admin-demo",
+        "user-demo-004"
+      ],
+      "createdAt": "2026-03-20T13:18:06.285Z"
+    },
+    {
+      "id": "club-tricking",
+      "name": "CMU Tricking Club",
+      "description": "Flips, kicks, and combos! Learn martial arts tricking in a supportive community. All skill levels welcome — from beginners to advanced.",
+      "integrations": [
+        {
+          "type": "discord",
+          "label": "Tricking Discord",
+          "url": "https://discord.gg/cmutricking"
+        },
+        {
+          "type": "email",
+          "label": "tricking@andrew.cmu.edu"
+        }
+      ],
+      "memberIds": [],
+      "adminIds": [
+        "admin-demo",
+        "user-demo-004"
+      ],
+      "createdAt": "2026-03-20T13:18:06.285Z"
+    },
+    {
+      "id": "club-kpdc",
+      "name": "KPDC (K-Pop Dance Club)",
+      "description": "CMU's K-Pop dance crew. Weekly practices, cover videos, and performances at campus events. No prior dance experience needed!",
+      "password": "kpdc2026",
+      "integrations": [
+        {
+          "type": "discord",
+          "label": "KPDC Discord",
+          "url": "https://discord.gg/cmukpdc"
+        },
+        {
+          "type": "email",
+          "label": "kpdc@andrew.cmu.edu"
+        },
+        {
+          "type": "website",
+          "label": "cmukpdc.com",
+          "url": "https://cmukpdc.com"
+        }
+      ],
+      "memberIds": [
+        "user-demo-002"
+      ],
+      "adminIds": [
+        "admin-demo",
+        "user-demo-004"
+      ],
+      "createdAt": "2026-03-20T13:18:06.285Z"
+    },
+    {
+      "id": "club-hksa",
+      "name": "HKSA (Hong Kong Student Association)",
+      "description": "Connecting students from Hong Kong and those interested in HK culture. Social events, dim sum nights, cultural celebrations, and networking.",
+      "integrations": [
+        {
+          "type": "slack",
+          "label": "#hksa-general",
+          "channelId": "C0HKSA01"
+        },
+        {
+          "type": "discord",
+          "label": "HKSA Discord",
+          "url": "https://discord.gg/cmuhksa"
+        },
+        {
+          "type": "email",
+          "label": "hksa@andrew.cmu.edu"
+        }
+      ],
+      "memberIds": [
+        "user-001"
+      ],
+      "adminIds": [
+        "admin-demo",
+        "user-demo-004"
+      ],
+      "createdAt": "2026-03-20T13:18:06.285Z"
+    },
+    {
+      "id": "club-acm",
+      "name": "ACM@CMU",
+      "description": "The CMU chapter of the Association for Computing Machinery. Competitive programming, tech talks, interview prep, and hackathon teams.",
+      "password": "acmcmu",
+      "integrations": [
+        {
+          "type": "slack",
+          "label": "#acm-general",
+          "channelId": "C0ACM01"
+        },
+        {
+          "type": "discord",
+          "label": "ACM Discord",
+          "url": "https://discord.gg/cmuacm"
+        },
+        {
+          "type": "email",
+          "label": "acm@cmu.edu"
+        },
+        {
+          "type": "website",
+          "label": "cmuacm.org",
+          "url": "https://cmuacm.org"
+        }
+      ],
+      "memberIds": [
+        "user-demo-001"
+      ],
+      "adminIds": [
+        "admin-demo",
+        "user-demo-004"
+      ],
+      "createdAt": "2026-03-20T13:18:06.285Z"
+    },
+    {
+      "id": "club-buggy",
+      "name": "Buggy / Sweepstakes",
+      "description": "CMU's iconic tradition! Design, build, and race human-powered vehicles around Flagstaff Hill during Carnival. Join an org or just come watch.",
+      "integrations": [
+        {
+          "type": "website",
+          "label": "cmubuggy.org",
+          "url": "https://cmubuggy.org"
+        },
+        {
+          "type": "email",
+          "label": "sweepstakes@andrew.cmu.edu"
+        }
+      ],
+      "memberIds": [
+        "user-001",
+        "user-demo-001"
+      ],
+      "adminIds": [
+        "admin-demo",
+        "user-demo-004"
+      ],
+      "createdAt": "2026-03-20T13:18:06.285Z"
+    },
+    {
+      "id": "club-thebridge",
+      "name": "The Bridge (CMU Consulting)",
+      "description": "Pro-bono consulting for Pittsburgh nonprofits. Gain real consulting experience while making an impact in the local community.",
+      "password": "bridge2026",
+      "integrations": [
+        {
+          "type": "slack",
+          "label": "#the-bridge",
+          "channelId": "C0BRG01"
+        },
+        {
+          "type": "email",
+          "label": "thebridge@andrew.cmu.edu"
+        },
+        {
+          "type": "website",
+          "label": "cmuthebridge.com",
+          "url": "https://cmuthebridge.com"
+        }
+      ],
+      "memberIds": [],
+      "adminIds": [
+        "admin-demo",
+        "user-demo-004"
+      ],
+      "createdAt": "2026-03-20T13:18:06.285Z"
+    },
+    {
+      "id": "club-abcarpets",
+      "name": "AB Carpets (Activities Board)",
+      "description": "We plan the big campus events — concerts, comedians, movie nights, and more. Help bring entertainment to CMU!",
+      "integrations": [
+        {
+          "type": "discord",
+          "label": "AB Discord",
+          "url": "https://discord.gg/cmuab"
+        },
+        {
+          "type": "email",
+          "label": "ab@andrew.cmu.edu"
+        },
+        {
+          "type": "website",
+          "label": "cmuab.org",
+          "url": "https://cmuab.org"
+        }
+      ],
+      "memberIds": [
+        "user-demo-002",
+        "user-demo-003"
+      ],
+      "adminIds": [
+        "admin-demo",
+        "user-demo-004"
+      ],
+      "createdAt": "2026-03-20T13:18:06.285Z"
+    }
+  ]
+}

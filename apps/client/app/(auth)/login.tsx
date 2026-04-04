@@ -7,19 +7,34 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { router } from 'expo-router';
+import { router, Link } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
 import { useResponsive } from '@/hooks/useResponsive';
 
+const SHOW_AUTO_LOGIN = __DEV__;
+
 export default function LoginScreen() {
-  const { isLoading, error } = useAuth();
-  const { googleSignIn, isLoading: isGoogleLoading } = useGoogleAuth();
+  const { login, isLoading, error } = useAuth();
+  const { googleSignIn, isLoading: isGoogleLoading, error: googleError } = useGoogleAuth();
   const { isMobile } = useResponsive();
 
   const handleGoogleSignIn = async () => {
     await googleSignIn();
-    // On success, onAuthStateChange will set session; tabs layout redirects to /(tabs)
+  };
+
+  const handleAutoLogin = async () => {
+    const success = await login({ email: 'demo@cmu.edu', password: 'Demo123!' });
+    if (success) {
+      router.replace('/(tabs)');
+    }
+  };
+
+  const handleAdminLogin = async () => {
+    const success = await login({ email: 'admin@cmu.edu', password: 'Admin123!' });
+    if (success) {
+      router.replace('/(tabs)');
+    }
   };
 
   return (
@@ -46,6 +61,12 @@ export default function LoginScreen() {
           </View>
         )}
 
+        {googleError && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{googleError}</Text>
+          </View>
+        )}
+
         <TouchableOpacity
           style={[styles.googleButton, (isGoogleLoading || isLoading) && styles.buttonDisabled]}
           onPress={handleGoogleSignIn}
@@ -61,14 +82,41 @@ export default function LoginScreen() {
           )}
         </TouchableOpacity>
 
+        {SHOW_AUTO_LOGIN && (
+          <>
+            <TouchableOpacity
+              style={[styles.secondaryButton, isLoading && styles.buttonDisabled]}
+              onPress={handleAutoLogin}
+              disabled={isLoading}
+            >
+              <Text style={styles.secondaryButtonText}>Auto Login (Demo)</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.adminButton, isLoading && styles.buttonDisabled]}
+              onPress={handleAdminLogin}
+              disabled={isLoading}
+            >
+              <Text style={styles.adminButtonText}>Admin Demo Login</Text>
+            </TouchableOpacity>
+          </>
+        )}
+
+        {SHOW_AUTO_LOGIN && (
+          <View style={styles.demoInfo}>
+            <Text style={styles.demoTitle}>Demo Accounts:</Text>
+            <Text style={styles.demoText}>demo@cmu.edu / Demo123!</Text>
+            <Text style={styles.demoText}>student@andrew.cmu.edu / Student123!</Text>
+            <Text style={styles.demoText}>admin@cmu.edu / Admin123! (Admin)</Text>
+          </View>
+        )}
+
         <View style={styles.signupContainer}>
-          <Text style={styles.signupText}>New to Universify? </Text>
-          <TouchableOpacity
-            onPress={handleGoogleSignIn}
-            disabled={isGoogleLoading || isLoading}
-          >
-            <Text style={styles.signupLink}>Sign up with Google</Text>
-          </TouchableOpacity>
+          <Text style={styles.signupText}>Don&apos;t have an account? </Text>
+          <Link href="/(auth)/signup" asChild>
+            <TouchableOpacity disabled={isLoading}>
+              <Text style={styles.signupLink}>Sign Up</Text>
+            </TouchableOpacity>
+          </Link>
         </View>
       </View>
     </ScrollView>
@@ -155,7 +203,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 16,
   },
   googleIcon: {
     fontSize: 20,
@@ -167,6 +215,49 @@ const styles = StyleSheet.create({
     color: '#374151',
     fontSize: 16,
     fontWeight: '600',
+  },
+  secondaryButton: {
+    height: 48,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  secondaryButtonText: {
+    color: '#374151',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  adminButton: {
+    height: 48,
+    backgroundColor: '#4A154B',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  adminButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  demoInfo: {
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  demoTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6B7280',
+    marginBottom: 4,
+  },
+  demoText: {
+    fontSize: 11,
+    color: '#9CA3AF',
+    marginBottom: 2,
   },
   signupContainer: {
     flexDirection: 'row',

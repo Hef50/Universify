@@ -18,7 +18,9 @@ import cors from 'cors';
 import { App as BoltApp } from '@slack/bolt';
 import { WebClient } from '@slack/web-api';
 import { createRouter } from './routes';
+import { createClubRouter } from './club-routes';
 import { registerListeners } from './listener';
+import { registerActions } from './actions';
 
 const PORT = parseInt(process.env.PORT || '3001', 10);
 const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
@@ -56,6 +58,35 @@ async function main() {
   expressApp.use(cors());
   expressApp.use(express.json());
   expressApp.use('/api/slack', createRouter(slackClient));
+  expressApp.use('/api/clubs', createClubRouter());
+
+  // OpenRouter usage proxy
+  expressApp.get('/api/openrouter/usage', async (_req, res) => {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      res.json({ ok: false, error: 'OPENROUTER_API_KEY not set' });
+      return;
+    }
+    try {
+      const [keyRes, modelsRes] = await Promise.all([
+        fetch('https://openrouter.ai/api/v1/auth/key', {
+          headers: { Authorization: `Bearer ${apiKey}` },
+        }),
+        fetch('https://openrouter.ai/api/v1/models', {
+          headers: { Authorization: `Bearer ${apiKey}` },
+        }).catch(() => null),
+      ]);
+      const keyData: any = await keyRes.json();
+      let modelCount: number | null = null;
+      if (modelsRes?.ok) {
+        const md: any = await modelsRes.json();
+        modelCount = md.data?.length ?? null;
+      }
+      res.json({ ok: true, key: keyData.data, modelCount });
+    } catch (err: any) {
+      res.status(500).json({ ok: false, error: err.message });
+    }
+  });
 
   // Root route
   expressApp.get('/', (_req, res) => {
@@ -67,6 +98,11 @@ async function main() {
         channels: 'GET /api/slack/channels',
         events: 'GET /api/slack/events?channel={id}&limit={n}',
         cached: 'GET /api/slack/cached?channel={id}',
+        clubs: 'GET /api/clubs?userId={id}',
+        clubDetail: 'GET /api/clubs/:id?userId={id}',
+        clubJoin: 'POST /api/clubs/:id/join',
+        clubLeave: 'POST /api/clubs/:id/leave',
+        adminMemberships: 'GET /api/clubs/admin/memberships',
       },
     });
   });
@@ -90,6 +126,7 @@ async function main() {
       });
 
       registerListeners(boltApp);
+      registerActions(boltApp);
 
       await boltApp.start();
       console.log('⚡ Bolt Socket Mode listener connected to Slack\n');

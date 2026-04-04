@@ -8,6 +8,8 @@
     "install": "pnpm install",
     "build": "pnpm --filter client build",
     "dev": "pnpm --filter client start",
+    "dev:discord": "pnpm --filter discord-event-bot dev",
+    "start:discord": "pnpm --filter discord-event-bot start",
     "lint": "pnpm --filter client lint",
     "test": "pnpm --filter client test"
   },

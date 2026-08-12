@@ -12,6 +12,7 @@ import { Event } from '@/types/event';
 import { formatTimeRange } from '@/utils/dateHelpers';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { AppPalette } from '@/constants/theme';
+import { MyEventRelation } from '@/utils/myEvents';
 
 /**
  * Luma-style agenda: events grouped by day along a vertical timeline —
@@ -20,7 +21,9 @@ import { AppPalette } from '@/constants/theme';
  * own status (Going / Maybe / Created / Scheduled) surfaced as a chip.
  */
 
-export type AgendaBadge = 'going' | 'maybe' | 'created' | 'scheduled';
+// Why the event is on the user's list — the same relationships `useMyEvents`
+// resolves, rendered as a chip on the card.
+export type AgendaBadge = MyEventRelation;
 
 interface AgendaListProps {
   events: Event[];

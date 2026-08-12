@@ -74,13 +74,21 @@ export const scheduleEvent = (eventId: string, weekKey: string): void => {
   }
 };
 
-// Remove an event from a week's schedule
-export const unscheduleEvent = (eventId: string, weekKey: string): void => {
+// Remove an event from the schedule.
+// An event belongs to exactly one week, so unpinning clears it from every
+// week bucket — that also cleans up pins older versions filed under the week
+// the user happened to be viewing rather than the event's own week.
+export const unscheduleEvent = (eventId: string): void => {
   const scheduled = getScheduledEvents();
-  if (scheduled[weekKey]) {
-    scheduled[weekKey] = scheduled[weekKey].filter(id => id !== eventId);
-    saveScheduledEvents(scheduled);
+  let changed = false;
+  for (const weekKey of Object.keys(scheduled)) {
+    const next = scheduled[weekKey].filter((id) => id !== eventId);
+    if (next.length !== scheduled[weekKey].length) {
+      scheduled[weekKey] = next;
+      changed = true;
+    }
   }
+  if (changed) saveScheduledEvents(scheduled);
 };
 
 // Get all event IDs scheduled for a week

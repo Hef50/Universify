@@ -14,7 +14,7 @@ import { FilterDrawer } from '@/components/layout/FilterDrawer';
 import { Event } from '@/types/event';
 import { getUpcomingEvents } from '@/utils/eventHelpers';
 import { useUserInterests, rankEventsForUser } from '@/hooks/useRecommendations';
-import { useScheduledEvents, getWeekKey } from '@/hooks/useScheduledEvents';
+import { useMyEvents } from '@/hooks/useMyEvents';
 
 function HomeScreenContent() {
   const { events } = useEvents();
@@ -28,22 +28,10 @@ function HomeScreenContent() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Events the user engaged with (scheduled, RSVP'd, created) form the
-  // interest profile that the recommendation engine mines.
-  const { allScheduledIds } = useScheduledEvents(currentUser?.id, getWeekKey(new Date()));
-  const engagedEvents = useMemo(() => {
-    const userId = currentUser?.id;
-    const createdIds = new Set(currentUser?.createdEvents ?? []);
-    const scheduledIds = new Set(allScheduledIds);
-    return events.filter(
-      (event) =>
-        scheduledIds.has(event.id) ||
-        createdIds.has(event.id) ||
-        (userId != null && event.attendees.some((a) => a.userId === userId))
-    );
-  }, [events, currentUser, allScheduledIds]);
-
-  const { topInterests } = useUserInterests({ events: engagedEvents });
+  // Events the user engaged with (RSVP'd, pinned, hosting) form the interest
+  // profile that the recommendation engine mines.
+  const { myEvents } = useMyEvents();
+  const { topInterests } = useUserInterests({ events: myEvents });
 
   // Ranked recommendations: interest profile + explicit category preferences
   // + popularity, over upcoming events (respecting any active filters).

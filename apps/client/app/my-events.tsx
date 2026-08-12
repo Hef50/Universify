@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -11,11 +11,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { AppPalette } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
-import { useEvents } from '@/contexts/EventsContext';
-import { useScheduledEvents, getWeekKey } from '@/hooks/useScheduledEvents';
-import { AgendaList, AgendaBadge } from '@/components/events/AgendaList';
+import { useMyEvents } from '@/hooks/useMyEvents';
+import { AgendaList } from '@/components/events/AgendaList';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
-import { Event } from '@/types/event';
 
 /**
  * My Events — the Luma pattern: every event you have a relationship with
@@ -29,27 +27,10 @@ export default function MyEventsScreen() {
   const { colors, fontScale } = useAppTheme();
   const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const { currentUser } = useAuth();
-  const { events } = useEvents();
-  const weekKey = useMemo(() => getWeekKey(new Date()), []);
-  const { allScheduledIds } = useScheduledEvents(currentUser?.id, weekKey);
+  // Same "my events" set the calendar and agenda read from
+  const { myEvents, relationFor } = useMyEvents();
   const [tab, setTab] = useState<MyEventsTab>('upcoming');
   const [query, setQuery] = useState('');
-
-  // Everything the user is going to, hosting, or saved to their calendar
-  const myEvents = useMemo(() => {
-    if (!currentUser) return [];
-    const scheduled = new Set(allScheduledIds);
-    const created = new Set(currentUser.createdEvents);
-    return events.filter((event) => {
-      const rsvp = event.attendees.find((a) => a.userId === currentUser.id)?.status;
-      return (
-        rsvp === 'going' ||
-        rsvp === 'maybe' ||
-        scheduled.has(event.id) ||
-        created.has(event.id)
-      );
-    });
-  }, [events, currentUser, allScheduledIds]);
 
   const visibleEvents = useMemo(() => {
     const now = Date.now();
@@ -66,19 +47,6 @@ export default function MyEventsScreen() {
         event.location.toLowerCase().includes(q)
     );
   }, [myEvents, tab, query]);
-
-  const badgeFor = useCallback(
-    (event: Event): AgendaBadge | null => {
-      if (!currentUser) return null;
-      if (currentUser.createdEvents.includes(event.id)) return 'created';
-      const rsvp = event.attendees.find((a) => a.userId === currentUser.id)?.status;
-      if (rsvp === 'going') return 'going';
-      if (rsvp === 'maybe') return 'maybe';
-      if (allScheduledIds.includes(event.id)) return 'scheduled';
-      return null;
-    },
-    [currentUser, allScheduledIds]
-  );
 
   const topBar = (
     <View style={styles.topBar}>
@@ -162,7 +130,7 @@ export default function MyEventsScreen() {
         <AgendaList
           events={visibleEvents}
           onEventPress={(event) => router.push(`/event/${event.id}`)}
-          badgeFor={badgeFor}
+          badgeFor={relationFor}
           descending={tab === 'past'}
           emptyTitle={
             tab === 'upcoming'

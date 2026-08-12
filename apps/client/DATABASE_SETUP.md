@@ -82,11 +82,20 @@ The app currently uses **localStorage** (web) for data persistence. Events are l
 
 ## Testing Without Database
 
-The app works with mock data stored in:
-- `data/mockEvents.json` - 40 sample events
-- `data/currentWeekEvents.json` - 10 events for current week
+With no Supabase credentials the app runs in offline demo mode against
+`data/allEvents.json` (125 events). RSVPs and calendar pins made in that mode
+are saved to the device (localStorage) so they survive a reload.
 
-Events are automatically loaded from these files on first launch and stored in localStorage.
+Demo dates go stale as months pass. Re-date the whole catalogue onto the
+current month — some events already past, some today, the rest upcoming:
+
+```bash
+pnpm --filter @universify/client exec node scripts/refreshEventDates.js
+# or, from apps/client:  npm run refresh-events
+```
+
+Event ids are preserved, so RSVPs and pins already saved on a device still
+line up afterwards.
 
 ## Troubleshooting
 
@@ -97,7 +106,7 @@ Events are automatically loaded from these files on first launch and stored in l
    ```javascript
    localStorage.removeItem('universify_events');
    ```
-3. **Check event dates** - Events in `currentWeekEvents.json` are dated November 2025. Navigate to that week in the calendar to see them.
+3. **Check event dates** - The calendar only shows events you RSVP'd to, pinned, or are hosting. If the demo catalogue is stale, run `node scripts/refreshEventDates.js` to move it onto the current month.
 
 ### Recommendations not showing?
 

@@ -2,8 +2,8 @@ import { Event, EventCategory } from '@/types/event';
 
 /**
  * Dev-mode helpers: generate realistic test events pinned to the CURRENT
- * week (the bundled mock data has fixed dates that drift into the past),
- * so the calendar and feed always have something fresh to show.
+ * week, so there is always something fresh to test against without waiting
+ * on the bundled catalogue (which is re-dated by scripts/refreshEventDates.js).
  */
 
 const SAMPLE_TITLES: { title: string; categories: EventCategory[]; location: string }[] = [

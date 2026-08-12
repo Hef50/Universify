@@ -53,12 +53,15 @@ export function useScheduledEvents(rawUserId: string | undefined, weekKey: strin
     loadScheduled();
   }, [loadScheduled]);
 
+  // Pins are stored per week. Callers should pass the week the event actually
+  // falls in (`forWeekKey`); otherwise an event pinned while browsing another
+  // week would be filed under the week being viewed and vanish from its own.
   const scheduleEventForWeek = useCallback(
-    async (eventId: string) => {
+    async (eventId: string, forWeekKey: string = weekKey) => {
       if (userId) {
-        await scheduleEventInSupabase(userId, eventId, weekKey);
+        await scheduleEventInSupabase(userId, eventId, forWeekKey);
       } else {
-        scheduleEvent(eventId, weekKey);
+        scheduleEvent(eventId, forWeekKey);
       }
       await loadScheduled();
     },
@@ -68,13 +71,13 @@ export function useScheduledEvents(rawUserId: string | undefined, weekKey: strin
   const unscheduleEventForWeek = useCallback(
     async (eventId: string) => {
       if (userId) {
-        await unscheduleEventInSupabase(userId, eventId, weekKey);
+        await unscheduleEventInSupabase(userId, eventId);
       } else {
-        unscheduleEvent(eventId, weekKey);
+        unscheduleEvent(eventId);
       }
       await loadScheduled();
     },
-    [userId, weekKey, loadScheduled]
+    [userId, loadScheduled]
   );
 
   return {

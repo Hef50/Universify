@@ -215,8 +215,8 @@ export default function DevScreen() {
       {/* Data tools */}
       <Section styles={styles} title="Test data" icon="server-outline" colors={colors}>
         <Text style={styles.sectionHint}>
-          Seeded events are pinned to the next 7 days (bundled mock data has
-          fixed dates), tagged dev-seed, and removable in one tap.
+          Seeded events are pinned to the next 7 days, tagged dev-seed, and
+          removable in one tap.
         </Text>
         <View style={styles.buttonRow}>
           <TouchableOpacity

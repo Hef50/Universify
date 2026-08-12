@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import { Event, RSVPStatus, EventFormData } from '@/types/event';
 import {
   fetchEvents,
@@ -12,6 +12,15 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { dedupeAgainst } from '@/utils/dedupe';
 import { isDevUserId } from '@/constants/devAccounts';
+import { isSupabaseConfigured } from '@/lib/supabase';
+import { storage } from '@/lib/storage';
+import {
+  LOCAL_RSVP_STORAGE_KEY,
+  LocalRsvpStore,
+  applyLocalRsvps,
+  parseRsvpStore,
+  setLocalRsvp,
+} from '@/utils/localRsvps';
 import allEventsData from '@/data/allEvents.json';
 
 interface EventsContextType {
@@ -31,13 +40,31 @@ interface EventsContextType {
 const EventsContext = createContext<EventsContextType | undefined>(undefined);
 
 export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { addCreatedEvent } = useAuth();
-  const [events, setEvents] = useState<Event[]>([]);
+  const { addCreatedEvent, currentUser } = useAuth();
+  const [rawEvents, setRawEvents] = useState<Event[]>([]);
+  const [rsvpStore, setRsvpStore] = useState<LocalRsvpStore>({});
   const [isLoading, setIsLoading] = useState(true);
+
+  // RSVPs have nowhere to persist when there is no Supabase project, and
+  // dev-mode personas are not real auth.users rows — keep those on the device
+  // so "You're going" survives a reload.
+  const userId = currentUser?.id;
+  const usesLocalRsvps = !isSupabaseConfigured || isDevUserId(userId);
 
   useEffect(() => {
     loadEvents();
+    storage
+      .getItem(LOCAL_RSVP_STORAGE_KEY)
+      .then((raw) => setRsvpStore(parseRsvpStore(raw)))
+      .catch((error) => console.error('Failed to load saved RSVPs:', error));
   }, []);
+
+  // Locally-stored RSVPs are layered over whatever the source returned, so
+  // every consumer of `events` sees one consistent answer.
+  const events = useMemo(
+    () => (usesLocalRsvps ? applyLocalRsvps(rawEvents, rsvpStore, userId) : rawEvents),
+    [rawEvents, rsvpStore, userId, usesLocalRsvps]
+  );
 
   const loadEvents = async () => {
     try {
@@ -45,17 +72,17 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const fetchedEvents = await fetchEvents();
 
       if (fetchedEvents.length > 0) {
-        setEvents(fetchedEvents.filter((e) => !e.id.startsWith('gcal-')));
+        setRawEvents(fetchedEvents.filter((e) => !e.id.startsWith('gcal-')));
       } else {
         const fallbackEvents = (allEventsData as Event[]).filter((e) => !e.id.startsWith('gcal-'));
-        setEvents(fallbackEvents);
+        setRawEvents(fallbackEvents);
       }
     } catch (error) {
       if (!(error instanceof SupabaseNotConfiguredError)) {
         console.error('Failed to load events from Supabase:', error);
       }
       const fallbackEvents = (allEventsData as Event[]).filter((e) => !e.id.startsWith('gcal-'));
-      setEvents(fallbackEvents);
+      setRawEvents(fallbackEvents);
     } finally {
       setIsLoading(false);
     }
@@ -91,20 +118,20 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         updatedAt: now,
         imageUrl: eventData.imageUrl,
       };
-      setEvents((prev) => [...prev, localEvent]);
+      setRawEvents((prev) => [...prev, localEvent]);
       addCreatedEvent(localEvent.id);
       return localEvent;
     }
 
     const newEvent = await createEventAPI(eventData, userId, organizerName);
-    setEvents((prev) => [...prev, newEvent]);
+    setRawEvents((prev) => [...prev, newEvent]);
     addCreatedEvent(newEvent.id);
     return newEvent;
   };
 
   const updateEvent = async (eventId: string, updates: Partial<Event>) => {
     await updateEventAPI(eventId, updates);
-    setEvents((prev) =>
+    setRawEvents((prev) =>
       prev.map((event) =>
         event.id === eventId ? { ...event, ...updates, updatedAt: new Date().toISOString() } : event
       )
@@ -113,12 +140,25 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const deleteEvent = async (eventId: string) => {
     await deleteEventAPI(eventId);
-    setEvents((prev) => prev.filter((event) => event.id !== eventId));
+    setRawEvents((prev) => prev.filter((event) => event.id !== eventId));
   };
 
   const updateRSVP = async (eventId: string, userId: string, status: RSVPStatus) => {
     const event = events.find((e) => e.id === eventId);
     if (!event) return;
+
+    // Without a server to write to, the device is the record: persist the RSVP
+    // and let the derived `events` list pick it up.
+    if (!isSupabaseConfigured || isDevUserId(userId)) {
+      setRsvpStore((prev) => {
+        const next = setLocalRsvp(prev, userId, eventId, status);
+        storage
+          .setItem(LOCAL_RSVP_STORAGE_KEY, JSON.stringify(next))
+          .catch((error) => console.error('Failed to save RSVP:', error));
+        return next;
+      });
+      return;
+    }
 
     const filteredAttendees = event.attendees.filter((a) => a.userId !== userId);
     const newCounts = { ...event.rsvpCounts };
@@ -140,7 +180,7 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
 
     // Optimistic local update so the UI responds immediately
-    setEvents((prev) =>
+    setRawEvents((prev) =>
       prev.map((e) =>
         e.id === eventId
           ? {
@@ -153,24 +193,21 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       )
     );
 
-    // Dev-mode personas keep RSVPs in local state only
-    if (isDevUserId(userId)) return;
-
     try {
       // Write the user's own RSVP row; a DB trigger recomputes the aggregates
       await setRSVPAPI(eventId, userId, status);
       // Pull the authoritative aggregates back (handles concurrent RSVPs)
       const fresh = await fetchEventAPI(eventId);
       if (fresh) {
-        setEvents((prev) => prev.map((e) => (e.id === eventId ? fresh : e)));
+        setRawEvents((prev) => prev.map((e) => (e.id === eventId ? fresh : e)));
       }
     } catch (error) {
       if (error instanceof SupabaseNotConfiguredError) {
-        // Offline demo mode: the optimistic local state is the state
+        // Credentials disappeared mid-session: keep the optimistic state
         return;
       }
       console.error('Failed to persist RSVP, reverting:', error);
-      setEvents((prev) => prev.map((e) => (e.id === eventId ? event : e)));
+      setRawEvents((prev) => prev.map((e) => (e.id === eventId ? event : e)));
     }
   };
 
@@ -195,7 +232,7 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
    * another source (similar title, close start time) are dropped.
    */
   const addExternalEvents = (newEvents: Event[]) => {
-    setEvents((prev) => {
+    setRawEvents((prev) => {
       const newIds = new Set(newEvents.map((e) => e.id));
       // Remove old versions of these events, then append the new ones
       const filtered = prev.filter((e) => !newIds.has(e.id));
@@ -208,7 +245,7 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
    * Used to clear Slack-imported events (prefix "slack-").
    */
   const removeExternalEvents = (idPrefix: string) => {
-    setEvents((prev) => prev.filter((e) => !e.id.startsWith(idPrefix)));
+    setRawEvents((prev) => prev.filter((e) => !e.id.startsWith(idPrefix)));
   };
 
   const value: EventsContextType = {

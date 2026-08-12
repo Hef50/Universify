@@ -28,17 +28,17 @@ export async function scheduleEventInSupabase(
   if (error) throw error;
 }
 
+// An event belongs to exactly one week, so unpinning removes it whatever week
+// it was filed under.
 export async function unscheduleEventInSupabase(
   userId: string,
-  eventId: string,
-  weekKey: string
+  eventId: string
 ): Promise<void> {
   const { error } = await supabase
     .from('user_scheduled_events')
     .delete()
     .eq('user_id', userId)
-    .eq('event_id', eventId)
-    .eq('week_key', weekKey);
+    .eq('event_id', eventId);
 
   if (error) throw error;
 }

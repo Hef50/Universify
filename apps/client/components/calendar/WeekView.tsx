@@ -49,6 +49,27 @@ export const WeekView: React.FC<WeekViewProps> = ({ weekDays, events, onEventPre
   const [finalSelection, setFinalSelection] = useState<SelectionBox | null>(null);
   const gridBodyRef = useRef<View>(null);
   const gridLayoutRef = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
+  const verticalScrollRef = useRef<ScrollView>(null);
+  const scrolledForRef = useRef<string>('');
+
+  // The grid runs from midnight, which is always empty — open it on the first
+  // event of the visible range instead (or the morning when there is none).
+  useEffect(() => {
+    const key = `${weekDays[0]?.toDateString() ?? ''}-${events.length > 0}`;
+    if (scrolledForRef.current === key) return;
+    scrolledForRef.current = key;
+
+    const hours = events
+      .map((event) => new Date(event.startTime))
+      .filter((date) => !isNaN(date.getTime()))
+      .map((date) => date.getHours());
+    const earliest = hours.length > 0 ? Math.min(...hours) : 8;
+    const target = Math.max(0, Math.min(earliest - 1, 20));
+
+    requestAnimationFrame(() => {
+      verticalScrollRef.current?.scrollTo({ y: target * HOUR_HEIGHT, animated: false });
+    });
+  }, [weekDays, events]);
   
   // Clear selection when externalSelection becomes null (reset button clicked)
   useEffect(() => {
@@ -375,6 +396,7 @@ export const WeekView: React.FC<WeekViewProps> = ({ weekDays, events, onEventPre
         contentContainerStyle={{ flexGrow: 1 }}
       >
         <ScrollView
+          ref={verticalScrollRef}
           style={styles.verticalScroll}
           stickyHeaderIndices={[0]}
           showsVerticalScrollIndicator={true}

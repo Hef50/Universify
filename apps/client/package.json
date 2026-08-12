@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
-    "build": "expo export --platform web",
-    "vercel-build": "expo export --platform web",
+    "build": "expo export --platform web && node scripts/postexport.js",
+    "vercel-build": "expo export --platform web && node scripts/postexport.js",
     "typecheck": "tsc --noEmit",
     "reset-project": "node ./scripts/reset-project.js",
     "seed": "npx tsx scripts/seedEvents.ts",

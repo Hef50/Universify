@@ -438,8 +438,15 @@ export default function ProfileScreen() {
 
            {/* Menu */}
            <View style={styles.desktopMenu}>
-              <TouchableOpacity 
-                style={[styles.desktopMenuItem, activeTab === 'activity' && styles.desktopMenuItemActive]} 
+              <TouchableOpacity
+                style={styles.desktopMenuItem}
+                onPress={() => router.push('/my-events')}
+              >
+                <Ionicons name="calendar-outline" size={20} color={colors.textPrimary} style={styles.desktopMenuIcon} />
+                <Text style={styles.desktopMenuText}>My Events</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.desktopMenuItem, activeTab === 'activity' && styles.desktopMenuItemActive]}
                 onPress={() => setActiveTab('activity')}
               >
                 <Ionicons name="time-outline" size={20} color={activeTab === 'activity' ? colors.primary : colors.textPrimary} style={styles.desktopMenuIcon} />
@@ -509,6 +516,15 @@ export default function ProfileScreen() {
 
       {/* Menu Items */}
       <View style={styles.menu}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => router.push('/my-events')}
+        >
+          <Ionicons name="calendar-outline" size={20} color={colors.primary} style={styles.menuIcon} />
+          <Text style={styles.menuText}>My Events</Text>
+          <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
+        </TouchableOpacity>
+
         <TouchableOpacity
           style={styles.menuItem}
           onPress={() => router.push('/settings/account')}

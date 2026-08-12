@@ -28,6 +28,7 @@ function ThemedStack() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
         <Stack.Screen name="resources" options={{ headerShown: false }} />
+        <Stack.Screen name="my-events" options={{ headerShown: false }} />
         <Stack.Screen name="dev" options={{ headerShown: false }} />
         <Stack.Screen name="event/[id]" options={{ presentation: 'modal', title: 'Event Details' }} />
       </Stack>

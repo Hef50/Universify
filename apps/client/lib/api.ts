@@ -1,5 +1,17 @@
-import { supabase } from '@/lib/supabase';
-import { Event, EventFormData } from '@/types/event';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { Event, EventCategory, EventFormData, RSVPStatus } from '@/types/event';
+
+/** Thrown when a network call is attempted without Supabase credentials. */
+export class SupabaseNotConfiguredError extends Error {
+  constructor() {
+    super('Supabase is not configured; running in offline demo mode');
+    this.name = 'SupabaseNotConfiguredError';
+  }
+}
+
+function requireSupabase(): void {
+  if (!isSupabaseConfigured) throw new SupabaseNotConfiguredError();
+}
 
 function transformDbEventToEvent(dbEvent: Record<string, unknown>): Event {
   return {
@@ -9,7 +21,7 @@ function transformDbEventToEvent(dbEvent: Record<string, unknown>): Event {
     startTime: dbEvent.start_time as string,
     endTime: dbEvent.end_time as string,
     location: (dbEvent.location as string) || '',
-    categories: (dbEvent.categories as string[]) || [],
+    categories: (dbEvent.categories as EventCategory[]) || [],
     organizer: {
       id: (dbEvent.organizer_id as string) || '',
       name: (dbEvent.organizer_name as string) || '',
@@ -60,6 +72,7 @@ function transformEventFormToDb(eventData: EventFormData, userId: string, organi
     capacity: eventData.capacity,
     recurring: eventData.recurring,
     tags: eventData.tags,
+    image_url: eventData.imageUrl ?? null,
   };
 }
 
@@ -91,6 +104,7 @@ function transformEventToDb(updates: Partial<Event>): Record<string, unknown> {
 }
 
 export const fetchEvents = async (): Promise<Event[]> => {
+  requireSupabase();
   const { data, error } = await supabase
     .from('events')
     .select('*')
@@ -101,6 +115,7 @@ export const fetchEvents = async (): Promise<Event[]> => {
 };
 
 export const fetchCreatedEventIds = async (userId: string): Promise<string[]> => {
+  requireSupabase();
   const { data, error } = await supabase
     .from('events')
     .select('id')
@@ -114,6 +129,7 @@ export const createEventAPI = async (
   userId: string,
   organizerName: string = 'Current User'
 ): Promise<Event> => {
+  requireSupabase();
   const dbEvent = transformEventFormToDb(eventData, userId, organizerName);
 
   const { data, error } = await supabase.from('events').insert([dbEvent]).select().single();
@@ -123,6 +139,7 @@ export const createEventAPI = async (
 };
 
 export const updateEventAPI = async (eventId: string, updates: Partial<Event>): Promise<void> => {
+  requireSupabase();
   const dbUpdates = transformEventToDb(updates);
   const { error } = await supabase.from('events').update(dbUpdates).eq('id', eventId);
 
@@ -130,7 +147,52 @@ export const updateEventAPI = async (eventId: string, updates: Partial<Event>): 
 };
 
 export const deleteEventAPI = async (eventId: string): Promise<void> => {
+  requireSupabase();
   const { error } = await supabase.from('events').delete().eq('id', eventId);
 
   if (error) throw error;
+};
+
+/**
+ * Upsert (or clear) the current user's RSVP for an event.
+ *
+ * Writes go to the per-user event_rsvps table (which the user is allowed to
+ * write under RLS); a database trigger keeps events.rsvp_counts and
+ * events.attendees in sync. Passing null status removes the RSVP.
+ */
+export const setRSVPAPI = async (
+  eventId: string,
+  userId: string,
+  status: RSVPStatus
+): Promise<void> => {
+  requireSupabase();
+  if (status === null) {
+    const { error } = await supabase
+      .from('event_rsvps')
+      .delete()
+      .eq('event_id', eventId)
+      .eq('user_id', userId);
+    if (error) throw error;
+    return;
+  }
+
+  const { error } = await supabase
+    .from('event_rsvps')
+    .upsert(
+      { event_id: eventId, user_id: userId, status },
+      { onConflict: 'event_id,user_id' }
+    );
+  if (error) throw error;
+};
+
+/** Fetch the fresh server-side aggregate state of one event (counts + attendees). */
+export const fetchEventAPI = async (eventId: string): Promise<Event | null> => {
+  requireSupabase();
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .eq('id', eventId)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? transformDbEventToEvent(data as Record<string, unknown>) : null;
 };

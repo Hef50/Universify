@@ -18,6 +18,8 @@ import {
   validateLocation,
   validateTimeRange,
 } from '@/utils/validation';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 // TOGGLE FOR AUTO-FILL BUTTON
 const SHOW_AUTO_FILL = true;
@@ -61,6 +63,8 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
   onSubmit,
   isSubmitting = false,
 }) => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Form state
@@ -79,6 +83,12 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
   const [attendeeVisibility, setAttendeeVisibility] = useState<'public' | 'private'>('public');
   const [selectedColor, setSelectedColor] = useState(COLOR_OPTIONS[0]);
   const [tags, setTags] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [recurringFrequency, setRecurringFrequency] = useState<
+    'none' | 'daily' | 'weekly' | 'monthly'
+  >('none');
+  const [recurringInterval, setRecurringInterval] = useState('1');
+  const [recurringEndDate, setRecurringEndDate] = useState('');
 
   const autoFillForm = () => {
     const today = new Date();
@@ -148,6 +158,20 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
       newErrors.capacity = 'Capacity must be a positive number';
     }
 
+    if (imageUrl && !/^https?:\/\/.+/.test(imageUrl.trim())) {
+      newErrors.imageUrl = 'Image must be an http(s) URL';
+    }
+
+    if (recurringFrequency !== 'none') {
+      const interval = Number(recurringInterval);
+      if (isNaN(interval) || interval < 1 || !Number.isInteger(interval)) {
+        newErrors.recurringInterval = 'Repeat interval must be a whole number ≥ 1';
+      }
+      if (recurringEndDate && !/^\d{4}-\d{2}-\d{2}$/.test(recurringEndDate)) {
+        newErrors.recurringEndDate = 'Use YYYY-MM-DD';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -173,6 +197,15 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
       attendeeVisibility,
       color: selectedColor,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
+      imageUrl: imageUrl.trim() || undefined,
+      recurring:
+        recurringFrequency !== 'none'
+          ? {
+              frequency: recurringFrequency,
+              interval: Number(recurringInterval) || 1,
+              endDate: recurringEndDate || undefined,
+            }
+          : undefined,
     };
 
     await onSubmit(eventData);
@@ -264,6 +297,71 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
           </View>
         </View>
 
+        {/* Repeat Section */}
+        <View style={[styles.section, styles.shadow]}>
+          <Text style={styles.sectionTitle}>Repeat</Text>
+          <View style={styles.recurringOptions}>
+            {(
+              [
+                { id: 'none', label: 'Does not repeat' },
+                { id: 'daily', label: 'Daily' },
+                { id: 'weekly', label: 'Weekly' },
+                { id: 'monthly', label: 'Monthly' },
+              ] as const
+            ).map((option) => (
+              <TouchableOpacity
+                key={option.id}
+                style={[
+                  styles.recurringOption,
+                  recurringFrequency === option.id && styles.recurringOptionActive,
+                ]}
+                onPress={() => setRecurringFrequency(option.id)}
+              >
+                <Text
+                  style={[
+                    styles.recurringOptionText,
+                    recurringFrequency === option.id && styles.recurringOptionTextActive,
+                  ]}
+                >
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {recurringFrequency !== 'none' && (
+            <View style={styles.row}>
+              <View style={{ flex: 1 }}>
+                <Input
+                  label={`Every N ${
+                    recurringFrequency === 'daily'
+                      ? 'days'
+                      : recurringFrequency === 'weekly'
+                        ? 'weeks'
+                        : 'months'
+                  }`}
+                  value={recurringInterval}
+                  onChangeText={setRecurringInterval}
+                  placeholder="1"
+                  keyboardType="number-pad"
+                  error={errors.recurringInterval}
+                  style={styles.input}
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <DateTimePicker
+                  label="Repeat Until (Optional)"
+                  type="date"
+                  value={recurringEndDate}
+                  onChange={setRecurringEndDate}
+                  placeholder="YYYY-MM-DD"
+                  error={errors.recurringEndDate}
+                />
+              </View>
+            </View>
+          )}
+        </View>
+
         {/* Location Section */}
         <View style={[styles.section, styles.shadow]}>
           <Text style={styles.sectionTitle}>Location</Text>
@@ -273,6 +371,20 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
             onChangeText={setLocation}
             placeholder="e.g., Wiegand Gym Lounge"
             error={errors.location}
+            style={styles.input}
+          />
+        </View>
+
+        {/* Image Section */}
+        <View style={[styles.section, styles.shadow]}>
+          <Text style={styles.sectionTitle}>Event Image</Text>
+          <Input
+            label="Image URL (Optional)"
+            value={imageUrl}
+            onChangeText={setImageUrl}
+            placeholder="https://example.com/flyer.png"
+            error={errors.imageUrl}
+            autoCapitalize="none"
             style={styles.input}
           />
         </View>
@@ -308,8 +420,8 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
             <Switch
               value={isClubEvent}
               onValueChange={setIsClubEvent}
-              trackColor={{ false: '#E5E7EB', true: '#FF6B6B' }} // Changed false to lighter gray
-              thumbColor="#FFFFFF" // Explicitly white to fix "green on orange"
+              trackColor={{ false: colors.border, true: colors.primary }} // Changed false to lighter gray
+              thumbColor={colors.onPrimary} // Explicitly white to fix "green on orange"
             />
           </View>
 
@@ -321,8 +433,8 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
             <Switch
               value={isSocialEvent}
               onValueChange={setIsSocialEvent}
-              trackColor={{ false: '#E5E7EB', true: '#FF6B6B' }}
-              thumbColor="#FFFFFF"
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor={colors.onPrimary}
             />
           </View>
 
@@ -377,131 +489,157 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 24,
-    paddingHorizontal: 4,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  autoFillButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: '#F3F4F6',
-    borderRadius: 8,
-  },
-  autoFillText: {
-    fontSize: 13,
-    color: '#6B7280',
-    fontWeight: '600',
-  },
-  scrollContent: {
-    paddingBottom: 40,
-  },
-  section: {
-    marginBottom: 32,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#F3F4F6',
-  },
-  shadow: {
-    // Soft shadow for professional look
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 20,
-  },
-  input: {
-    backgroundColor: '#FFFFFF',
-  },
-  textArea: {
-    height: 100, 
-    textAlignVertical: 'top',
-  },
-  row: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-  categoryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  errorText: {
-    fontSize: 12,
-    color: '#DC2626',
-    marginTop: 4,
-  },
-  switchRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  switchLabel: {
-    flex: 1,
-    marginRight: 12,
-  },
-  switchText: {
-    fontSize: 16,
-    color: '#1F2937',
-    fontWeight: '500',
-  },
-  switchSubtext: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginTop: 4,
-  },
-  colorGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 16,
-  },
-  colorOption: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  colorOptionSelected: {
-    borderColor: '#1F2937',
-    transform: [{ scale: 1.1 }],
-  },
-  colorCheckmark: {
-    fontSize: 22,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  footer: {
-    marginTop: 24,
-  },
-  submitButton: {
-    width: '100%',
-    height: 56,
-    borderRadius: 12,
-  },
-});
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.surface,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 24,
+      paddingHorizontal: 4,
+    },
+    title: {
+      fontSize: 28 * fontScale,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+    },
+    autoFillButton: {
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: 8,
+    },
+    autoFillText: {
+      fontSize: 13 * fontScale,
+      color: colors.textSecondary,
+      fontWeight: '600',
+    },
+    scrollContent: {
+      paddingBottom: 40,
+    },
+    section: {
+      marginBottom: 32,
+      backgroundColor: colors.surface,
+      borderRadius: 16,
+      padding: 20,
+      borderWidth: 1,
+      borderColor: colors.surfaceAlt,
+    },
+    shadow: {
+      // Soft shadow for professional look
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.03,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    sectionTitle: {
+      fontSize: 18 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+      marginBottom: 20,
+    },
+    recurringOptions: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+      marginBottom: 16,
+    },
+    recurringOption: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 8,
+      paddingVertical: 8,
+      paddingHorizontal: 14,
+    },
+    recurringOptionActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    recurringOptionText: {
+      fontSize: 14 * fontScale,
+      fontWeight: '500',
+      color: colors.textPrimary,
+    },
+    recurringOptionTextActive: {
+      color: colors.onPrimary,
+    },
+    input: {
+      backgroundColor: colors.surface,
+    },
+    textArea: {
+      height: 100,
+      textAlignVertical: 'top',
+    },
+    row: {
+      flexDirection: 'row',
+      gap: 16,
+    },
+    categoryGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    errorText: {
+      fontSize: 12 * fontScale,
+      color: colors.danger,
+      marginTop: 4,
+    },
+    switchRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.surfaceAlt,
+    },
+    switchLabel: {
+      flex: 1,
+      marginRight: 12,
+    },
+    switchText: {
+      fontSize: 16 * fontScale,
+      color: colors.textPrimary,
+      fontWeight: '500',
+    },
+    switchSubtext: {
+      fontSize: 13 * fontScale,
+      color: colors.textSecondary,
+      marginTop: 4,
+    },
+    colorGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 16,
+    },
+    colorOption: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: 'transparent',
+    },
+    colorOptionSelected: {
+      borderColor: colors.textPrimary,
+      transform: [{ scale: 1.1 }],
+    },
+    colorCheckmark: {
+      fontSize: 22 * fontScale,
+      color: colors.onPrimary,
+      fontWeight: 'bold',
+    },
+    footer: {
+      marginTop: 24,
+    },
+    submitButton: {
+      width: '100%',
+      height: 56,
+      borderRadius: 12,
+    },
+  });

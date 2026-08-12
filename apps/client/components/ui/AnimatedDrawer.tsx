@@ -4,7 +4,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Modal,
-  Dimensions,
+  DimensionValue,
   ViewStyle,
 } from 'react-native';
 import Animated, {
@@ -14,6 +14,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useResponsive } from '@/hooks/useResponsive';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 type DrawerPosition = 'left' | 'right' | 'bottom';
 
@@ -22,8 +24,8 @@ interface AnimatedDrawerProps {
   onClose: () => void;
   position?: DrawerPosition;
   children: React.ReactNode;
-  width?: number | string;
-  height?: number | string;
+  width?: DimensionValue;
+  height?: DimensionValue;
   containerStyle?: ViewStyle;
 }
 
@@ -36,6 +38,8 @@ export const AnimatedDrawer: React.FC<AnimatedDrawerProps> = ({
   height,
   containerStyle,
 }) => {
+  const { colors, fontScale, reduceMotion } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const { isMobile, width: screenWidth, height: screenHeight } = useResponsive();
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -46,7 +50,7 @@ export const AnimatedDrawer: React.FC<AnimatedDrawerProps> = ({
   const drawerHeight = height || (position === 'bottom' ? '70%' : '100%');
 
   // Calculate initial positions
-  const getInitialPosition = () => {
+  const getInitialPosition = React.useCallback(() => {
     switch (position) {
       case 'left':
         return { x: -screenWidth, y: 0 };
@@ -57,11 +61,25 @@ export const AnimatedDrawer: React.FC<AnimatedDrawerProps> = ({
       default:
         return { x: 0, y: 0 };
     }
-  };
+  }, [position, screenWidth, screenHeight]);
 
   useEffect(() => {
     const initial = getInitialPosition();
-    
+
+    if (reduceMotion) {
+      // Skip animations: snap the drawer/overlay to their target values
+      if (visible) {
+        translateX.value = withTiming(0, { duration: 0 });
+        translateY.value = withTiming(0, { duration: 0 });
+        opacity.value = withTiming(1, { duration: 0 });
+      } else {
+        translateX.value = withTiming(initial.x, { duration: 0 });
+        translateY.value = withTiming(initial.y, { duration: 0 });
+        opacity.value = withTiming(0, { duration: 0 });
+      }
+      return;
+    }
+
     if (visible) {
       translateX.value = withSpring(0, {
         damping: 20,
@@ -83,7 +101,7 @@ export const AnimatedDrawer: React.FC<AnimatedDrawerProps> = ({
       });
       opacity.value = withTiming(0, { duration: 200 });
     }
-  }, [visible, position]);
+  }, [visible, position, reduceMotion, getInitialPosition, translateX, translateY, opacity]);
 
   const drawerAnimatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -150,22 +168,22 @@ export const AnimatedDrawer: React.FC<AnimatedDrawerProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  drawer: {
-    position: 'absolute',
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-});
-
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    overlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: colors.overlay,
+    },
+    drawer: {
+      position: 'absolute',
+      backgroundColor: colors.surface,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+      elevation: 8,
+    },
+  });

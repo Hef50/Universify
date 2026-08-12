@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { supabase } from '@/lib/supabase';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 /**
  * OAuth callback route for Google sign-in.
@@ -10,6 +12,8 @@ import { supabase } from '@/lib/supabase';
  */
 export default function AuthCallbackScreen() {
   const [error, setError] = useState<string | null>(null);
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
 
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof window === 'undefined') {
@@ -29,9 +33,6 @@ export default function AuthCallbackScreen() {
       }
 
       if (!code) {
-        // #region agent log
-        if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'callback.tsx:noCode',message:'Callback hit but no code in URL',data:{url:typeof window!=='undefined'?window.location.href:''},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         // No code - might already have session or direct visit; go to app
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
@@ -43,17 +44,10 @@ export default function AuthCallbackScreen() {
       }
 
       try {
-        const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-
-        // #region agent log
-        if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'callback.tsx:exchange',message:'After exchangeCodeForSession',data:{hasCode:!!code,hasError:!!exchangeError,hasSession:!!exchangeData?.session,hasProviderToken:!!exchangeData?.session?.provider_token},timestamp:Date.now(),hypothesisId:'B'})}).catch(()=>{});
-        // #endregion
+        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
         if (exchangeError) {
           console.error('Code exchange error:', exchangeError);
-          // #region agent log
-          if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'callback.tsx:exchangeError',message:'Code exchange failed',data:{error:exchangeError.message},timestamp:Date.now(),hypothesisId:'B'})}).catch(()=>{});
-          // #endregion
           setError(exchangeError.message);
           setTimeout(() => router.replace('/(auth)/login'), 3000);
           return;
@@ -77,7 +71,7 @@ export default function AuthCallbackScreen() {
         <Text style={styles.errorText}>{error}</Text>
       ) : (
         <>
-          <ActivityIndicator size="large" color="#FF6B6B" />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.message}>Completing sign-in...</Text>
         </>
       )}
@@ -85,22 +79,23 @@ export default function AuthCallbackScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F8F9FA',
-  },
-  message: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#6B7280',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#DC2626',
-    textAlign: 'center',
-    paddingHorizontal: 24,
-  },
-});
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.background,
+    },
+    message: {
+      marginTop: 16,
+      fontSize: 16 * fontScale,
+      color: colors.textSecondary,
+    },
+    errorText: {
+      fontSize: 16 * fontScale,
+      color: colors.danger,
+      textAlign: 'center',
+      paddingHorizontal: 24,
+    },
+  });

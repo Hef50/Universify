@@ -18,6 +18,8 @@ import { useResponsive } from '@/hooks/useResponsive';
 import { useSlack } from '@/contexts/SlackContext';
 import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 type ProfileTab = 'activity' | 'account' | 'preferences' | 'appearance';
 
@@ -32,12 +34,15 @@ export default function ProfileScreen() {
   const [editingAccount, setEditingAccount] = useState(false);
   const [editName, setEditName] = useState(currentUser?.name ?? '');
   const [editUniversity, setEditUniversity] = useState(currentUser?.university ?? '');
+  const currentName = currentUser?.name;
+  const currentUniversity = currentUser?.university;
   useEffect(() => {
-    if (currentUser) {
-      setEditName(currentUser.name);
-      setEditUniversity(currentUser.university);
-    }
-  }, [currentUser?.name, currentUser?.university]);
+    if (currentName != null) setEditName(currentName);
+    if (currentUniversity != null) setEditUniversity(currentUniversity);
+  }, [currentName, currentUniversity]);
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
+  const slackStyles = React.useMemo(() => createSlackStyles(colors, fontScale), [colors, fontScale]);
 
   if (!currentUser) {
     return null;
@@ -136,12 +141,9 @@ export default function ProfileScreen() {
             )}
             <View style={styles.settingRow}>
               <View style={styles.settingLabelValue}>
-                <Text style={styles.settingLabel}>Password</Text>
-                <Text style={styles.settingValue}>••••••••</Text>
+                <Text style={styles.settingLabel}>Sign-in</Text>
+                <Text style={styles.settingValue}>Managed by Google (CMU account)</Text>
               </View>
-              <TouchableOpacity style={styles.editButton} onPress={() => router.push('/settings/account')}>
-                <Text style={styles.editButtonText}>Change</Text>
-              </TouchableOpacity>
             </View>
           </View>
         );
@@ -165,7 +167,7 @@ export default function ProfileScreen() {
                     },
                   })
                 }
-                trackColor={{ false: '#767577', true: '#FF6B6B' }}
+                trackColor={{ false: colors.border, true: colors.primary }}
               />
             </View>
             <View style={styles.settingRow}>
@@ -183,7 +185,7 @@ export default function ProfileScreen() {
                     },
                   })
                 }
-                trackColor={{ false: '#767577', true: '#FF6B6B' }}
+                trackColor={{ false: colors.border, true: colors.primary }}
               />
             </View>
             <View style={styles.settingRow}>
@@ -198,7 +200,7 @@ export default function ProfileScreen() {
                     },
                   })
                 }
-                trackColor={{ false: '#767577', true: '#FF6B6B' }}
+                trackColor={{ false: colors.border, true: colors.primary }}
               />
             </View>
 
@@ -216,7 +218,7 @@ export default function ProfileScreen() {
                 value={botUrlInput}
                 onChangeText={setBotUrlInput}
                 placeholder="http://localhost:3001"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={colors.textTertiary}
                 autoCapitalize="none"
                 autoCorrect={false}
               />
@@ -229,7 +231,7 @@ export default function ProfileScreen() {
                 disabled={slack.isConnecting}
               >
                 {slack.isConnecting ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
+                  <ActivityIndicator size="small" color={colors.onPrimary} />
                 ) : (
                   <Text style={slackStyles.buttonText}>
                     {slack.isConnected ? 'Reconnect' : 'Connect'}
@@ -254,7 +256,7 @@ export default function ProfileScreen() {
             {/* Channel selector */}
             {slack.isConnected && (
               <>
-                <Text style={[styles.sectionTitle, { marginTop: 12, fontSize: 15 }]}>Select Channels</Text>
+                <Text style={[styles.sectionTitle, { marginTop: 12, fontSize: 15 * fontScale }]}>Select Channels</Text>
                 {slack.isLoadingChannels ? (
                   <ActivityIndicator size="small" color="#611f69" style={{ marginVertical: 12 }} />
                 ) : slack.channels.length === 0 ? (
@@ -301,7 +303,7 @@ export default function ProfileScreen() {
                   disabled={slack.isImporting || slack.config.selectedChannelIds.length === 0}
                 >
                   {slack.isImporting ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
+                    <ActivityIndicator size="small" color={colors.onPrimary} />
                   ) : (
                     <Text style={slackStyles.importButtonText}>
                       Import Events from Slack
@@ -318,7 +320,7 @@ export default function ProfileScreen() {
                 {/* Import status */}
                 {slack.lastImportTime && (
                   <View style={{ paddingVertical: 8 }}>
-                    <Text style={{ fontSize: 13, color: '#6B7280' }}>
+                    <Text style={{ fontSize: 13 * fontScale, color: colors.textSecondary }}>
                       Last import: {slack.lastImportTime.toLocaleString()} ({slack.importedCount} events)
                     </Text>
                   </View>
@@ -330,7 +332,7 @@ export default function ProfileScreen() {
                   <Switch
                     value={slack.config.autoImport}
                     onValueChange={slack.setAutoImport}
-                    trackColor={{ false: '#767577', true: '#611f69' }}
+                    trackColor={{ false: colors.border, true: '#611f69' }}
                   />
                 </View>
 
@@ -358,7 +360,7 @@ export default function ProfileScreen() {
               <Switch
                 value={settings.theme === 'dark'}
                 onValueChange={(value) => updateSettings({ theme: value ? 'dark' : 'light' })}
-                trackColor={{ false: '#767577', true: '#FF6B6B' }}
+                trackColor={{ false: colors.border, true: colors.primary }}
               />
             </View>
             <View style={styles.settingRow}>
@@ -366,7 +368,7 @@ export default function ProfileScreen() {
               <Switch
                 value={settings.compactView ?? false}
                 onValueChange={(value) => updateSettings({ compactView: value })}
-                trackColor={{ false: '#767577', true: '#FF6B6B' }}
+                trackColor={{ false: colors.border, true: colors.primary }}
               />
             </View>
           </View>
@@ -407,7 +409,7 @@ export default function ProfileScreen() {
                           {' · '}{type === 'created' ? 'Created' : 'Saved'}
                         </Text>
                       </View>
-                      <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+                      <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -440,33 +442,33 @@ export default function ProfileScreen() {
                 style={[styles.desktopMenuItem, activeTab === 'activity' && styles.desktopMenuItemActive]} 
                 onPress={() => setActiveTab('activity')}
               >
-                <Ionicons name="time-outline" size={20} color={activeTab === 'activity' ? '#FF6B6B' : '#374151'} style={styles.desktopMenuIcon} />
+                <Ionicons name="time-outline" size={20} color={activeTab === 'activity' ? colors.primary : colors.textPrimary} style={styles.desktopMenuIcon} />
                 <Text style={[styles.desktopMenuText, activeTab === 'activity' && styles.desktopMenuTextActive]}>Activity</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.desktopMenuItem, activeTab === 'account' && styles.desktopMenuItemActive]} 
                 onPress={() => setActiveTab('account')}
               >
-                <Ionicons name="person-outline" size={20} color={activeTab === 'account' ? '#FF6B6B' : '#374151'} style={styles.desktopMenuIcon} />
+                <Ionicons name="person-outline" size={20} color={activeTab === 'account' ? colors.primary : colors.textPrimary} style={styles.desktopMenuIcon} />
                 <Text style={[styles.desktopMenuText, activeTab === 'account' && styles.desktopMenuTextActive]}>Account</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.desktopMenuItem, activeTab === 'preferences' && styles.desktopMenuItemActive]} 
                 onPress={() => setActiveTab('preferences')}
               >
-                <Ionicons name="settings-outline" size={20} color={activeTab === 'preferences' ? '#FF6B6B' : '#374151'} style={styles.desktopMenuIcon} />
+                <Ionicons name="settings-outline" size={20} color={activeTab === 'preferences' ? colors.primary : colors.textPrimary} style={styles.desktopMenuIcon} />
                 <Text style={[styles.desktopMenuText, activeTab === 'preferences' && styles.desktopMenuTextActive]}>Preferences</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.desktopMenuItem, activeTab === 'appearance' && styles.desktopMenuItemActive]} 
                 onPress={() => setActiveTab('appearance')}
               >
-                <Ionicons name="color-palette-outline" size={20} color={activeTab === 'appearance' ? '#FF6B6B' : '#374151'} style={styles.desktopMenuIcon} />
+                <Ionicons name="color-palette-outline" size={20} color={activeTab === 'appearance' ? colors.primary : colors.textPrimary} style={styles.desktopMenuIcon} />
                 <Text style={[styles.desktopMenuText, activeTab === 'appearance' && styles.desktopMenuTextActive]}>Appearance</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.desktopMenuItem, styles.desktopLogoutItem]} onPress={handleLogout}>
-                 <Ionicons name="log-out-outline" size={20} color="#FF6B6B" style={styles.desktopMenuIcon} />
-                 <Text style={[styles.desktopMenuText, {color: '#FF6B6B'}]}>Log Out</Text>
+                 <Ionicons name="log-out-outline" size={20} color={colors.primary} style={styles.desktopMenuIcon} />
+                 <Text style={[styles.desktopMenuText, {color: colors.primary}]}>Log Out</Text>
               </TouchableOpacity>
            </View>
         </View>
@@ -511,27 +513,27 @@ export default function ProfileScreen() {
           style={styles.menuItem}
           onPress={() => router.push('/settings/account')}
         >
-          <Ionicons name="person-outline" size={20} color="#FF6B6B" style={styles.menuIcon} />
+          <Ionicons name="person-outline" size={20} color={colors.primary} style={styles.menuIcon} />
           <Text style={styles.menuText}>Account Settings</Text>
-          <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+          <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.menuItem}
           onPress={() => router.push('/settings/preferences')}
         >
-          <Ionicons name="settings-outline" size={20} color="#FF6B6B" style={styles.menuIcon} />
+          <Ionicons name="settings-outline" size={20} color={colors.primary} style={styles.menuIcon} />
           <Text style={styles.menuText}>Preferences</Text>
-          <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+          <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.menuItem}
           onPress={() => router.push('/settings/appearance')}
         >
-          <Ionicons name="color-palette-outline" size={20} color="#FF6B6B" style={styles.menuIcon} />
+          <Ionicons name="color-palette-outline" size={20} color={colors.primary} style={styles.menuIcon} />
           <Text style={styles.menuText}>Appearance</Text>
-          <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+          <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -542,462 +544,464 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  // Mobile Styles
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-  header: {
-    alignItems: 'center',
-    padding: 32,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#FF6B6B',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  avatarText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  name: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  email: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 4,
-  },
-  university: {
-    fontSize: 14,
-    color: '#9CA3AF',
-  },
-  stats: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    marginTop: 8,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-  },
-  statDivider: {
-    width: 1,
-    backgroundColor: '#E5E7EB',
-  },
-  menu: {
-    backgroundColor: '#FFFFFF',
-    marginTop: 8,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  menuIcon: {
-    marginRight: 12,
-  },
-  menuText: {
-    flex: 1,
-    fontSize: 16,
-    color: '#1F2937',
-  },
-  logoutButton: {
-    margin: 16,
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#FF6B6B',
-  },
-  logoutText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FF6B6B',
-  },
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    // Mobile Styles
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      alignItems: 'center',
+      padding: 32,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    avatar: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    avatarText: {
+      fontSize: 32 * fontScale,
+      fontWeight: 'bold',
+      color: colors.onPrimary,
+    },
+    name: {
+      fontSize: 24 * fontScale,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 4,
+    },
+    email: {
+      fontSize: 14 * fontScale,
+      color: colors.textSecondary,
+      marginBottom: 4,
+    },
+    university: {
+      fontSize: 14 * fontScale,
+      color: colors.textTertiary,
+    },
+    stats: {
+      flexDirection: 'row',
+      backgroundColor: colors.surface,
+      padding: 20,
+      marginTop: 8,
+    },
+    statItem: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    statValue: {
+      fontSize: 24 * fontScale,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 4,
+    },
+    statLabel: {
+      fontSize: 12 * fontScale,
+      color: colors.textSecondary,
+    },
+    statDivider: {
+      width: 1,
+      backgroundColor: colors.border,
+    },
+    menu: {
+      backgroundColor: colors.surface,
+      marginTop: 8,
+    },
+    menuItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    menuIcon: {
+      marginRight: 12,
+    },
+    menuText: {
+      flex: 1,
+      fontSize: 16 * fontScale,
+      color: colors.textPrimary,
+    },
+    logoutButton: {
+      margin: 16,
+      padding: 16,
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.primary,
+    },
+    logoutText: {
+      fontSize: 16 * fontScale,
+      fontWeight: '600',
+      color: colors.primary,
+    },
 
-  // Desktop Styles
-  desktopContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#FAFAFA',
-    width: '100%',
-    padding: 32,
-    gap: 32,
-  },
-  desktopSidebar: {
-    width: 280,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    alignSelf: 'flex-start',
-  },
-  desktopProfileHeader: {
-    alignItems: 'flex-start',
-    marginBottom: 32,
-  },
-  desktopAvatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#FF6B6B',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  desktopAvatarText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  desktopName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  desktopEditButton: {
-    backgroundColor: '#F3F4F6',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    width: '100%',
-    alignItems: 'center',
-  },
-  desktopEditButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-  },
-  desktopMenu: {
-    gap: 8,
-  },
-  desktopMenuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 8,
-  },
-  desktopMenuItemActive: {
-    backgroundColor: '#FFF1F1', // Light red/orange background
-  },
-  desktopMenuIcon: {
-    marginRight: 12,
-  },
-  desktopMenuText: {
-    fontSize: 15,
-    color: '#374151',
-    fontWeight: '500',
-  },
-  desktopMenuTextActive: {
-    color: '#FF6B6B',
-    fontWeight: '600',
-  },
-  desktopLogoutItem: {
-    marginTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
-    paddingTop: 16,
-  },
-  desktopMainContent: {
-    flex: 1,
-  },
-  desktopStatsRow: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    padding: 24,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    marginBottom: 24,
-  },
-  desktopContentSection: {
-    backgroundColor: '#FFFFFF',
-    padding: 24,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    minHeight: 400,
-  },
-  settingsSection: {
-    backgroundColor: '#FFFFFF',
-    padding: 24,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    minHeight: 400,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 24,
-  },
-  settingRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  settingLabelValue: {
-    flex: 1,
-    minWidth: 0,
-  },
-  settingLabel: {
-    fontSize: 15,
-    color: '#374151',
-    fontWeight: '500',
-    marginBottom: 4,
-  },
-  settingValue: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  settingInput: {
-    fontSize: 14,
-    color: '#1F2937',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    marginTop: 4,
-  },
-  editRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  editButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: '#F3F4F6',
-    borderRadius: 6,
-  },
-  editButtonText: {
-    fontSize: 13,
-    color: '#374151',
-    fontWeight: '500',
-  },
-  cancelButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-    backgroundColor: '#E5E7EB',
-  },
-  cancelButtonText: {
-    fontSize: 13,
-    color: '#374151',
-    fontWeight: '500',
-  },
-  placeholderText: {
-    color: '#9CA3AF',
-    fontStyle: 'italic',
-  },
-  activityList: {
-    gap: 0,
-  },
-  activityItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 14,
-    paddingHorizontal: 0,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  activityItemContent: {
-    flex: 1,
-    minWidth: 0,
-  },
-  activityItemTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 2,
-  },
-  activityItemMeta: {
-    fontSize: 13,
-    color: '#6B7280',
-  },
-});
+    // Desktop Styles
+    desktopContainer: {
+      flex: 1,
+      flexDirection: 'row',
+      backgroundColor: colors.background,
+      width: '100%',
+      padding: 32,
+      gap: 32,
+    },
+    desktopSidebar: {
+      width: 280,
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: 24,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignSelf: 'flex-start',
+    },
+    desktopProfileHeader: {
+      alignItems: 'flex-start',
+      marginBottom: 32,
+    },
+    desktopAvatar: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    desktopAvatarText: {
+      fontSize: 32 * fontScale,
+      fontWeight: 'bold',
+      color: colors.onPrimary,
+    },
+    desktopName: {
+      fontSize: 20 * fontScale,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 4,
+    },
+    desktopEditButton: {
+      backgroundColor: colors.surfaceAlt,
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+      borderRadius: 8,
+      width: '100%',
+      alignItems: 'center',
+    },
+    desktopEditButtonText: {
+      fontSize: 14 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+    },
+    desktopMenu: {
+      gap: 8,
+    },
+    desktopMenuItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 12,
+      borderRadius: 8,
+    },
+    desktopMenuItemActive: {
+      backgroundColor: colors.dangerSoft, // Light red/orange background
+    },
+    desktopMenuIcon: {
+      marginRight: 12,
+    },
+    desktopMenuText: {
+      fontSize: 15 * fontScale,
+      color: colors.textPrimary,
+      fontWeight: '500',
+    },
+    desktopMenuTextActive: {
+      color: colors.primary,
+      fontWeight: '600',
+    },
+    desktopLogoutItem: {
+      marginTop: 16,
+      borderTopWidth: 1,
+      borderTopColor: colors.surfaceAlt,
+      paddingTop: 16,
+    },
+    desktopMainContent: {
+      flex: 1,
+    },
+    desktopStatsRow: {
+      flexDirection: 'row',
+      backgroundColor: colors.surface,
+      padding: 24,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginBottom: 24,
+    },
+    desktopContentSection: {
+      backgroundColor: colors.surface,
+      padding: 24,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      minHeight: 400,
+    },
+    settingsSection: {
+      backgroundColor: colors.surface,
+      padding: 24,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      minHeight: 400,
+    },
+    sectionTitle: {
+      fontSize: 18 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+      marginBottom: 24,
+    },
+    settingRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.surfaceAlt,
+    },
+    settingLabelValue: {
+      flex: 1,
+      minWidth: 0,
+    },
+    settingLabel: {
+      fontSize: 15 * fontScale,
+      color: colors.textPrimary,
+      fontWeight: '500',
+      marginBottom: 4,
+    },
+    settingValue: {
+      fontSize: 14 * fontScale,
+      color: colors.textSecondary,
+    },
+    settingInput: {
+      fontSize: 14 * fontScale,
+      color: colors.textPrimary,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 6,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      marginTop: 4,
+    },
+    editRow: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    editButton: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: 6,
+    },
+    editButtonText: {
+      fontSize: 13 * fontScale,
+      color: colors.textPrimary,
+      fontWeight: '500',
+    },
+    cancelButton: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 6,
+      backgroundColor: colors.border,
+    },
+    cancelButtonText: {
+      fontSize: 13 * fontScale,
+      color: colors.textPrimary,
+      fontWeight: '500',
+    },
+    placeholderText: {
+      color: colors.textTertiary,
+      fontStyle: 'italic',
+    },
+    activityList: {
+      gap: 0,
+    },
+    activityItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 14,
+      paddingHorizontal: 0,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.surfaceAlt,
+    },
+    activityItemContent: {
+      flex: 1,
+      minWidth: 0,
+    },
+    activityItemTitle: {
+      fontSize: 15 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+      marginBottom: 2,
+    },
+    activityItemMeta: {
+      fontSize: 13 * fontScale,
+      color: colors.textSecondary,
+    },
+  });
 
-const slackStyles = StyleSheet.create({
-  divider: {
-    height: 1,
-    backgroundColor: '#E5E7EB',
-    marginTop: 20,
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginBottom: 12,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 8,
-  },
-  input: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-    color: '#1F2937',
-  },
-  button: {
-    backgroundColor: '#611f69',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    minWidth: 90,
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 4,
-    paddingVertical: 4,
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#10B981',
-  },
-  statusText: {
-    fontSize: 13,
-    color: '#10B981',
-    fontWeight: '500',
-  },
-  errorRow: {
-    backgroundColor: '#FEF2F2',
-    borderRadius: 8,
-    padding: 12,
-    marginVertical: 4,
-  },
-  errorText: {
-    fontSize: 13,
-    color: '#DC2626',
-  },
-  channelList: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    overflow: 'hidden',
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  channel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  channelSelected: {
-    backgroundColor: '#F5F0F6',
-  },
-  channelName: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1F2937',
-  },
-  channelNameSelected: {
-    color: '#611f69',
-    fontWeight: '600',
-  },
-  channelPurpose: {
-    fontSize: 12,
-    color: '#9CA3AF',
-    marginTop: 2,
-  },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#D1D5DB',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxChecked: {
-    borderColor: '#611f69',
-    backgroundColor: '#611f69',
-  },
-  checkboxMark: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: 'bold',
-  },
-  importButton: {
-    backgroundColor: '#611f69',
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  importButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 15,
-  },
-  clearButton: {
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#DC2626',
-    paddingVertical: 10,
-    alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 16,
-  },
-  clearButtonText: {
-    color: '#DC2626',
-    fontWeight: '500',
-    fontSize: 14,
-  },
-});
+const createSlackStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    divider: {
+      height: 1,
+      backgroundColor: colors.border,
+      marginTop: 20,
+      marginBottom: 8,
+    },
+    description: {
+      fontSize: 13 * fontScale,
+      color: colors.textSecondary,
+      marginBottom: 12,
+    },
+    inputRow: {
+      flexDirection: 'row',
+      gap: 8,
+      marginBottom: 8,
+    },
+    input: {
+      flex: 1,
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      fontSize: 14 * fontScale,
+      color: colors.textPrimary,
+    },
+    button: {
+      backgroundColor: '#611f69',
+      borderRadius: 8,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      justifyContent: 'center',
+      alignItems: 'center',
+      minWidth: 90,
+    },
+    buttonDisabled: {
+      opacity: 0.5,
+    },
+    buttonText: {
+      color: colors.onPrimary,
+      fontWeight: '600',
+      fontSize: 14 * fontScale,
+    },
+    statusRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 4,
+      paddingVertical: 4,
+    },
+    statusDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.success,
+    },
+    statusText: {
+      fontSize: 13 * fontScale,
+      color: colors.success,
+      fontWeight: '500',
+    },
+    errorRow: {
+      backgroundColor: colors.dangerSoft,
+      borderRadius: 8,
+      padding: 12,
+      marginVertical: 4,
+    },
+    errorText: {
+      fontSize: 13 * fontScale,
+      color: colors.danger,
+    },
+    channelList: {
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      overflow: 'hidden',
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    channel: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.surfaceAlt,
+    },
+    channelSelected: {
+      backgroundColor: '#F5F0F6',
+    },
+    channelName: {
+      fontSize: 14 * fontScale,
+      fontWeight: '500',
+      color: colors.textPrimary,
+    },
+    channelNameSelected: {
+      color: '#611f69',
+      fontWeight: '600',
+    },
+    channelPurpose: {
+      fontSize: 12 * fontScale,
+      color: colors.textTertiary,
+      marginTop: 2,
+    },
+    checkbox: {
+      width: 22,
+      height: 22,
+      borderRadius: 4,
+      borderWidth: 2,
+      borderColor: colors.border,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    checkboxChecked: {
+      borderColor: '#611f69',
+      backgroundColor: '#611f69',
+    },
+    checkboxMark: {
+      color: colors.onPrimary,
+      fontSize: 13 * fontScale,
+      fontWeight: 'bold',
+    },
+    importButton: {
+      backgroundColor: '#611f69',
+      borderRadius: 8,
+      paddingVertical: 14,
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    importButtonText: {
+      color: colors.onPrimary,
+      fontWeight: '600',
+      fontSize: 15 * fontScale,
+    },
+    clearButton: {
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.danger,
+      paddingVertical: 10,
+      alignItems: 'center',
+      marginTop: 8,
+      marginBottom: 16,
+    },
+    clearButtonText: {
+      color: colors.danger,
+      fontWeight: '500',
+      fontSize: 14 * fontScale,
+    },
+  });

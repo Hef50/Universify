@@ -4,6 +4,8 @@ import { Event } from '@/types/event';
 import { layoutEvents, EventWithLayout } from '@/utils/eventLayout';
 import { getEventsByDay } from '@/utils/eventHelpers';
 import { formatTime } from '@/utils/dateHelpers';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 interface WeekViewProps {
   weekDays: Date[];
@@ -38,6 +40,8 @@ const TIME_COLUMN_WIDTH = 60;
 const MIN_DAY_WIDTH = 140; // Increased min width for better readability
 
 export const WeekView: React.FC<WeekViewProps> = ({ weekDays, events, onEventPress, onSelectionChange, externalSelection }) => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const [dayColumnWidth, setDayColumnWidth] = useState(MIN_DAY_WIDTH);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState<{ dayIndex: number; timeIndex: number; y: number } | null>(null);
@@ -370,8 +374,7 @@ export const WeekView: React.FC<WeekViewProps> = ({ weekDays, events, onEventPre
         style={styles.horizontalScroll}
         contentContainerStyle={{ flexGrow: 1 }}
       >
-        <ScrollView 
-          vertical 
+        <ScrollView
           style={styles.verticalScroll}
           stickyHeaderIndices={[0]}
           showsVerticalScrollIndicator={true}
@@ -390,16 +393,21 @@ export const WeekView: React.FC<WeekViewProps> = ({ weekDays, events, onEventPre
           </View>
 
           {/* Body Grid */}
-          <View 
+          <View
             ref={gridBodyRef}
             style={styles.gridBody}
             onTouchStart={handleDragStart}
             onTouchMove={handleDragMove}
             onTouchEnd={handleDragEnd}
-            onMouseDown={Platform.OS === 'web' ? handleDragStart : undefined}
-            onMouseMove={Platform.OS === 'web' && isDragging ? handleDragMove : undefined}
-            onMouseUp={Platform.OS === 'web' ? handleDragEnd : undefined}
-            onMouseLeave={Platform.OS === 'web' ? handleDragEnd : undefined}
+            // Mouse handlers only exist on react-native-web's DOM views
+            {...(Platform.OS === 'web'
+              ? ({
+                  onMouseDown: handleDragStart,
+                  onMouseMove: isDragging ? handleDragMove : undefined,
+                  onMouseUp: handleDragEnd,
+                  onMouseLeave: handleDragEnd,
+                } as object)
+              : {})}
           >
             {/* Selection Box Overlay */}
             {(isDragging || finalSelection) && (() => {
@@ -465,118 +473,119 @@ export const WeekView: React.FC<WeekViewProps> = ({ weekDays, events, onEventPre
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  horizontalScroll: {
-    flex: 1,
-  },
-  verticalScroll: {
-    flex: 1,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF', // Must have background to hide scrolling content
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    zIndex: 100,
-    ...Platform.select({
-        web: {
-          boxShadow: '0 1px 2px rgba(0,0,0,0.05)', // Subtle shadow for depth
-        },
-        default: {
-          elevation: 2,
-        }
-    })
-  },
-  timeColumnHeader: {
-    width: TIME_COLUMN_WIDTH,
-    borderRightWidth: 1,
-    borderRightColor: '#E5E7EB',
-    backgroundColor: '#FAFAFA',
-  },
-  dayHeader: {
-    flex: 1,
-    minWidth: MIN_DAY_WIDTH,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 4,
-    borderRightWidth: 1,
-    borderRightColor: '#E5E7EB',
-    backgroundColor: '#FFFFFF',
-  },
-  dayName: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#6B7280',
-    letterSpacing: 0.5,
-    marginBottom: 4,
-  },
-  dayNumber: {
-    fontSize: 20,
-    fontWeight: '300',
-    color: '#1F2937',
-  },
-  gridBody: {
-    flexDirection: 'column',
-  },
-  timeRow: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  timeSlot: {
-    width: TIME_COLUMN_WIDTH,
-    height: HOUR_HEIGHT,
-    justifyContent: 'flex-start',
-    paddingTop: 4,
-    paddingRight: 8,
-    alignItems: 'flex-end',
-    borderRightWidth: 1,
-    borderRightColor: '#E5E7EB',
-    backgroundColor: '#FAFAFA',
-  },
-  timeText: {
-    fontSize: 11,
-    color: '#6B7280',
-    fontWeight: '500',
-  },
-  dayCell: {
-    flex: 1,
-    minWidth: MIN_DAY_WIDTH,
-    height: HOUR_HEIGHT, // Must match timeSlot height
-    borderRightWidth: 1,
-    borderRightColor: '#E5E7EB',
-    position: 'relative',
-  },
-  eventBlock: {
-    position: 'absolute',
-    borderRadius: 4,
-    padding: 6,
-    zIndex: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-    overflow: 'hidden',
-  },
-  eventTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginBottom: 2,
-  },
-  eventTime: {
-    fontSize: 10,
-    color: 'rgba(255, 255, 255, 0.9)',
-    fontWeight: '500',
-  },
-});
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 8,
+      overflow: 'hidden',
+    },
+    horizontalScroll: {
+      flex: 1,
+    },
+    verticalScroll: {
+      flex: 1,
+    },
+    headerRow: {
+      flexDirection: 'row',
+      backgroundColor: colors.surface, // Must have background to hide scrolling content
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      zIndex: 100,
+      ...Platform.select({
+          web: {
+            boxShadow: '0 1px 2px rgba(0,0,0,0.05)', // Subtle shadow for depth
+          },
+          default: {
+            elevation: 2,
+          }
+      })
+    },
+    timeColumnHeader: {
+      width: TIME_COLUMN_WIDTH,
+      borderRightWidth: 1,
+      borderRightColor: colors.border,
+      backgroundColor: colors.surfaceAlt,
+    },
+    dayHeader: {
+      flex: 1,
+      minWidth: MIN_DAY_WIDTH,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 12,
+      paddingHorizontal: 4,
+      borderRightWidth: 1,
+      borderRightColor: colors.border,
+      backgroundColor: colors.surface,
+    },
+    dayName: {
+      fontSize: 11 * fontScale,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      letterSpacing: 0.5,
+      marginBottom: 4,
+    },
+    dayNumber: {
+      fontSize: 20 * fontScale,
+      fontWeight: '300',
+      color: colors.textPrimary,
+    },
+    gridBody: {
+      flexDirection: 'column',
+    },
+    timeRow: {
+      flexDirection: 'row',
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    timeSlot: {
+      width: TIME_COLUMN_WIDTH,
+      height: HOUR_HEIGHT,
+      justifyContent: 'flex-start',
+      paddingTop: 4,
+      paddingRight: 8,
+      alignItems: 'flex-end',
+      borderRightWidth: 1,
+      borderRightColor: colors.border,
+      backgroundColor: colors.surfaceAlt,
+    },
+    timeText: {
+      fontSize: 11 * fontScale,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    dayCell: {
+      flex: 1,
+      minWidth: MIN_DAY_WIDTH,
+      height: HOUR_HEIGHT, // Must match timeSlot height
+      borderRightWidth: 1,
+      borderRightColor: colors.border,
+      position: 'relative',
+    },
+    eventBlock: {
+      position: 'absolute',
+      borderRadius: 4,
+      padding: 6,
+      zIndex: 10,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 2,
+      overflow: 'hidden',
+    },
+    eventTitle: {
+      fontSize: 12 * fontScale,
+      fontWeight: '700',
+      color: colors.onPrimary,
+      marginBottom: 2,
+    },
+    eventTime: {
+      fontSize: 10 * fontScale,
+      color: 'rgba(255, 255, 255, 0.9)',
+      fontWeight: '500',
+    },
+  });

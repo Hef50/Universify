@@ -1,4 +1,5 @@
 const { createClient } = require("@supabase/supabase-js");
+const { isDuplicate, TIME_WINDOW_MS } = require("./dedupe");
 
 /**
  * Insert an approved Discord event into Supabase `events` (same shape as Expo client).
@@ -83,6 +84,33 @@ async function submitApprovedEvent(session) {
   const supabase = createClient(url, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+
+  // Cross-source dedupe: skip if an existing event (from the app, Slack, or
+  // an earlier Discord submission) within ±2h looks like the same announcement.
+  const startMs = Date.parse(session.draft.start_time);
+  if (Number.isFinite(startMs)) {
+    const windowStart = new Date(startMs - TIME_WINDOW_MS).toISOString();
+    const windowEnd = new Date(startMs + TIME_WINDOW_MS).toISOString();
+    const { data: nearby, error: queryError } = await supabase
+      .from("events")
+      .select("id, title, start_time")
+      .gte("start_time", windowStart)
+      .lte("start_time", windowEnd);
+
+    if (!queryError && Array.isArray(nearby)) {
+      const candidates = nearby.map((r) => ({
+        id: r.id,
+        title: r.title || "",
+        startTime: r.start_time,
+      }));
+      if (isDuplicate({ title: session.draft.title, startTime: session.draft.start_time }, candidates)) {
+        return {
+          ok: false,
+          error: "An event with a very similar title already exists around this time — looks like a duplicate.",
+        };
+      }
+    }
+  }
 
   const row = draftToRow(session.draft, session);
 

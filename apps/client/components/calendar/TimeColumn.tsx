@@ -1,7 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 export const TimeColumn: React.FC = () => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
+
   // Generate time slots from 12 AM to 11 PM
   const timeSlots = Array.from({ length: 24 }).map((_, hour) => {
     const period = hour >= 12 ? 'PM' : 'AM';
@@ -20,25 +25,26 @@ export const TimeColumn: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    width: 60,
-    backgroundColor: '#FAFAFA',
-    borderRightWidth: 1,
-    borderRightColor: '#E5E7EB',
-  },
-  timeSlot: {
-    height: 60,
-    justifyContent: 'flex-start',
-    paddingTop: 4,
-    paddingRight: 8,
-    alignItems: 'flex-end',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  timeText: {
-    fontSize: 11,
-    color: '#6B7280',
-    fontWeight: '500',
-  },
-});
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      width: 60,
+      backgroundColor: colors.surfaceAlt,
+      borderRightWidth: 1,
+      borderRightColor: colors.border,
+    },
+    timeSlot: {
+      height: 60,
+      justifyContent: 'flex-start',
+      paddingTop: 4,
+      paddingRight: 8,
+      alignItems: 'flex-end',
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    timeText: {
+      fontSize: 11 * fontScale,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+  });

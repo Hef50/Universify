@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { User, AuthCredentials, SignupData } from '@/types/user';
+import { EventCategory } from '@/types/event';
 import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
 import { fetchUserProfile, upsertUserProfile, updateUserProfile, updateUserProfilePreferences } from '@/lib/userProfilesApi';
 import { fetchCreatedEventIds } from '@/lib/api';
@@ -20,7 +21,7 @@ function extractUniversityFromEmail(email: string): string {
 }
 
 const defaultUserPreferences = {
-  categoryInterests: [] as string[],
+  categoryInterests: [] as EventCategory[],
   eventTypePreferences: {
     clubEvents: true,
     socialEvents: true,

@@ -1,7 +1,16 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Event, RSVPStatus, EventFormData } from '@/types/event';
-import { fetchEvents, createEventAPI, updateEventAPI, deleteEventAPI } from '@/lib/api';
+import {
+  fetchEvents,
+  fetchEventAPI,
+  createEventAPI,
+  updateEventAPI,
+  deleteEventAPI,
+  setRSVPAPI,
+  SupabaseNotConfiguredError,
+} from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { dedupeAgainst } from '@/utils/dedupe';
 import allEventsData from '@/data/allEvents.json';
 
 interface EventsContextType {
@@ -41,7 +50,9 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         setEvents(fallbackEvents);
       }
     } catch (error) {
-      console.error('Failed to load events from Supabase:', error);
+      if (!(error instanceof SupabaseNotConfiguredError)) {
+        console.error('Failed to load events from Supabase:', error);
+      }
       const fallbackEvents = (allEventsData as Event[]).filter((e) => !e.id.startsWith('gcal-'));
       setEvents(fallbackEvents);
     } finally {
@@ -94,10 +105,7 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       });
     }
 
-    await updateEventAPI(eventId, {
-      rsvpCounts: newCounts,
-      attendees: filteredAttendees,
-    });
+    // Optimistic local update so the UI responds immediately
     setEvents((prev) =>
       prev.map((e) =>
         e.id === eventId
@@ -110,6 +118,23 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           : e
       )
     );
+
+    try {
+      // Write the user's own RSVP row; a DB trigger recomputes the aggregates
+      await setRSVPAPI(eventId, userId, status);
+      // Pull the authoritative aggregates back (handles concurrent RSVPs)
+      const fresh = await fetchEventAPI(eventId);
+      if (fresh) {
+        setEvents((prev) => prev.map((e) => (e.id === eventId ? fresh : e)));
+      }
+    } catch (error) {
+      if (error instanceof SupabaseNotConfiguredError) {
+        // Offline demo mode: the optimistic local state is the state
+        return;
+      }
+      console.error('Failed to persist RSVP, reverting:', error);
+      setEvents((prev) => prev.map((e) => (e.id === eventId ? event : e)));
+    }
   };
 
   const getRSVPStatus = (eventId: string, userId: string): RSVPStatus => {
@@ -129,14 +154,15 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   /**
    * Add externally-sourced events (e.g. from Slack) into the events list.
-   * Deduplicates by event id — existing events with the same id are replaced.
+   * Same-id events are replaced; events that duplicate an existing event from
+   * another source (similar title, close start time) are dropped.
    */
   const addExternalEvents = (newEvents: Event[]) => {
     setEvents((prev) => {
       const newIds = new Set(newEvents.map((e) => e.id));
       // Remove old versions of these events, then append the new ones
       const filtered = prev.filter((e) => !newIds.has(e.id));
-      return [...filtered, ...newEvents];
+      return [...filtered, ...dedupeAgainst(filtered, newEvents)];
     });
   };
 

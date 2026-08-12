@@ -14,9 +14,9 @@ A Node.js Discord bot that monitors announcement channels for event posts, parse
 ## Setup
 
 1. Clone this repository
-2. Install dependencies:
+2. Install dependencies (this is a pnpm workspace — run from the repo root):
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. Create a `.env` file based on `.env.example`:

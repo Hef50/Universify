@@ -2,9 +2,13 @@ import React from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 export default function AppearanceScreen() {
   const { settings, updateSettings } = useSettings();
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
 
   const themes = [
     { id: 'light', name: 'Light', icon: '☀️' },
@@ -141,7 +145,7 @@ export default function AppearanceScreen() {
         {/* Color Scheme Preview */}
         <Text style={styles.sectionTitle}>Color Scheme</Text>
         <View style={styles.colorPreview}>
-          <View style={[styles.colorBlock, { backgroundColor: '#FF6B6B' }]}>
+          <View style={[styles.colorBlock, { backgroundColor: colors.primary }]}>
             <Text style={styles.colorLabel}>Primary</Text>
           </View>
           <View style={[styles.colorBlock, { backgroundColor: '#8B7FFF' }]}>
@@ -159,134 +163,135 @@ export default function AppearanceScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  backButton: {
-    fontSize: 24,
-    color: '#FF6B6B',
-    marginRight: 12,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginTop: 16,
-    marginBottom: 12,
-  },
-  optionGroup: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    overflow: 'hidden',
-    marginBottom: 8,
-  },
-  option: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  optionActive: {
-    backgroundColor: '#FEE2E2',
-  },
-  optionLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  optionIcon: {
-    fontSize: 20,
-  },
-  optionText: {
-    fontSize: 16,
-    color: '#1F2937',
-  },
-  checkmark: {
-    fontSize: 18,
-    color: '#FF6B6B',
-    fontWeight: 'bold',
-  },
-  switchOption: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  switchLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  switchDescription: {
-    fontSize: 13,
-    color: '#6B7280',
-  },
-  toggle: {
-    width: 50,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: '#D1D5DB',
-    padding: 2,
-  },
-  toggleActive: {
-    backgroundColor: '#FF6B6B',
-  },
-  toggleThumb: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: '#FFFFFF',
-  },
-  toggleThumbActive: {
-    transform: [{ translateX: 20 }],
-  },
-  colorPreview: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  colorBlock: {
-    flex: 1,
-    height: 80,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  colorLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  comingSoon: {
-    fontSize: 13,
-    color: '#9CA3AF',
-    fontStyle: 'italic',
-    marginTop: 8,
-    textAlign: 'center',
-  },
-});
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 16,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    backButton: {
+      fontSize: 24 * fontScale,
+      color: colors.primary,
+      marginRight: 12,
+    },
+    title: {
+      fontSize: 20 * fontScale,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+    },
+    content: {
+      flex: 1,
+      padding: 16,
+    },
+    sectionTitle: {
+      fontSize: 16 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+      marginTop: 16,
+      marginBottom: 12,
+    },
+    optionGroup: {
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      overflow: 'hidden',
+      marginBottom: 8,
+    },
+    option: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    optionActive: {
+      backgroundColor: colors.dangerSoft,
+    },
+    optionLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+    optionIcon: {
+      fontSize: 20,
+    },
+    optionText: {
+      fontSize: 16 * fontScale,
+      color: colors.textPrimary,
+    },
+    checkmark: {
+      fontSize: 18 * fontScale,
+      color: colors.primary,
+      fontWeight: 'bold',
+    },
+    switchOption: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 16,
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      marginBottom: 8,
+    },
+    switchLabel: {
+      fontSize: 16 * fontScale,
+      fontWeight: '500',
+      color: colors.textPrimary,
+      marginBottom: 4,
+    },
+    switchDescription: {
+      fontSize: 13 * fontScale,
+      color: colors.textSecondary,
+    },
+    toggle: {
+      width: 50,
+      height: 30,
+      borderRadius: 15,
+      backgroundColor: colors.border,
+      padding: 2,
+    },
+    toggleActive: {
+      backgroundColor: colors.primary,
+    },
+    toggleThumb: {
+      width: 26,
+      height: 26,
+      borderRadius: 13,
+      backgroundColor: colors.onPrimary,
+    },
+    toggleThumbActive: {
+      transform: [{ translateX: 20 }],
+    },
+    colorPreview: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    colorBlock: {
+      flex: 1,
+      height: 80,
+      borderRadius: 8,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    colorLabel: {
+      fontSize: 12 * fontScale,
+      fontWeight: '600',
+      color: colors.onPrimary,
+    },
+    comingSoon: {
+      fontSize: 13 * fontScale,
+      color: colors.textTertiary,
+      fontStyle: 'italic',
+      marginTop: 8,
+      textAlign: 'center',
+    },
+  });
 

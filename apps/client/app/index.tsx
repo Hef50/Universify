@@ -14,6 +14,8 @@ import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { useResponsive } from '@/hooks/useResponsive';
 import { Ionicons } from '@expo/vector-icons';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 // Get screen dimensions to use in calculations
 const { width, height } = Dimensions.get('window');
@@ -31,6 +33,8 @@ const { width, height } = Dimensions.get('window');
 export default function LandingPage() {
   const { isAuthenticated, isLoading } = useAuth();
   const { isMobile, isDesktop } = useResponsive();
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
 
   // Effect: Redirect to main app if already logged in
   useEffect(() => {
@@ -90,6 +94,8 @@ export default function LandingPage() {
  * This creates a flower/star shape using 3 overlapping ellipses rotated at different angles.
  */
 const SpinningPetalLogo = () => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   return (
     <View style={styles.petalLogoContainer}>
        {/* First Ellipse - Vertical */}
@@ -111,6 +117,8 @@ const SpinningPetalLogo = () => {
  * It uses 3 large ellipses that rotate slowly.
  */
 const AnimatedBlobs = () => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   // Animation for rotation
   const spinAnim = useRef(new Animated.Value(0)).current;
 
@@ -124,7 +132,7 @@ const AnimatedBlobs = () => {
         useNativeDriver: true,
       })
     ).start();
-  }, []);
+  }, [spinAnim]);
 
   // Interpolate 0-1 to 0-360deg
   const spin = spinAnim.interpolate({
@@ -153,6 +161,8 @@ const AnimatedBlobs = () => {
  * Displays the main welcome message and logo with entrance animations.
  */
 const AnimatedHero: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
@@ -173,7 +183,7 @@ const AnimatedHero: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [fadeAnim, slideAnim]);
 
   return (
     <Animated.View
@@ -250,6 +260,8 @@ const AnimatedHero: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
  * Renders the list of features (Calendar, Discovery, etc.)
  */
 const FeaturesGrid: React.FC<{ isDesktop: boolean }> = ({ isDesktop }) => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const features = [
     {
       iconName: 'calendar-outline',
@@ -317,6 +329,8 @@ const FeatureCard: React.FC<{
   gradient: string[];
   index: number;
 }> = ({ iconName, title, description, gradient, index }) => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
@@ -336,7 +350,7 @@ const FeatureCard: React.FC<{
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [fadeAnim, index, scaleAnim]);
 
   return (
     <Animated.View
@@ -363,6 +377,8 @@ const FeatureCard: React.FC<{
  * Section showing usage stats.
  */
 const StatsDisplay = () => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const stats = [
     { value: '1,000+', label: 'Active Students' },
     { value: '500+', label: 'Events Monthly' },
@@ -384,6 +400,8 @@ const AnimatedStat: React.FC<{
   label: string;
   delay: number;
 }> = ({ value, label, delay }) => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const scaleAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -394,7 +412,7 @@ const AnimatedStat: React.FC<{
       friction: 7,
       useNativeDriver: true,
       }).start();
-  }, []);
+  }, [delay, scaleAnim]);
 
   return (
     <Animated.View
@@ -412,6 +430,8 @@ const AnimatedStat: React.FC<{
 };
 
 const FinalCTA = () => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   return (
     <View style={styles.finalCTAContainer}>
       <Text style={styles.finalCTATitle}>
@@ -436,10 +456,11 @@ const FinalCTA = () => {
 
 /**
  * Styles Definitions
- * 
+ *
  * Modify colors, sizes, and layout here.
  */
-const styles = StyleSheet.create({
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#E8E4F3', // Main background color
@@ -461,7 +482,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#E8E4F3',
   },
-  
+
   // --- NEW BLOB ANIMATION STYLES ---
   blobContainer: {
     position: 'absolute',
@@ -557,37 +578,37 @@ const styles = StyleSheet.create({
 
 
   headline: {
-    fontSize: 72,
+    fontSize: 72 * fontScale,
     fontWeight: '800',
-    color: '#1A1A1A',
+    color: colors.textPrimary,
     textAlign: 'center',
     marginBottom: 8,
     letterSpacing: -2,
   },
   headlineMobile: {
-    fontSize: 48,
+    fontSize: 48 * fontScale,
   },
   brandHeadline: {
-    fontSize: 72,
+    fontSize: 72 * fontScale,
     fontWeight: '800',
-    color: '#FF6B6B',
+    color: colors.primary,
     textAlign: 'center',
     marginBottom: 32,
     letterSpacing: -2,
   },
   brandHeadlineMobile: {
-    fontSize: 48,
+    fontSize: 48 * fontScale,
   },
   subheadline: {
-    fontSize: 22,
-    color: '#6B7280',
+    fontSize: 22 * fontScale,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 48,
     lineHeight: 34,
     maxWidth: 700,
   },
   subheadlineMobile: {
-    fontSize: 18,
+    fontSize: 18 * fontScale,
     lineHeight: 28,
   },
   ctaButtons: {
@@ -598,7 +619,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   primaryButton: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: colors.primary,
     paddingHorizontal: 40,
     paddingVertical: 18,
     borderRadius: 16,
@@ -606,7 +627,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...Platform.select({
       web: {
-        shadowColor: '#FF6B6B',
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 12 },
         shadowOpacity: 0.4,
         shadowRadius: 24,
@@ -617,8 +638,8 @@ const styles = StyleSheet.create({
     }),
   },
   primaryButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
+    color: colors.onPrimary,
+    fontSize: 18 * fontScale,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
@@ -630,11 +651,11 @@ const styles = StyleSheet.create({
     minWidth: 180,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#E5E7EB',
+    borderColor: colors.border,
   },
   secondaryButtonText: {
-    color: '#1A1A1A',
-    fontSize: 18,
+    color: colors.textPrimary,
+    fontSize: 18 * fontScale,
     fontWeight: '600',
   },
   trustIndicators: {
@@ -649,31 +670,31 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   trustIcon: {
-    color: '#10B981',
-    fontSize: 18,
+    color: colors.success,
+    fontSize: 18 * fontScale,
     fontWeight: 'bold',
   },
   trustText: {
-    color: '#6B7280',
-    fontSize: 15,
+    color: colors.textSecondary,
+    fontSize: 15 * fontScale,
     fontWeight: '500',
   },
   featuresSection: {
     paddingVertical: 100,
     paddingHorizontal: 24,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
   },
   sectionTitle: {
-    fontSize: 48,
+    fontSize: 48 * fontScale,
     fontWeight: '800',
-    color: '#1A1A1A',
+    color: colors.textPrimary,
     textAlign: 'center',
     marginBottom: 16,
     letterSpacing: -1,
   },
   sectionSubtitle: {
-    fontSize: 20,
-    color: '#6B7280',
+    fontSize: 20 * fontScale,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 64,
   },
@@ -690,11 +711,11 @@ const styles = StyleSheet.create({
   },
   featureCard: {
     width: width > 768 ? 360 : width - 48,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     padding: 32,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.border,
     ...Platform.select({
       web: {
         shadowColor: '#000',
@@ -719,20 +740,20 @@ const styles = StyleSheet.create({
     fontSize: 36,
   },
   featureTitle: {
-    fontSize: 24,
+    fontSize: 24 * fontScale,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: colors.textPrimary,
     marginBottom: 12,
   },
   featureDescription: {
-    fontSize: 16,
-    color: '#6B7280',
+    fontSize: 16 * fontScale,
+    color: colors.textSecondary,
     lineHeight: 24,
   },
   statsSection: {
     paddingVertical: 100,
     paddingHorizontal: 24,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.surfaceAlt,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -747,21 +768,21 @@ const styles = StyleSheet.create({
     minWidth: 160,
   },
   statValue: {
-    fontSize: 56,
+    fontSize: 56 * fontScale,
     fontWeight: '800',
-    color: '#FF6B6B',
+    color: colors.primary,
     marginBottom: 8,
     letterSpacing: -1,
   },
   statLabel: {
-    fontSize: 16,
-    color: '#6B7280',
+    fontSize: 16 * fontScale,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   ctaSection: {
     paddingVertical: 120,
     paddingHorizontal: 24,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
   },
   finalCTAContainer: {
     alignItems: 'center',
@@ -769,27 +790,27 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   finalCTATitle: {
-    fontSize: 48,
+    fontSize: 48 * fontScale,
     fontWeight: '800',
-    color: '#1A1A1A',
+    color: colors.textPrimary,
     textAlign: 'center',
     marginBottom: 20,
     letterSpacing: -1,
   },
   finalCTASubtitle: {
-    fontSize: 20,
-    color: '#6B7280',
+    fontSize: 20 * fontScale,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 48,
   },
   finalCTAButton: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: colors.primary,
     paddingHorizontal: 56,
     paddingVertical: 22,
     borderRadius: 16,
     ...Platform.select({
       web: {
-        shadowColor: '#FF6B6B',
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 12 },
         shadowOpacity: 0.4,
         shadowRadius: 24,
@@ -800,15 +821,15 @@ const styles = StyleSheet.create({
     }),
   },
   finalCTAButtonText: {
-    color: '#FFFFFF',
-    fontSize: 20,
+    color: colors.onPrimary,
+    fontSize: 20 * fontScale,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
   footer: {
     marginTop: 48,
-    fontSize: 14,
-    color: '#9CA3AF',
+    fontSize: 14 * fontScale,
+    color: colors.textTertiary,
     textAlign: 'center',
   },
 });

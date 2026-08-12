@@ -11,6 +11,8 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useResponsive } from '@/hooks/useResponsive';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 interface ModalProps {
   visible: boolean;
@@ -31,6 +33,8 @@ export const Modal: React.FC<ModalProps> = ({
   fullScreen = false,
   containerStyle,
 }) => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const { isMobile } = useResponsive();
   const shouldBeFullScreen = fullScreen || isMobile;
 
@@ -80,70 +84,70 @@ export const Modal: React.FC<ModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  keyboardAvoid: {
-    flex: 1,
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    width: '90%',
-    maxWidth: 600,
-    maxHeight: '80%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 12,
-  },
-  modalContainerFullScreen: {
-    width: '100%',
-    height: '100%',
-    maxHeight: '100%',
-    borderRadius: 0,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    flex: 1,
-  },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#F3F4F6',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  closeIcon: {
-    fontSize: 20,
-    color: '#6B7280',
-  },
-  content: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: 20,
-  },
-  footer: {
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-  },
-});
-
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    keyboardAvoid: {
+      flex: 1,
+    },
+    overlay: {
+      flex: 1,
+      backgroundColor: colors.overlay,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContainer: {
+      backgroundColor: colors.surface,
+      borderRadius: 16,
+      width: '90%',
+      maxWidth: 600,
+      maxHeight: '80%',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 12,
+      elevation: 12,
+    },
+    modalContainerFullScreen: {
+      width: '100%',
+      height: '100%',
+      maxHeight: '100%',
+      borderRadius: 0,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 20,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    title: {
+      fontSize: 20 * fontScale,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      flex: 1,
+    },
+    closeButton: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      backgroundColor: colors.surfaceAlt,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    closeIcon: {
+      fontSize: 20,
+      color: colors.textSecondary,
+    },
+    content: {
+      flex: 1,
+    },
+    contentContainer: {
+      padding: 20,
+    },
+    footer: {
+      padding: 20,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+  });

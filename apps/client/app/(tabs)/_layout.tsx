@@ -3,15 +3,14 @@ import React, { useEffect } from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useAuth } from '@/contexts/AuthContext';
 import { ActivityIndicator, View } from 'react-native';
 import { useResponsive } from '@/hooks/useResponsive';
 import { DesktopNav } from '@/components/layout/DesktopNav';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { colors } = useAppTheme();
   const { isAuthenticated, isLoading } = useAuth();
   const { isDesktop } = useResponsive();
 
@@ -23,8 +22,8 @@ export default function TabLayout() {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#FF6B6B" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -38,10 +37,11 @@ export default function TabLayout() {
       {isDesktop && <DesktopNav />}
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.textTertiary,
           headerShown: false,
           tabBarButton: HapticTab,
-          tabBarStyle: isDesktop ? { display: 'none' } : undefined,
+          tabBarStyle: isDesktop ? { display: 'none' } : { backgroundColor: colors.surface },
         }}>
       <Tabs.Screen
         name="index"
@@ -76,12 +76,6 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          href: null, // Hide from tabs
         }}
       />
     </Tabs>

@@ -4,11 +4,13 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
-    "build": "expo export:web",
-    "vercel-build": "expo export:web",
+    "build": "expo export --platform web",
+    "vercel-build": "expo export --platform web",
+    "typecheck": "tsc --noEmit",
     "reset-project": "node ./scripts/reset-project.js",
     "seed": "npx tsx scripts/seedEvents.ts",
     "test:backend": "npx tsx scripts/test-backend.ts",
+    "test:unit": "tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:health": "npx tsx scripts/health-check.ts",
@@ -51,6 +53,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
+    "@types/node-fetch": "^2.6.13",
     "@types/react": "~19.1.0",
     "dotenv": "^17.3.1",
     "eslint": "^9.25.0",

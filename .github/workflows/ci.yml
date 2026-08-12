@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  client:
+    name: Client (typecheck, lint, tests, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck client
+        run: pnpm --filter client typecheck
+
+      - name: Lint client
+        run: pnpm --filter client lint
+
+      - name: Unit tests
+        run: pnpm --filter client test:unit
+
+      - name: Web export (bundle check)
+        run: pnpm --filter client build
+        env:
+          # Placeholder values: the bundle must build without real credentials
+          EXPO_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+
+  bots:
+    name: Bots (typecheck, syntax)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck slack-bot
+        run: pnpm --filter slack-bot typecheck
+
+      - name: Syntax-check discord bot
+        run: |
+          for f in apps/discord-event-bot/src/*.js; do
+            node --check "$f"
+          done

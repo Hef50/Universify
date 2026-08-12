@@ -46,7 +46,7 @@ A comprehensive cross-platform event aggregation and discovery application built
 
 - **Profile & Settings**
   - User profile with stats (events created, saved, interests)
-  - Account settings (name, email, password change)
+  - Account settings (name, university; sign-in managed by Google)
   - Preferences (home page, calendar days, category interests)
   - Appearance (theme, font size, accessibility)
   - Logout functionality
@@ -134,51 +134,50 @@ apps/client/
 
 ### Prerequisites
 
-- Node.js 18+ 
-- npm or pnpm
-- Expo CLI
+- Node.js 18+
+- pnpm 10+ (this is a pnpm workspace — use pnpm, not npm)
 
 ### Installation
 
 ```bash
-# Navigate to client directory
+# From the repository root
+pnpm install
+
+# Start the development server
 cd apps/client
-
-# Install dependencies
-npm install
-
-# Start development server
-npm start
+pnpm start
 ```
 
 ### Running on Different Platforms
 
 ```bash
 # Web
-npm run web
+pnpm web
 
 # iOS (requires Mac)
-npm run ios
+pnpm ios
 
 # Android
-npm run android
+pnpm android
 ```
 
-## 🧪 Demo Accounts
+### Useful scripts
 
-Use these accounts to test the application:
+```bash
+pnpm typecheck    # TypeScript check
+pnpm lint         # ESLint
+pnpm test:unit    # Unit tests (dedupe, recurrence, layout, recommendations)
+pnpm test:e2e     # Playwright E2E suite (starts the web server itself)
+pnpm build        # Static web export to dist/
+pnpm seed         # Seed mock events into Supabase (needs service-role key)
+```
 
-1. **Demo User**
-   - Email: `demo@cmu.edu`
-   - Password: `Demo123!`
+## 🧪 Trying It Out
 
-2. **Student User**
-   - Email: `student@andrew.cmu.edu`
-   - Password: `Student123!`
-
-3. **Test User**
-   - Email: `test@stanford.edu`
-   - Password: `Test123!`
+Authentication is Google OAuth only, restricted to `@andrew.cmu.edu` /
+`@cmu.edu` accounts — there are no password logins. Without Supabase
+credentials in `.env`, the app runs in offline demo mode: it loads the
+bundled mock events and keeps all changes in local state.
 
 ## 🎨 Design System
 

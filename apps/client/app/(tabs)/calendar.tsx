@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { View, StyleSheet, Text, ActivityIndicator, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { useEvents } from '@/contexts/EventsContext';
 import { useCalendar } from '@/hooks/useCalendar';
@@ -15,6 +15,16 @@ import { ResizableSidebar } from '@/components/layout/ResizableSidebar';
 import { EventDisplayCard } from '@/components/calendar/EventDisplayCard';
 import { Event } from '@/types/event';
 import { deleteGoogleCalendarEvent } from '@/lib/googleCalendar';
+import { useUserInterests, getSuggestionsForTimeRange } from '@/hooks/useRecommendations';
+import { expandRecurringEvents, baseEventId } from '@/utils/recurringEvents';
+import { useEventReminders } from '@/hooks/useEventReminders';
+import { storage } from '@/lib/storage';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
+
+// Universify event id -> Google Calendar event id map, persisted so
+// unscheduling can delete the Google copy even after a reload
+const GCAL_MAP_STORAGE_KEY = 'universify_gcal_event_map';
 
 export default function CalendarScreen() {
   const { events, isLoading } = useEvents();
@@ -22,7 +32,9 @@ export default function CalendarScreen() {
   const { settings, updateSettings } = useSettings();
   const { isMobile, isDesktop } = useResponsive();
   const { googleEvents, isLoading: isGoogleLoading, refreshGoogleCalendar } = useGoogleCalendar();
-  const { isGoogleAuthenticated, googleSession, providerToken, refreshSession } = useGoogleAuth();
+  const { isGoogleAuthenticated, googleSession, providerToken } = useGoogleAuth();
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
 
   const calendar = useCalendar(isMobile ? 3 : settings.calendarViewDays);
   const weekKey = getWeekKey(calendar.currentDate);
@@ -40,6 +52,28 @@ export default function CalendarScreen() {
   const [timeSelection, setTimeSelection] = useState<{ startDate: Date; endDate: Date } | null>(null);
   // Map Universify event id -> Google Calendar event id when we create in Google on schedule (so we can delete on unschedule)
   const scheduleEventToGoogleIdRef = useRef<Map<string, string>>(new Map());
+
+  useEffect(() => {
+    storage
+      .getItem(GCAL_MAP_STORAGE_KEY)
+      .then((raw) => {
+        if (raw) {
+          scheduleEventToGoogleIdRef.current = new Map(
+            Object.entries(JSON.parse(raw) as Record<string, string>)
+          );
+        }
+      })
+      .catch((err) => console.error('Failed to load Google Calendar event map:', err));
+  }, []);
+
+  const persistGcalMap = () => {
+    storage
+      .setItem(
+        GCAL_MAP_STORAGE_KEY,
+        JSON.stringify(Object.fromEntries(scheduleEventToGoogleIdRef.current))
+      )
+      .catch((err) => console.error('Failed to persist Google Calendar event map:', err));
+  };
 
   const viewDays = settings.calendarViewDays;
 
@@ -79,88 +113,72 @@ export default function CalendarScreen() {
   }, [googleEvents, displayDays]);
 
   // Get events to display in the calendar
-  // Merge local scheduled events with Google events
+  // Merge local scheduled events (plus their recurring occurrences within
+  // the visible range) with Google events
   const weekEvents = useMemo(() => {
     // Local events: only show if scheduled
     const local = events.filter((event) => scheduledEventIds.includes(event.id));
-    return [...local, ...googleViewEvents];
-  }, [events, scheduledEventIds, googleViewEvents]);
+    if (displayDays.length === 0) return [...local, ...googleViewEvents];
 
-  // Get tags from all scheduled events to calculate relevance
-  const scheduledEventTags = useMemo(() => {
-    const scheduledIds = allScheduledEventIds;
-    const scheduledEventsList = events.filter(e => scheduledIds.includes(e.id));
-    const tagCounts: Record<string, number> = {};
-    
-    scheduledEventsList.forEach(event => {
-      if (event.tags && Array.isArray(event.tags)) {
-        event.tags.forEach(tag => {
-          tagCounts[tag.toLowerCase()] = (tagCounts[tag.toLowerCase()] || 0) + 1;
-        });
-      }
-    });
-    
-    return tagCounts;
-  }, [events, allScheduledEventIds]);
+    const viewStart = new Date(displayDays[0]);
+    viewStart.setHours(0, 0, 0, 0);
+    const viewEnd = new Date(displayDays[displayDays.length - 1]);
+    viewEnd.setHours(23, 59, 59, 999);
 
-  // Calculate relevance score for an event based on tag overlap with scheduled events
-  const calculateRelevance = (event: Event): number => {
-    if (!event.tags || !Array.isArray(event.tags)) return 0;
-    
-    let score = 0;
-    event.tags.forEach(tag => {
-      const tagLower = tag.toLowerCase();
-      if (scheduledEventTags[tagLower]) {
-        score += scheduledEventTags[tagLower];
-      }
-    });
-    
-    return score;
-  };
+    return [...expandRecurringEvents(local, viewStart, viewEnd), ...googleViewEvents];
+  }, [events, scheduledEventIds, googleViewEvents, displayDays]);
+
+  // Interest profile mined from the events the user has scheduled — the
+  // recommendation engine extracts title n-grams, categories and time-of-day
+  // preferences from them.
+  const engagedEvents = useMemo(
+    () => events.filter((e) => allScheduledEventIds.includes(e.id)),
+    [events, allScheduledEventIds]
+  );
+  const { topInterests } = useUserInterests({ events: engagedEvents });
+
+  // Browser notifications ~30 min before scheduled events (web, opt-in pref)
+  useEventReminders(
+    engagedEvents,
+    currentUser?.preferences.notificationPreferences.eventReminders ?? false
+  );
 
   // Get all events for sidebar (sorted by date)
   // Only include Universify events (Google events are already on the calendar)
   // Only show future/current events (end time >= now) so past events don't clutter the list
-  // Filter by time selection if active
-  // When time selection is active, show only top 3 most relevant events
+  // When a time range is drag-selected, show the top 5 suggested events for
+  // that window, ranked by the recommendation engine (interest match +
+  // popularity + how well the event fits the selected range).
   const sortedEvents = useMemo(() => {
     const now = new Date();
-    let filteredEvents = events.filter(
-      (event) => new Date(event.endTime) >= now
-    );
+    const upcoming = events.filter((event) => new Date(event.endTime) >= now);
 
     if (timeSelection) {
       const { startDate, endDate } = timeSelection;
-      filteredEvents = filteredEvents.filter(event => {
-        const eventStart = new Date(event.startTime);
-        const eventEnd = new Date(event.endTime);
-        return eventStart < endDate && eventEnd > startDate;
-      });
-
-      if (filteredEvents.length > 0 && Object.keys(scheduledEventTags).length > 0) {
-        const eventsWithRelevance = filteredEvents.map(event => ({
-          event,
-          relevance: calculateRelevance(event)
-        }));
-        eventsWithRelevance.sort((a, b) => {
-          if (b.relevance !== a.relevance) return b.relevance - a.relevance;
-          return new Date(a.event.startTime).getTime() - new Date(b.event.startTime).getTime();
-        });
-        filteredEvents = eventsWithRelevance.slice(0, 3).map(item => item.event);
-      }
+      return getSuggestionsForTimeRange(
+        upcoming,
+        topInterests,
+        startDate.toISOString(),
+        endDate.toISOString(),
+        5
+      );
     }
 
-    return filteredEvents.sort((a, b) =>
-      new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+    return upcoming.sort(
+      (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
     );
-  }, [events, timeSelection, scheduledEventTags]);
+  }, [events, timeSelection, topInterests]);
 
   const handleEventPress = (event: Event) => {
+    // Recurring occurrences carry a synthetic "<id>::<date>" id; act on the
+    // base event so scheduling/expansion always target the real record.
+    const baseId = baseEventId(event.id);
+    const base = events.find((e) => e.id === baseId) ?? event;
     if (isDesktop) {
       // Toggle expansion
-      setExpandedCardId(prevId => prevId === event.id ? null : event.id);
+      setExpandedCardId((prevId) => (prevId === baseId ? null : baseId));
     } else {
-      setSelectedEvent(event);
+      setSelectedEvent(base);
     }
   };
 
@@ -170,18 +188,9 @@ export default function CalendarScreen() {
 
     // Sync to Google Calendar if authenticated
     if (isGoogleAuthenticated) {
-      // #region agent log
-      const _beforeRefresh = { hasProviderToken: !!providerToken, hasGoogleSessionToken: !!googleSession?.provider_token };
-      if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'calendar.tsx:handleScheduleEvent',message:'BEFORE refreshSession',data:_beforeRefresh,timestamp:Date.now(),hypothesisId:'D'})}).catch(()=>{});
-      // #endregion
-
       // refreshSession() returns session WITHOUT provider_token (Supabase known issue) - do NOT call it or we overwrite good session
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.provider_token || providerToken || googleSession?.provider_token;
-
-      // #region agent log
-      if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'calendar.tsx:handleScheduleEvent',message:'Token check',data:{hasToken:!!token,fromSession:!!session?.provider_token,fromContext:!!providerToken,fromGoogleSession:!!googleSession?.provider_token},timestamp:Date.now(),hypothesisId:'D'})}).catch(()=>{});
-      // #endregion
 
       if (!token) {
         console.error('No provider_token available after refresh');
@@ -231,7 +240,10 @@ export default function CalendarScreen() {
           return;
         }
 
-        if (json.id) scheduleEventToGoogleIdRef.current.set(event.id, json.id);
+        if (json.id) {
+          scheduleEventToGoogleIdRef.current.set(event.id, json.id);
+          persistGcalMap();
+        }
         console.log("Created event in Google Calendar:", json);
         alert("Event added to Google Calendar ✅");
       } catch (err) {
@@ -254,6 +266,7 @@ export default function CalendarScreen() {
             if (googleId) {
               await deleteGoogleCalendarEvent(token, googleId);
               scheduleEventToGoogleIdRef.current.delete(event.id);
+              persistGcalMap();
             }
           }
           await refreshGoogleCalendar();
@@ -339,7 +352,7 @@ export default function CalendarScreen() {
 
           {(isLoading || isGoogleLoading) ? (
             <View style={styles.calendarLoadingContainer}>
-              <ActivityIndicator size="large" color="#FF6B6B" />
+              <ActivityIndicator size="large" color={colors.primary} />
               <Text style={styles.calendarLoadingText}>Loading calendar...</Text>
             </View>
           ) : (
@@ -361,7 +374,7 @@ export default function CalendarScreen() {
           <View style={styles.sidebar}>
             <View style={styles.sidebarHeader}>
               <Text style={styles.sidebarTitle}>
-                {timeSelection ? 'Selected Time Range' : 'All Events'}
+                {timeSelection ? 'Suggested for This Time' : 'All Events'}
               </Text>
               {timeSelection && (
                 <TouchableOpacity
@@ -374,7 +387,7 @@ export default function CalendarScreen() {
             </View>
             {isLoading || isLoadingScheduled ? (
               <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#FF6B6B" />
+                <ActivityIndicator size="large" color={colors.primary} />
                 <Text style={styles.loadingText}>Loading events...</Text>
               </View>
             ) : (
@@ -453,177 +466,179 @@ export default function CalendarScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-  content: {
-    flex: 1,
-    flexDirection: 'row',
-    padding: 24,
-    gap: 24,
-  },
-  calendarSection: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  controlsRow: {
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      flex: 1,
+      flexDirection: 'row',
+      padding: 24,
+      gap: 24,
+    },
+    calendarSection: {
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+    },
+    controlsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    viewControls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    viewButton: {
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 6,
+        backgroundColor: colors.surfaceAlt,
+    },
+    viewButtonActive: {
+        backgroundColor: colors.primary,
+    },
+    viewButtonText: {
+        fontSize: 13 * fontScale,
+        fontWeight: '500',
+        color: colors.textSecondary,
+    },
+    viewButtonTextActive: {
+        color: colors.onPrimary,
+    },
+    customDaysContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginLeft: 8,
+        backgroundColor: colors.surface,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: colors.border,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
+    customDaysInput: {
+        width: 24,
+        fontSize: 13 * fontScale,
+        textAlign: 'center',
+        padding: 0,
+        color: colors.textPrimary,
+    },
+    customDaysLabel: {
+        fontSize: 12 * fontScale,
+        color: colors.textSecondary,
+    },
+    sidebar: {
+      flex: 1,
+      backgroundColor: colors.surface,
+    },
+    sidebarHeader: {
+      padding: 20,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: 16,
-  },
-  viewControls: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 8,
-  },
-  viewButton: {
+    },
+    sidebarTitle: {
+      fontSize: 18 * fontScale,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+    },
+    resetButton: {
       paddingVertical: 6,
       paddingHorizontal: 12,
       borderRadius: 6,
-      backgroundColor: '#F3F4F6',
-  },
-  viewButtonActive: {
-      backgroundColor: '#FF6B6B',
-  },
-  viewButtonText: {
-      fontSize: 13,
-      fontWeight: '500',
-      color: '#6B7280',
-  },
-  viewButtonTextActive: {
-      color: '#FFFFFF',
-  },
-  customDaysContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 4,
-      marginLeft: 8,
-      backgroundColor: '#FFFFFF',
-      borderRadius: 6,
+      backgroundColor: colors.surfaceAlt,
       borderWidth: 1,
-      borderColor: '#E5E7EB',
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-  },
-  customDaysInput: {
-      width: 24,
-      fontSize: 13,
-      textAlign: 'center',
-      padding: 0,
-  },
-  customDaysLabel: {
-      fontSize: 12,
-      color: '#6B7280',
-  },
-  sidebar: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  sidebarHeader: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  sidebarTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  resetButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    backgroundColor: '#F3F4F6',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  resetButtonText: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#6B7280',
-  },
-  sidebarContent: {
-    flex: 1,
-    position: 'relative',
-  },
-  eventsList: {
-    flex: 1,
-    padding: 16,
-  },
-  eventsListHidden: {
-    opacity: 0,
-    pointerEvents: 'none',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  calendarLoadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  calendarLoadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  eventDetailOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  eventDetailBackdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  eventDetail: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 24,
-    width: '90%',
-    maxWidth: 500,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 12,
-  },
-  eventDetailTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 12,
-  },
-  eventDetailDescription: {
-    fontSize: 16,
-    color: '#6B7280',
-    marginBottom: 20,
-  },
-  closeButton: {
-    backgroundColor: '#FF6B6B',
-    borderRadius: 8,
-    padding: 12,
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
+      borderColor: colors.border,
+    },
+    resetButtonText: {
+      fontSize: 13 * fontScale,
+      fontWeight: '500',
+      color: colors.textSecondary,
+    },
+    sidebarContent: {
+      flex: 1,
+      position: 'relative',
+    },
+    eventsList: {
+      flex: 1,
+      padding: 16,
+    },
+    eventsListHidden: {
+      opacity: 0,
+      pointerEvents: 'none',
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 32,
+    },
+    loadingText: {
+      marginTop: 12,
+      fontSize: 14 * fontScale,
+      color: colors.textSecondary,
+    },
+    calendarLoadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+    },
+    calendarLoadingText: {
+      marginTop: 12,
+      fontSize: 14 * fontScale,
+      color: colors.textSecondary,
+    },
+    eventDetailOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    eventDetailBackdrop: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: colors.overlay,
+    },
+    eventDetail: {
+      backgroundColor: colors.surface,
+      borderRadius: 16,
+      padding: 24,
+      width: '90%',
+      maxWidth: 500,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 12,
+      elevation: 12,
+    },
+    eventDetailTitle: {
+      fontSize: 24 * fontScale,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 12,
+    },
+    eventDetailDescription: {
+      fontSize: 16 * fontScale,
+      color: colors.textSecondary,
+      marginBottom: 20,
+    },
+    closeButton: {
+      backgroundColor: colors.primary,
+      borderRadius: 8,
+      padding: 12,
+      alignItems: 'center',
+    },
+    closeButtonText: {
+      color: colors.onPrimary,
+      fontSize: 16 * fontScale,
+      fontWeight: '600',
+    },
+  });

@@ -78,5 +78,6 @@ export interface EventFormData {
   color: string;
   tags: string[];
   recurring?: RecurringPattern;
+  imageUrl?: string;
 }
 

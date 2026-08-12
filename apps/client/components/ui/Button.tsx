@@ -7,6 +7,8 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
 export type ButtonSize = 'small' | 'medium' | 'large';
@@ -36,6 +38,9 @@ export const Button: React.FC<ButtonProps> = ({
   textStyle,
   icon,
 }) => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
+
   const buttonStyles = [
     styles.button,
     styles[variant],
@@ -62,7 +67,7 @@ export const Button: React.FC<ButtonProps> = ({
     >
       {loading ? (
         <ActivityIndicator
-          color={variant === 'primary' ? '#FFFFFF' : '#FF6B6B'}
+          color={variant === 'primary' ? colors.onPrimary : colors.primary}
           size={size === 'small' ? 'small' : 'small'}
         />
       ) : (
@@ -75,76 +80,78 @@ export const Button: React.FC<ButtonProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  button: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-    gap: 8,
-  },
-  fullWidth: {
-    width: '100%',
-  },
-  // Variants
-  primary: {
-    backgroundColor: '#FF6B6B',
-  },
-  secondary: {
-    backgroundColor: '#8B7FFF',
-  },
-  outline: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: '#FF6B6B',
-  },
-  ghost: {
-    backgroundColor: 'transparent',
-  },
-  // Sizes
-  smallButton: {
-    height: 36,
-    paddingHorizontal: 16,
-  },
-  mediumButton: {
-    height: 44,
-    paddingHorizontal: 20,
-  },
-  largeButton: {
-    height: 52,
-    paddingHorizontal: 24,
-  },
-  // Text styles
-  text: {
-    fontWeight: '600',
-  },
-  primaryText: {
-    color: '#FFFFFF',
-  },
-  secondaryText: {
-    color: '#FFFFFF',
-  },
-  outlineText: {
-    color: '#FF6B6B',
-  },
-  ghostText: {
-    color: '#FF6B6B',
-  },
-  smallText: {
-    fontSize: 14,
-  },
-  mediumText: {
-    fontSize: 16,
-  },
-  largeText: {
-    fontSize: 18,
-  },
-  // States
-  disabled: {
-    opacity: 0.5,
-  },
-  disabledText: {
-    opacity: 0.7,
-  },
-});
-
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    button: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 8,
+      gap: 8,
+    },
+    fullWidth: {
+      width: '100%',
+    },
+    // Variants
+    primary: {
+      backgroundColor: colors.primary,
+    },
+    secondary: {
+      backgroundColor: '#8B7FFF',
+    },
+    outline: {
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      borderColor: colors.primary,
+    },
+    ghost: {
+      backgroundColor: 'transparent',
+    },
+    // Sizes
+    smallButton: {
+      height: 36,
+      paddingHorizontal: 16,
+    },
+    mediumButton: {
+      height: 44,
+      paddingHorizontal: 20,
+    },
+    largeButton: {
+      height: 52,
+      paddingHorizontal: 24,
+    },
+    // Text styles
+    text: {
+      fontWeight: '600',
+    },
+    primaryText: {
+      color: colors.onPrimary,
+    },
+    secondaryText: {
+      color: colors.onPrimary,
+    },
+    outlineText: {
+      color: colors.primary,
+    },
+    ghostText: {
+      color: colors.primary,
+    },
+    smallText: {
+      fontSize: 14 * fontScale,
+    },
+    mediumText: {
+      fontSize: 16 * fontScale,
+    },
+    largeText: {
+      fontSize: 18 * fontScale,
+    },
+    // States
+    disabled: {
+      backgroundColor: colors.surfaceAlt,
+      opacity: 0.5,
+    },
+    disabledText: {
+      color: colors.textTertiary,
+      opacity: 0.7,
+    },
+  });

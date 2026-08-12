@@ -35,10 +35,10 @@ export default function LoginScreen() {
     >
       <View style={[styles.card, isMobile && styles.cardMobile]}>
         <View style={styles.logoContainer}>
-          <View style={styles.logo}>
-            <Text style={styles.logoText}>🎓</Text>
-          </View>
-          <Text style={styles.title}>Welcome to Universify</Text>
+          <Text style={styles.wordmark}>
+            CMU<Text style={styles.wordmarkAccent}>nify</Text>
+          </Text>
+          <Text style={styles.title}>Welcome back</Text>
           <Text style={styles.subtitle}>Sign in with your CMU account</Text>
           <Text style={styles.cmuHint}>Use your @andrew.cmu.edu or @cmu.edu email</Text>
         </View>
@@ -65,7 +65,7 @@ export default function LoginScreen() {
         </TouchableOpacity>
 
         <View style={styles.signupContainer}>
-          <Text style={styles.signupText}>New to Universify? </Text>
+          <Text style={styles.signupText}>New to CMUnify? </Text>
           <TouchableOpacity
             onPress={handleGoogleSignIn}
             disabled={isGoogleLoading || isLoading}
@@ -94,36 +94,37 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
       maxWidth: 440,
       backgroundColor: colors.surface,
       borderRadius: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
       padding: 32,
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 8,
-      elevation: 4,
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.06,
+      shadowRadius: 24,
+      elevation: 3,
     },
     cardMobile: {
       padding: 24,
-      borderRadius: 12,
+      borderRadius: 14,
     },
     logoContainer: {
       alignItems: 'center',
       marginBottom: 32,
     },
-    logo: {
-      width: 80,
-      height: 80,
-      borderRadius: 40,
-      backgroundColor: colors.primary,
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginBottom: 16,
+    wordmark: {
+      fontSize: 22 * fontScale,
+      fontWeight: '800',
+      letterSpacing: -0.5,
+      color: colors.textPrimary,
+      marginBottom: 20,
     },
-    logoText: {
-      fontSize: 40,
+    wordmarkAccent: {
+      color: colors.primary,
     },
     title: {
-      fontSize: 28 * fontScale,
-      fontWeight: 'bold',
+      fontSize: 26 * fontScale,
+      fontWeight: '800',
+      letterSpacing: -0.5,
       color: colors.textPrimary,
       marginBottom: 8,
     },

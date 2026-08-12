@@ -6,9 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Animated,
-  Dimensions,
-  Platform,
-  Easing,
+  ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
@@ -17,822 +15,701 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { AppPalette } from '@/constants/theme';
 
-// Get screen dimensions to use in calculations
-const { width, height } = Dimensions.get('window');
-
 /**
- * LandingPage Component
- * 
- * This is the main entry point for unauthenticated users.
- * It displays a marketing landing page with:
- * 1. Hero Section (Logo, Headline, CTAs)
- * 2. Features Grid (List of app capabilities)
- * 3. Stats Section (Social proof)
- * 4. Final Call to Action
+ * Landing page for unauthenticated users.
+ *
+ * Design principles (see repo docs / PR description for sources):
+ * - Type-led hero with a 5-second-clarity value proposition
+ * - Product-first: a preview of real event cards instead of abstract art
+ * - Accent color reserved for actions; calm neutral surfaces elsewhere
+ * - Hairline borders over heavy shadows; generous whitespace
+ * - Fully theme-aware (light/dark/high-contrast) and reduced-motion friendly
  */
 export default function LandingPage() {
   const { isAuthenticated, isLoading } = useAuth();
   const { isMobile, isDesktop } = useResponsive();
-  const { colors, fontScale } = useAppTheme();
+  const { colors, fontScale, reduceMotion } = useAppTheme();
   const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
 
-  // Effect: Redirect to main app if already logged in
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
       router.replace('/(tabs)');
     }
   }, [isAuthenticated, isLoading]);
 
-  // Show loading spinner while checking auth status
+  useEffect(() => {
+    if (reduceMotion) {
+      fadeAnim.setValue(1);
+      return;
+    }
+    Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }).start();
+  }, [fadeAnim, reduceMotion]);
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <Animated.Text style={styles.loadingLogo}>🎓</Animated.Text>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
-  // Don't render anything if authenticated (will redirect)
   if (isAuthenticated) {
     return null;
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      {/* Gradient Background & Animated Blobs */}
-      <View style={styles.gradientBackground}>
-        <AnimatedBlobs />
-      </View>
+      <Animated.View style={{ opacity: fadeAnim }}>
+        {/* Top bar */}
+        <View style={styles.topBar}>
+          <Text style={styles.wordmark}>
+            CMU<Text style={styles.wordmarkAccent}>nify</Text>
+          </Text>
+          <TouchableOpacity
+            style={styles.topBarButton}
+            onPress={() => router.push('/(auth)/login')}
+          >
+            <Text style={styles.topBarButtonText}>Sign in</Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Hero Section: The top part with "Welcome to CMUnify" */}
-      <View style={styles.hero}>
-        <AnimatedHero isMobile={isMobile} />
-      </View>
+        {/* Hero */}
+        <View style={[styles.hero, isMobile && styles.heroMobile]}>
+          <View style={styles.announcePill}>
+            <Text style={styles.announcePillText}>Built by students, for CMU</Text>
+          </View>
 
-      {/* Features Section: Grid of cards explaining what the app does */}
-      <View style={styles.featuresSection}>
-        <FeaturesGrid isDesktop={isDesktop} />
-      </View>
+          <Text style={[styles.headline, isMobile && styles.headlineMobile]}>
+            Every campus event.{'\n'}One place.
+          </Text>
 
-      {/* Stats Section: Numbers showing usage/trust */}
-      <View style={styles.statsSection}>
-        <StatsDisplay />
-      </View>
+          <Text style={[styles.subheadline, isMobile && styles.subheadlineMobile]}>
+            CMUnify pulls events out of scattered Slack channels, Discord servers,
+            and mailing lists into a single calendar — with recommendations that
+            learn what you actually go to.
+          </Text>
 
-      {/* CTA Section: Bottom "Get Started" button */}
-      <View style={styles.ctaSection}>
-        <FinalCTA />
-      </View>
+          <View style={styles.ctaRow}>
+            <TouchableOpacity
+              style={styles.primaryCta}
+              onPress={() => router.push('/(auth)/signup')}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.primaryCtaText}>Get started</Text>
+              <Ionicons name="arrow-forward" size={17} color={colors.onPrimary} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.secondaryCta}
+              onPress={() => router.push('/(auth)/login')}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.secondaryCtaText}>Sign in with CMU account</Text>
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.trustLine}>
+            Free forever · @andrew.cmu.edu sign-in · Google Calendar sync
+          </Text>
+        </View>
+
+        {/* Product preview: a stack of event cards */}
+        <View style={[styles.previewSection, isMobile && styles.previewSectionMobile]}>
+          <PreviewCard
+            styles={styles}
+            colors={colors}
+            accent="#8B5CF6"
+            title="Intro to Systems Study Session"
+            meta="Tue 7:00 PM · Gates 4401"
+            chips={['Academic', 'Tech']}
+            going={32}
+            offset="left"
+          />
+          <PreviewCard
+            styles={styles}
+            colors={colors}
+            accent={colors.primary}
+            title="Poker Night @ Wiegand"
+            meta="Fri 8:00 PM · Wiegand Gym Lounge"
+            chips={['Social', 'Fun']}
+            going={87}
+            offset="center"
+            elevated
+          />
+          <PreviewCard
+            styles={styles}
+            colors={colors}
+            accent="#0EA5E9"
+            title="ScottyLabs Demo Day"
+            meta="Sat 2:00 PM · Rangos Ballroom"
+            chips={['Tech', 'Networking']}
+            going={140}
+            offset="right"
+          />
+        </View>
+
+        {/* Features */}
+        <View style={styles.featuresSection}>
+          <Text style={styles.sectionKicker}>WHY CMUNIFY</Text>
+          <Text style={styles.sectionTitle}>Stop missing things you&apos;d love</Text>
+          <View style={[styles.featuresGrid, isDesktop && styles.featuresGridDesktop]}>
+            <Feature
+              styles={styles}
+              colors={colors}
+              isDesktop={isDesktop}
+              icon="calendar-outline"
+              title="One unified calendar"
+              body="Slack, Discord, and campus events merged into a week view that looks like your Google Calendar."
+            />
+            <Feature
+              styles={styles}
+              colors={colors}
+              isDesktop={isDesktop}
+              icon="sparkles-outline"
+              title="Learns your taste"
+              body="Recommendations built from the events you actually attend — no interest quizzes."
+            />
+            <Feature
+              styles={styles}
+              colors={colors}
+              isDesktop={isDesktop}
+              icon="sync-outline"
+              title="Google Calendar sync"
+              body="Pin an event and it lands in your Google Calendar. Unpin it, it's gone."
+            />
+            <Feature
+              styles={styles}
+              colors={colors}
+              isDesktop={isDesktop}
+              icon="chatbubbles-outline"
+              title="Auto-imported announcements"
+              body="Bots read club announcement channels and turn free-text posts into structured events."
+            />
+            <Feature
+              styles={styles}
+              colors={colors}
+              isDesktop={isDesktop}
+              icon="funnel-outline"
+              title="Search that works"
+              body="Filter by category, time of day, location, and availability. Three search modes."
+            />
+            <Feature
+              styles={styles}
+              colors={colors}
+              isDesktop={isDesktop}
+              icon="notifications-outline"
+              title="Never double-booked"
+              body="Drag over a free time slot and see the best events that fit exactly there."
+            />
+          </View>
+        </View>
+
+        {/* Stats */}
+        <View style={styles.statsStrip}>
+          <Stat styles={styles} value="500+" label="Events aggregated" />
+          <View style={styles.statDivider} />
+          <Stat styles={styles} value="30+" label="Clubs and orgs" />
+          <View style={styles.statDivider} />
+          <Stat styles={styles} value="3" label="Platforms unified" />
+        </View>
+
+        {/* Final CTA */}
+        <View style={styles.finalCta}>
+          <Text style={styles.finalCtaTitle}>Your campus, in one feed</Text>
+          <Text style={styles.finalCtaBody}>
+            Sign in with your CMU Google account and see this week&apos;s events in seconds.
+          </Text>
+          <TouchableOpacity
+            style={styles.primaryCta}
+            onPress={() => router.push('/(auth)/signup')}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.primaryCtaText}>Get started free</Text>
+            <Ionicons name="arrow-forward" size={17} color={colors.onPrimary} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            Made with care at Carnegie Mellon · ScottyLabs Labrador · © 2026 CMUnify
+          </Text>
+        </View>
+      </Animated.View>
     </ScrollView>
   );
 }
 
-/**
- * SpinningPetalLogo Component
- * 
- * Replaces the old StarLogo.
- * This creates a flower/star shape using 3 overlapping ellipses rotated at different angles.
- */
-const SpinningPetalLogo = () => {
-  const { colors, fontScale } = useAppTheme();
-  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
-  return (
-    <View style={styles.petalLogoContainer}>
-       {/* First Ellipse - Vertical */}
-       <View style={[styles.petalEllipse, styles.petalVertical]} />
-       {/* Second Ellipse - Rotated 60 degrees */}
-       <View style={[styles.petalEllipse, styles.petalRotated1]} />
-       {/* Third Ellipse - Rotated -60 degrees */}
-       <View style={[styles.petalEllipse, styles.petalRotated2]} />
-    </View>
-  );
-};
+/* ─── Sections ──────────────────────────────────────────────────────── */
 
-
-/**
- * AnimatedBlobs Component
- * 
- * These are the large moving background shapes (the "side thing").
- * NOW UPDATED: To mimic the spinning petal logo style but large and in the background.
- * It uses 3 large ellipses that rotate slowly.
- */
-const AnimatedBlobs = () => {
-  const { colors, fontScale } = useAppTheme();
-  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
-  // Animation for rotation
-  const spinAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    // Infinite rotation loop
-    Animated.loop(
-      Animated.timing(spinAnim, {
-        toValue: 1,
-        duration: 30000, // 30 seconds for full rotation
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    ).start();
-  }, [spinAnim]);
-
-  // Interpolate 0-1 to 0-360deg
-  const spin = spinAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
-  return (
-    <View style={styles.blobContainer}>
-      {/* The spinning container holding the petals */}
-      <Animated.View style={[styles.blobSpinner, { transform: [{ rotate: spin }] }]}>
-         {/* Petal 1 */}
-         <View style={[styles.blobPetal, styles.blobPetal1]} />
-         {/* Petal 2 */}
-         <View style={[styles.blobPetal, styles.blobPetal2]} />
-         {/* Petal 3 */}
-         <View style={[styles.blobPetal, styles.blobPetal3]} />
-      </Animated.View>
-    </View>
-  );
-};
-
-/**
- * AnimatedHero Component
- * 
- * Displays the main welcome message and logo with entrance animations.
- */
-const AnimatedHero: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
-  const { colors, fontScale } = useAppTheme();
-  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(30)).current;
-
-  // Run entrance animation on mount
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 1200,
-        delay: 300,
-        useNativeDriver: true,
-      }),
-      Animated.spring(slideAnim, {
-        toValue: 0,
-        delay: 300,
-        tension: 40,
-        friction: 8,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [fadeAnim, slideAnim]);
-
-  return (
-    <Animated.View
-      style={[
-        styles.heroContent,
-        {
-          opacity: fadeAnim,
-          transform: [{ translateY: slideAnim }],
-        },
-      ]}
-    >
-      {/* Logo Section */}
-      <View style={styles.logoSection}>
-        <View style={styles.logoIcon}>
-          <SpinningPetalLogo />
-        </View>
-      </View>
-
-      {/* Main Headline */}
-      <Text style={[styles.headline, isMobile && styles.headlineMobile]}>
-        Welcome to
-      </Text>
-      <Text style={[styles.brandHeadline, isMobile && styles.brandHeadlineMobile]}>
-        CMUnify
-      </Text>
-
-      {/* Subheadline */}
-      <Text style={[styles.subheadline, isMobile && styles.subheadlineMobile]}>
-        Your campus life, unified in one place.{'\n'}
-        Discover events, connect with clubs, and never miss what matters.
-      </Text>
-
-      {/* CTA Buttons */}
-      <View style={styles.ctaButtons}>
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={() => router.push('/(auth)/signup')}
-          activeOpacity={0.9}
-        >
-          <Text style={styles.primaryButtonText}>Get Started</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => router.push('/(auth)/login')}
-          activeOpacity={0.9}
-        >
-          <Text style={styles.secondaryButtonText}>Sign In</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Trust Indicators */}
-      <View style={styles.trustIndicators}>
-        <View style={styles.trustItem}>
-          <Text style={styles.trustIcon}>✓</Text>
-          <Text style={styles.trustText}>Free Forever</Text>
-        </View>
-        <View style={styles.trustItem}>
-          <Text style={styles.trustIcon}>✓</Text>
-          <Text style={styles.trustText}>1000+ Students</Text>
-        </View>
-        <View style={styles.trustItem}>
-          <Text style={styles.trustIcon}>✓</Text>
-          <Text style={styles.trustText}>50+ Clubs</Text>
-        </View>
-      </View>
-    </Animated.View>
-  );
-};
-
-/**
- * FeaturesGrid Component
- * 
- * Renders the list of features (Calendar, Discovery, etc.)
- */
-const FeaturesGrid: React.FC<{ isDesktop: boolean }> = ({ isDesktop }) => {
-  const { colors, fontScale } = useAppTheme();
-  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
-  const features = [
-    {
-      iconName: 'calendar-outline',
-      title: 'Unified Calendar',
-      description: 'All campus events in one beautiful calendar view',
-      gradient: ['#FF6B6B', '#FF8E8E'],
-    },
-    {
-      iconName: 'search-outline',
-      title: 'Smart Discovery',
-      description: 'AI-powered search to find exactly what you need',
-      gradient: ['#8B7FFF', '#A89FFF'],
-    },
-    {
-      iconName: 'people-outline',
-      title: 'Social Events',
-      description: 'Create and join casual meetups instantly',
-      gradient: ['#FF6BA8', '#FF8EBF'],
-    },
-    {
-      iconName: 'business-outline',
-      title: 'Club Hub',
-      description: 'Stay connected with all your organizations',
-      gradient: ['#4ECDC4', '#6FD9D1'],
-    },
-    {
-      iconName: 'notifications-outline',
-      title: 'Smart Alerts',
-      description: 'Get notified about events you care about',
-      gradient: ['#FFD93D', '#FFE066'],
-    },
-    {
-      iconName: 'phone-portrait-outline',
-      title: 'Cross-Platform',
-      description: 'Access from web, iOS, or Android seamlessly',
-      gradient: ['#95E1D3', '#ADE8DC'],
-    },
-  ];
-
-  return (
-    <>
-      <Text style={styles.sectionTitle}>Everything you need</Text>
-      <Text style={styles.sectionSubtitle}>
-        Powerful features designed for student life
-      </Text>
-
-      <View style={[styles.featuresGrid, isDesktop && styles.featuresGridDesktop]}>
-        {features.map((feature, index) => (
-          <FeatureCard key={index} {...feature} index={index} />
-        ))}
-      </View>
-    </>
-  );
-};
-
-/**
- * FeatureCard Component
- * 
- * Individual card for a feature with staggered entrance animation.
- */
-const FeatureCard: React.FC<{
-  iconName: string;
+function PreviewCard({
+  styles,
+  colors,
+  accent,
+  title,
+  meta,
+  chips,
+  going,
+  offset,
+  elevated,
+}: {
+  styles: ReturnType<typeof createStyles>;
+  colors: AppPalette;
+  accent: string;
   title: string;
-  description: string;
-  gradient: string[];
-  index: number;
-}> = ({ iconName, title, description, gradient, index }) => {
-  const { colors, fontScale } = useAppTheme();
-  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.9)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 600,
-        delay: index * 100,
-        useNativeDriver: true,
-      }),
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        delay: index * 100,
-        tension: 40,
-        friction: 7,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [fadeAnim, index, scaleAnim]);
-
+  meta: string;
+  chips: string[];
+  going: number;
+  offset: 'left' | 'center' | 'right';
+  elevated?: boolean;
+}) {
   return (
-    <Animated.View
+    <View
       style={[
-        styles.featureCard,
-        {
-          opacity: fadeAnim,
-          transform: [{ scale: scaleAnim }],
-        },
+        styles.previewCard,
+        elevated && styles.previewCardElevated,
+        offset === 'left' && styles.previewCardLeft,
+        offset === 'right' && styles.previewCardRight,
       ]}
     >
-      <View style={[styles.featureIconWrapper, { backgroundColor: gradient[0] + '15' }]}>
-        <Ionicons name={iconName as any} size={36} color={gradient[0]} />
+      <View style={[styles.previewAccentBar, { backgroundColor: accent }]} />
+      <View style={styles.previewCardBody}>
+        <Text style={styles.previewCardTitle} numberOfLines={1}>
+          {title}
+        </Text>
+        <Text style={styles.previewCardMeta} numberOfLines={1}>
+          {meta}
+        </Text>
+        <View style={styles.previewCardFooter}>
+          <View style={styles.previewChips}>
+            {chips.map((chip) => (
+              <View key={chip} style={[styles.previewChip, { backgroundColor: `${accent}1A` }]}>
+                <Text style={[styles.previewChipText, { color: accent }]}>{chip}</Text>
+              </View>
+            ))}
+          </View>
+          <View style={styles.previewGoing}>
+            <Ionicons name="checkmark-circle" size={14} color={colors.success} />
+            <Text style={styles.previewGoingText}>{going} going</Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function Feature({
+  styles,
+  colors,
+  icon,
+  title,
+  body,
+  isDesktop,
+}: {
+  styles: ReturnType<typeof createStyles>;
+  colors: AppPalette;
+  icon: keyof typeof Ionicons.glyphMap;
+  title: string;
+  body: string;
+  isDesktop?: boolean;
+}) {
+  return (
+    <View style={[styles.featureCard, isDesktop && styles.featureCardDesktop]}>
+      <View style={styles.featureIconWrap}>
+        <Ionicons name={icon} size={20} color={colors.primary} />
       </View>
       <Text style={styles.featureTitle}>{title}</Text>
-      <Text style={styles.featureDescription}>{description}</Text>
-    </Animated.View>
-  );
-};
-
-/**
- * StatsDisplay Component
- * 
- * Section showing usage stats.
- */
-const StatsDisplay = () => {
-  const { colors, fontScale } = useAppTheme();
-  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
-  const stats = [
-    { value: '1,000+', label: 'Active Students' },
-    { value: '500+', label: 'Events Monthly' },
-    { value: '50+', label: 'Campus Clubs' },
-    { value: '98%', label: 'Satisfaction' },
-  ];
-
-  return (
-    <View style={styles.statsContainer}>
-      {stats.map((stat, index) => (
-        <AnimatedStat key={index} {...stat} delay={index * 150} />
-      ))}
+      <Text style={styles.featureBody}>{body}</Text>
     </View>
   );
-};
+}
 
-const AnimatedStat: React.FC<{
+function Stat({
+  styles,
+  value,
+  label,
+}: {
+  styles: ReturnType<typeof createStyles>;
   value: string;
   label: string;
-  delay: number;
-}> = ({ value, label, delay }) => {
-  const { colors, fontScale } = useAppTheme();
-  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
-  const scaleAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      delay,
-      tension: 40,
-      friction: 7,
-      useNativeDriver: true,
-      }).start();
-  }, [delay, scaleAnim]);
-
+}) {
   return (
-    <Animated.View
-      style={[
-        styles.statCard,
-        {
-          transform: [{ scale: scaleAnim }],
-        },
-      ]}
-    >
+    <View style={styles.stat}>
       <Text style={styles.statValue}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
-    </Animated.View>
-  );
-};
-
-const FinalCTA = () => {
-  const { colors, fontScale } = useAppTheme();
-  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
-  return (
-    <View style={styles.finalCTAContainer}>
-      <Text style={styles.finalCTATitle}>
-        Ready to transform your campus experience?
-      </Text>
-      <Text style={styles.finalCTASubtitle}>
-        Join thousands of students already using CMUnify
-      </Text>
-      <TouchableOpacity
-        style={styles.finalCTAButton}
-        onPress={() => router.push('/(auth)/signup')}
-        activeOpacity={0.9}
-      >
-        <Text style={styles.finalCTAButtonText}>Get Started Free</Text>
-      </TouchableOpacity>
-      <Text style={styles.footer}>
-        Made with ❤️ for students • © 2025 CMUnify
-      </Text>
     </View>
   );
-};
+}
 
-/**
- * Styles Definitions
- *
- * Modify colors, sizes, and layout here.
- */
+/* ─── Styles ────────────────────────────────────────────────────────── */
+
 const createStyles = (colors: AppPalette, fontScale: number) =>
   StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#E8E4F3', // Main background color
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#E8E4F3',
-  },
-  loadingLogo: {
-    fontSize: 64,
-  },
-  gradientBackground: {
-    ...StyleSheet.absoluteFillObject,
-    overflow: 'hidden',
-    backgroundColor: '#E8E4F3',
-  },
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    scrollContent: {
+      paddingBottom: 48,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.background,
+    },
 
-  // --- NEW BLOB ANIMATION STYLES ---
-  blobContainer: {
-    position: 'absolute',
-    top: -300, // Position partly off-screen to the top-left
-    left: -300,
-    width: 1000,
-    height: 1000,
-    justifyContent: 'center',
-    alignItems: 'center',
-    opacity: 0.6, // Make it subtle
-  },
-  blobSpinner: {
-    width: 1000,
-    height: 1000,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  blobPetal: {
-    position: 'absolute',
-    width: 300,
-    height: 900, // Long oval
-    backgroundColor: '#FF6B6B', // Brand Red/Pink
-    borderRadius: 500, // Fully rounded
-  },
-  blobPetal1: {
-    // Vertical
-    opacity: 0.5,
-    backgroundColor: '#FF6B6B',
-  },
-  blobPetal2: {
-    // Rotated 60 deg
-    transform: [{ rotate: '60deg' }],
-    opacity: 0.5,
-    backgroundColor: '#FF8E8E',
-  },
-  blobPetal3: {
-    // Rotated -60 deg (or 120)
-    transform: [{ rotate: '-60deg' }],
-    opacity: 0.5,
-    backgroundColor: '#FF7A6B',
-  },
+    /* Top bar */
+    topBar: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 24,
+      paddingVertical: 18,
+      maxWidth: 1080,
+      width: '100%',
+      alignSelf: 'center',
+    },
+    wordmark: {
+      fontSize: 20 * fontScale,
+      fontWeight: '800',
+      letterSpacing: -0.5,
+      color: colors.textPrimary,
+    },
+    wordmarkAccent: {
+      color: colors.primary,
+    },
+    topBarButton: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    topBarButtonText: {
+      fontSize: 14 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+    },
 
-  hero: {
-    minHeight: height * 0.85,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 80,
-    paddingBottom: 60,
-  },
-  heroContent: {
-    alignItems: 'center',
-    maxWidth: 900,
-    width: '100%',
-  },
-  logoSection: {
-    marginBottom: 40,
-  },
-  logoIcon: {
-    width: 100,
-    height: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  
-  // --- NEW LOGO STYLES ---
-  petalLogoContainer: {
-    width: 80,
-    height: 80,
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  petalEllipse: {
-    position: 'absolute',
-    width: 30,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#FF6B6B',
-    opacity: 0.9,
-  },
-  petalVertical: {
-    // Default vertical
-  },
-  petalRotated1: {
-    transform: [{ rotate: '60deg' }],
-    backgroundColor: '#FF6B6B',
-  },
-  petalRotated2: {
-    transform: [{ rotate: '-60deg' }],
-    backgroundColor: '#FF6B6B',
-  },
+    /* Hero */
+    hero: {
+      alignItems: 'center',
+      paddingHorizontal: 24,
+      paddingTop: 72,
+      paddingBottom: 40,
+      maxWidth: 880,
+      width: '100%',
+      alignSelf: 'center',
+    },
+    heroMobile: {
+      paddingTop: 40,
+    },
+    announcePill: {
+      paddingHorizontal: 14,
+      paddingVertical: 6,
+      borderRadius: 999,
+      backgroundColor: colors.surfaceAlt,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginBottom: 28,
+    },
+    announcePillText: {
+      fontSize: 13 * fontScale,
+      fontWeight: '500',
+      color: colors.textSecondary,
+      letterSpacing: 0.2,
+    },
+    headline: {
+      fontSize: 64 * fontScale,
+      lineHeight: 68 * fontScale,
+      fontWeight: '800',
+      letterSpacing: -2,
+      textAlign: 'center',
+      color: colors.textPrimary,
+      marginBottom: 20,
+    },
+    headlineMobile: {
+      fontSize: 42 * fontScale,
+      lineHeight: 46 * fontScale,
+      letterSpacing: -1.2,
+    },
+    subheadline: {
+      fontSize: 18 * fontScale,
+      lineHeight: 28 * fontScale,
+      textAlign: 'center',
+      color: colors.textSecondary,
+      maxWidth: 620,
+      marginBottom: 32,
+    },
+    subheadlineMobile: {
+      fontSize: 16 * fontScale,
+      lineHeight: 25 * fontScale,
+    },
+    ctaRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    primaryCta: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      backgroundColor: colors.primary,
+      paddingHorizontal: 24,
+      paddingVertical: 14,
+      borderRadius: 12,
+    },
+    primaryCtaText: {
+      fontSize: 16 * fontScale,
+      fontWeight: '600',
+      color: colors.onPrimary,
+    },
+    secondaryCta: {
+      paddingHorizontal: 20,
+      paddingVertical: 14,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+    },
+    secondaryCtaText: {
+      fontSize: 15 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+    },
+    trustLine: {
+      fontSize: 13 * fontScale,
+      color: colors.textTertiary,
+      textAlign: 'center',
+    },
 
+    /* Product preview */
+    previewSection: {
+      alignItems: 'center',
+      paddingVertical: 40,
+      paddingHorizontal: 24,
+      gap: 12,
+      maxWidth: 640,
+      width: '100%',
+      alignSelf: 'center',
+    },
+    previewSectionMobile: {
+      paddingVertical: 24,
+    },
+    previewCard: {
+      width: '100%',
+      maxWidth: 520,
+      flexDirection: 'row',
+      backgroundColor: colors.surface,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: colors.border,
+      overflow: 'hidden',
+    },
+    previewCardElevated: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.08,
+      shadowRadius: 24,
+      elevation: 4,
+      transform: [{ scale: 1.03 }],
+      zIndex: 2,
+    },
+    previewCardLeft: {
+      transform: [{ rotate: '-1.2deg' }, { translateX: -14 }],
+      opacity: 0.9,
+    },
+    previewCardRight: {
+      transform: [{ rotate: '1.2deg' }, { translateX: 14 }],
+      opacity: 0.9,
+    },
+    previewAccentBar: {
+      width: 4,
+    },
+    previewCardBody: {
+      flex: 1,
+      padding: 16,
+    },
+    previewCardTitle: {
+      fontSize: 16 * fontScale,
+      fontWeight: '700',
+      color: colors.textPrimary,
+      marginBottom: 4,
+    },
+    previewCardMeta: {
+      fontSize: 13 * fontScale,
+      color: colors.textSecondary,
+      marginBottom: 12,
+    },
+    previewCardFooter: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    previewChips: {
+      flexDirection: 'row',
+      gap: 6,
+    },
+    previewChip: {
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderRadius: 6,
+    },
+    previewChipText: {
+      fontSize: 11 * fontScale,
+      fontWeight: '600',
+    },
+    previewGoing: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    previewGoingText: {
+      fontSize: 12 * fontScale,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
 
-  headline: {
-    fontSize: 72 * fontScale,
-    fontWeight: '800',
-    // The hero sits on the fixed light lavender/pink brand artwork, so its
-    // text must stay dark in every theme (theme tokens would go light in
-    // dark mode and vanish against the artwork)
-    color: '#1A1A2E',
-    textAlign: 'center',
-    marginBottom: 8,
-    letterSpacing: -2,
-  },
-  headlineMobile: {
-    fontSize: 48 * fontScale,
-  },
-  brandHeadline: {
-    fontSize: 72 * fontScale,
-    fontWeight: '800',
-    color: colors.primary,
-    textAlign: 'center',
-    marginBottom: 32,
-    letterSpacing: -2,
-  },
-  brandHeadlineMobile: {
-    fontSize: 48 * fontScale,
-  },
-  subheadline: {
-    fontSize: 22 * fontScale,
-    color: '#4B5563', // fixed: sits on the light hero artwork in every theme
-    textAlign: 'center',
-    marginBottom: 48,
-    lineHeight: 34,
-    maxWidth: 700,
-  },
-  subheadlineMobile: {
-    fontSize: 18 * fontScale,
-    lineHeight: 28,
-  },
-  ctaButtons: {
-    flexDirection: 'row',
-    gap: 16,
-    marginBottom: 48,
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-  },
-  primaryButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 40,
-    paddingVertical: 18,
-    borderRadius: 16,
-    minWidth: 180,
-    alignItems: 'center',
-    ...Platform.select({
-      web: {
-        shadowColor: colors.primary,
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.4,
-        shadowRadius: 24,
-      },
-      default: {
-        elevation: 12,
-      },
-    }),
-  },
-  primaryButtonText: {
-    color: colors.onPrimary,
-    fontSize: 18 * fontScale,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  secondaryButton: {
-    backgroundColor: 'transparent',
-    paddingHorizontal: 40,
-    paddingVertical: 18,
-    borderRadius: 16,
-    minWidth: 180,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#1A1A2E', // fixed: sits on the light hero artwork in every theme
-  },
-  secondaryButtonText: {
-    color: '#1A1A2E', // fixed: sits on the light hero artwork in every theme
-    fontSize: 18 * fontScale,
-    fontWeight: '600',
-  },
-  trustIndicators: {
-    flexDirection: 'row',
-    gap: 32,
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-  },
-  trustItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  trustIcon: {
-    color: colors.success,
-    fontSize: 18 * fontScale,
-    fontWeight: 'bold',
-  },
-  trustText: {
-    color: '#4B5563', // fixed: sits on the light hero artwork in every theme
-    fontSize: 15 * fontScale,
-    fontWeight: '500',
-  },
-  featuresSection: {
-    paddingVertical: 100,
-    paddingHorizontal: 24,
-    backgroundColor: colors.surface,
-  },
-  sectionTitle: {
-    fontSize: 48 * fontScale,
-    fontWeight: '800',
-    color: colors.textPrimary,
-    textAlign: 'center',
-    marginBottom: 16,
-    letterSpacing: -1,
-  },
-  sectionSubtitle: {
-    fontSize: 20 * fontScale,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 64,
-  },
-  featuresGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 24,
-    maxWidth: 1200,
-    alignSelf: 'center',
-  },
-  featuresGridDesktop: {
-    gap: 32,
-  },
-  featureCard: {
-    width: width > 768 ? 360 : width - 48,
-    backgroundColor: colors.surface,
-    padding: 32,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: colors.border,
-    ...Platform.select({
-      web: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.06,
-        shadowRadius: 16,
-      },
-      default: {
-        elevation: 3,
-      },
-    }),
-  },
-  featureIconWrapper: {
-    width: 72,
-    height: 72,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  featureIcon: {
-    fontSize: 36,
-  },
-  featureTitle: {
-    fontSize: 24 * fontScale,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    marginBottom: 12,
-  },
-  featureDescription: {
-    fontSize: 16 * fontScale,
-    color: colors.textSecondary,
-    lineHeight: 24,
-  },
-  statsSection: {
-    paddingVertical: 100,
-    paddingHorizontal: 24,
-    backgroundColor: colors.surfaceAlt,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 48,
-    maxWidth: 1000,
-    alignSelf: 'center',
-  },
-  statCard: {
-    alignItems: 'center',
-    minWidth: 160,
-  },
-  statValue: {
-    fontSize: 56 * fontScale,
-    fontWeight: '800',
-    color: colors.primary,
-    marginBottom: 8,
-    letterSpacing: -1,
-  },
-  statLabel: {
-    fontSize: 16 * fontScale,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  ctaSection: {
-    paddingVertical: 120,
-    paddingHorizontal: 24,
-    backgroundColor: colors.surface,
-  },
-  finalCTAContainer: {
-    alignItems: 'center',
-    maxWidth: 800,
-    alignSelf: 'center',
-  },
-  finalCTATitle: {
-    fontSize: 48 * fontScale,
-    fontWeight: '800',
-    color: colors.textPrimary,
-    textAlign: 'center',
-    marginBottom: 20,
-    letterSpacing: -1,
-  },
-  finalCTASubtitle: {
-    fontSize: 20 * fontScale,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 48,
-  },
-  finalCTAButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 56,
-    paddingVertical: 22,
-    borderRadius: 16,
-    ...Platform.select({
-      web: {
-        shadowColor: colors.primary,
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.4,
-        shadowRadius: 24,
-      },
-      default: {
-        elevation: 12,
-      },
-    }),
-  },
-  finalCTAButtonText: {
-    color: colors.onPrimary,
-    fontSize: 20 * fontScale,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  footer: {
-    marginTop: 48,
-    fontSize: 14 * fontScale,
-    color: colors.textTertiary,
-    textAlign: 'center',
-  },
-});
+    /* Features */
+    featuresSection: {
+      paddingHorizontal: 24,
+      paddingVertical: 56,
+      maxWidth: 1080,
+      width: '100%',
+      alignSelf: 'center',
+    },
+    sectionKicker: {
+      fontSize: 12 * fontScale,
+      fontWeight: '700',
+      letterSpacing: 1.5,
+      color: colors.primary,
+      textAlign: 'center',
+      marginBottom: 10,
+    },
+    sectionTitle: {
+      fontSize: 32 * fontScale,
+      fontWeight: '800',
+      letterSpacing: -0.8,
+      color: colors.textPrimary,
+      textAlign: 'center',
+      marginBottom: 36,
+    },
+    featuresGrid: {
+      gap: 14,
+    },
+    featuresGridDesktop: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+    },
+    featureCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 20,
+    },
+    featureCardDesktop: {
+      flexBasis: 320,
+      flexGrow: 1,
+      maxWidth: 340,
+    },
+    featureIconWrap: {
+      width: 38,
+      height: 38,
+      borderRadius: 10,
+      backgroundColor: colors.surfaceAlt,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 14,
+    },
+    featureTitle: {
+      fontSize: 16 * fontScale,
+      fontWeight: '700',
+      color: colors.textPrimary,
+      marginBottom: 6,
+    },
+    featureBody: {
+      fontSize: 14 * fontScale,
+      lineHeight: 21 * fontScale,
+      color: colors.textSecondary,
+    },
+
+    /* Stats */
+    statsStrip: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: 8,
+      marginHorizontal: 24,
+      paddingVertical: 28,
+      borderTopWidth: 1,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+      maxWidth: 720,
+      width: 'auto',
+      alignSelf: 'center',
+      minWidth: '80%',
+    },
+    stat: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    statValue: {
+      fontSize: 26 * fontScale,
+      fontWeight: '800',
+      letterSpacing: -0.5,
+      color: colors.textPrimary,
+    },
+    statLabel: {
+      fontSize: 12 * fontScale,
+      color: colors.textTertiary,
+      marginTop: 2,
+      textAlign: 'center',
+    },
+    statDivider: {
+      width: 1,
+      height: 36,
+      backgroundColor: colors.border,
+    },
+
+    /* Final CTA */
+    finalCta: {
+      alignItems: 'center',
+      paddingHorizontal: 24,
+      paddingVertical: 64,
+    },
+    finalCtaTitle: {
+      fontSize: 30 * fontScale,
+      fontWeight: '800',
+      letterSpacing: -0.8,
+      color: colors.textPrimary,
+      textAlign: 'center',
+      marginBottom: 10,
+    },
+    finalCtaBody: {
+      fontSize: 16 * fontScale,
+      lineHeight: 24 * fontScale,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      maxWidth: 480,
+      marginBottom: 24,
+    },
+
+    /* Footer */
+    footer: {
+      alignItems: 'center',
+      paddingHorizontal: 24,
+      paddingTop: 8,
+    },
+    footerText: {
+      fontSize: 13 * fontScale,
+      color: colors.textTertiary,
+      textAlign: 'center',
+    },
+  });

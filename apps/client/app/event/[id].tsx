@@ -285,19 +285,20 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
       color: colors.textPrimary,
     },
     badge: {
-      backgroundColor: '#8B7FFF',
+      backgroundColor: 'rgba(139, 127, 255, 0.14)',
       paddingHorizontal: 8,
       paddingVertical: 4,
-      borderRadius: 4,
+      borderRadius: 6,
     },
     socialBadge: {
-      backgroundColor: '#FF6BA8',
+      backgroundColor: 'rgba(255, 107, 168, 0.14)',
     },
     badgeText: {
       fontSize: 10 * fontScale,
-      fontWeight: '600',
-      color: colors.onPrimary,
+      fontWeight: '700',
+      color: '#8B7FFF',
       textTransform: 'uppercase',
+      letterSpacing: 0.4,
     },
     infoRow: {
       flexDirection: 'row',

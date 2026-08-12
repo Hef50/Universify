@@ -1,7 +1,9 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { Event, EventCategory } from '@/types/event';
-import { SearchMode } from '@/types/settings';
+import { DateRange, SearchMode } from '@/types/settings';
 import { useEventFilters } from '@/hooks/useEventFilters';
+
+type TimeOfDay = 'morning' | 'afternoon' | 'evening' | 'night';
 
 interface FilterContextType {
   filteredEvents: Event[];
@@ -11,11 +13,20 @@ interface FilterContextType {
   selectedCategories: EventCategory[];
   clubEvents: boolean;
   socialEvents: boolean;
+  dateRange?: DateRange;
+  location?: string;
+  timeOfDay?: TimeOfDay;
+  hasAvailability?: boolean;
   setSearchQuery: (query: string) => void;
   setSearchMode: (mode: SearchMode) => void;
   toggleCategory: (category: EventCategory) => void;
   setCategories: (categories: EventCategory[]) => void;
   toggleEventType: (type: 'clubEvents' | 'socialEvents') => void;
+  setDateRange: (start: string, end: string) => void;
+  clearDateRange: () => void;
+  setLocation: (location: string) => void;
+  setTimeOfDay: (timeOfDay: TimeOfDay | undefined) => void;
+  setHasAvailability: (hasAvailability: boolean) => void;
   clearFilters: () => void;
   clearAllFilters: () => void;
 }
@@ -37,6 +48,11 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({ children, events
     toggleEventType,
     setSearchQuery,
     setSearchMode,
+    setDateRange,
+    clearDateRange,
+    setLocation,
+    setTimeOfDay,
+    setHasAvailability,
     clearFilters,
     clearAllFilters,
   } = useEventFilters(events);
@@ -49,11 +65,20 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({ children, events
     selectedCategories: filters.categories,
     clubEvents: filters.eventTypes.clubEvents,
     socialEvents: filters.eventTypes.socialEvents,
+    dateRange: filters.dateRange,
+    location: filters.location,
+    timeOfDay: filters.timeOfDay,
+    hasAvailability: filters.hasAvailability,
     setSearchQuery,
     setSearchMode,
     toggleCategory,
     setCategories,
     toggleEventType,
+    setDateRange,
+    clearDateRange,
+    setLocation,
+    setTimeOfDay,
+    setHasAvailability,
     clearFilters,
     clearAllFilters,
   };
@@ -68,4 +93,3 @@ export const useFilters = (): FilterContextType => {
   }
   return context;
 };
-

@@ -51,13 +51,3 @@ export interface UserSettings {
   };
 }
 
-export interface AppSettings {
-  version: string;
-  apiEndpoint?: string;
-  features: {
-    googleCalendarSync: boolean;
-    slackIntegration: boolean;
-    discordIntegration: boolean;
-    instagramScraping: boolean;
-  };
-}

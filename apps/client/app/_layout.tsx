@@ -1,6 +1,7 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -37,20 +38,24 @@ function ThemedStack() {
 
 export default function RootLayout() {
   return (
-    <DevModeProvider>
-      <GoogleAuthProvider>
-        <AuthProvider>
-          <GoogleCalendarProvider>
-            <SettingsProvider>
-              <EventsProvider>
-                <SlackProvider>
-                  <ThemedStack />
-                </SlackProvider>
-              </EventsProvider>
-            </SettingsProvider>
-          </GoogleCalendarProvider>
-        </AuthProvider>
-      </GoogleAuthProvider>
-    </DevModeProvider>
+    // SafeAreaProvider lets the tab bar and headers respect notches and the
+    // home indicator when the PWA is installed to a phone's home screen
+    <SafeAreaProvider>
+      <DevModeProvider>
+        <GoogleAuthProvider>
+          <AuthProvider>
+            <GoogleCalendarProvider>
+              <SettingsProvider>
+                <EventsProvider>
+                  <SlackProvider>
+                    <ThemedStack />
+                  </SlackProvider>
+                </EventsProvider>
+              </SettingsProvider>
+            </GoogleCalendarProvider>
+          </AuthProvider>
+        </GoogleAuthProvider>
+      </DevModeProvider>
+    </SafeAreaProvider>
   );
 }

@@ -1,3 +1,5 @@
+> **Historical snapshot.** This document describes the project at an earlier stage of development and is kept for reference. Parts of it no longer match the codebase — see [README.md](README.md) for the current state.
+
 # Universify - Implementation Summary
 
 ## Overview

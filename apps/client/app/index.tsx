@@ -580,7 +580,10 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
   headline: {
     fontSize: 72 * fontScale,
     fontWeight: '800',
-    color: colors.textPrimary,
+    // The hero sits on the fixed light lavender/pink brand artwork, so its
+    // text must stay dark in every theme (theme tokens would go light in
+    // dark mode and vanish against the artwork)
+    color: '#1A1A2E',
     textAlign: 'center',
     marginBottom: 8,
     letterSpacing: -2,
@@ -601,7 +604,7 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
   },
   subheadline: {
     fontSize: 22 * fontScale,
-    color: colors.textSecondary,
+    color: '#4B5563', // fixed: sits on the light hero artwork in every theme
     textAlign: 'center',
     marginBottom: 48,
     lineHeight: 34,
@@ -651,10 +654,10 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
     minWidth: 180,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: colors.border,
+    borderColor: '#1A1A2E', // fixed: sits on the light hero artwork in every theme
   },
   secondaryButtonText: {
-    color: colors.textPrimary,
+    color: '#1A1A2E', // fixed: sits on the light hero artwork in every theme
     fontSize: 18 * fontScale,
     fontWeight: '600',
   },
@@ -675,7 +678,7 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
     fontWeight: 'bold',
   },
   trustText: {
-    color: colors.textSecondary,
+    color: '#4B5563', // fixed: sits on the light hero artwork in every theme
     fontSize: 15 * fontScale,
     fontWeight: '500',
   },

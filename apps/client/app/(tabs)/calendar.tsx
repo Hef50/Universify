@@ -22,15 +22,17 @@ import { useEventReminders } from '@/hooks/useEventReminders';
 import { storage } from '@/lib/storage';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { AppPalette } from '@/constants/theme';
-import { AgendaList, AgendaBadge } from '@/components/events/AgendaList';
+import { AgendaList } from '@/components/events/AgendaList';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
+import { useMyEvents } from '@/hooks/useMyEvents';
+import { eventsInRange } from '@/utils/myEvents';
 
 // Universify event id -> Google Calendar event id map, persisted so
 // unscheduling can delete the Google copy even after a reload
 const GCAL_MAP_STORAGE_KEY = 'universify_gcal_event_map';
 
 export default function CalendarScreen() {
-  const { events, isLoading } = useEvents();
+  const { events, isLoading, updateRSVP } = useEvents();
   const { currentUser } = useAuth();
   const { settings, updateSettings } = useSettings();
   const { isMobile, isDesktop } = useResponsive();
@@ -42,12 +44,13 @@ export default function CalendarScreen() {
   const calendar = useCalendar(isMobile ? 3 : settings.calendarViewDays);
   const weekKey = getWeekKey(calendar.currentDate);
   const {
-    scheduledEventIds,
-    allScheduledIds: allScheduledEventIds,
     isLoading: isLoadingScheduled,
     scheduleEvent: scheduleEventForWeek,
     unscheduleEvent: unscheduleEventForWeek,
   } = useScheduledEvents(currentUser?.id, weekKey);
+  // Everything the user RSVP'd to, pinned, or is hosting — an RSVP alone is
+  // enough to put an event on the calendar.
+  const { myEvents, myEventIds, relationFor } = useMyEvents();
 
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
   const [customDays, setCustomDays] = useState(settings.calendarViewDays.toString());
@@ -79,7 +82,9 @@ export default function CalendarScreen() {
       .catch((err) => console.error('Failed to persist Google Calendar event map:', err));
   };
 
-  const viewDays = settings.calendarViewDays;
+  // Phones show a rolling 3-day window starting today; the Sunday-aligned week
+  // only makes sense with a desktop's worth of horizontal room.
+  const viewDays = isMobile ? 3 : settings.calendarViewDays;
 
   // Get days to display based on view mode
   const displayDays = useMemo(() => {
@@ -117,59 +122,44 @@ export default function CalendarScreen() {
   }, [googleEvents, displayDays]);
 
   // Get events to display in the calendar
-  // Merge local scheduled events (plus their recurring occurrences within
+  // Merge the user's own events (plus their recurring occurrences within
   // the visible range) with Google events
   const weekEvents = useMemo(() => {
-    // Local events: only show if scheduled
-    const local = events.filter((event) => scheduledEventIds.includes(event.id));
-    if (displayDays.length === 0) return [...local, ...googleViewEvents];
+    if (displayDays.length === 0) return [...myEvents, ...googleViewEvents];
 
     const viewStart = new Date(displayDays[0]);
     viewStart.setHours(0, 0, 0, 0);
     const viewEnd = new Date(displayDays[displayDays.length - 1]);
     viewEnd.setHours(23, 59, 59, 999);
 
-    return [...expandRecurringEvents(local, viewStart, viewEnd), ...googleViewEvents];
-  }, [events, scheduledEventIds, googleViewEvents, displayDays]);
+    const inView = eventsInRange(
+      expandRecurringEvents(myEvents, viewStart, viewEnd),
+      viewStart,
+      viewEnd
+    );
+    return [...inView, ...googleViewEvents];
+  }, [myEvents, googleViewEvents, displayDays]);
 
-  // Interest profile mined from the events the user has scheduled — the
+  // Interest profile mined from the events the user engaged with — the
   // recommendation engine extracts title n-grams, categories and time-of-day
   // preferences from them.
-  const engagedEvents = useMemo(
-    () => events.filter((e) => allScheduledEventIds.includes(e.id)),
-    [events, allScheduledEventIds]
-  );
-  const { topInterests } = useUserInterests({ events: engagedEvents });
+  const { topInterests } = useUserInterests({ events: myEvents });
 
-  // Browser notifications ~30 min before scheduled events (web, opt-in pref)
+  // Browser notifications ~30 min before the user's events (web, opt-in pref)
   useEventReminders(
-    engagedEvents,
+    myEvents,
     currentUser?.preferences.notificationPreferences.eventReminders ?? false
   );
 
-  // Agenda view: the user's scheduled events (with recurring occurrences)
-  // over the next 30 days, in a date-grouped timeline
+  // Agenda view: the user's events (with recurring occurrences) over the next
+  // 60 days, in a date-grouped timeline
   const agendaEvents = useMemo(() => {
     const now = new Date();
-    const horizon = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-    const scheduled = events.filter((e) => allScheduledEventIds.includes(e.id));
-    return expandRecurringEvents(scheduled, now, horizon).filter(
+    const horizon = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
+    return expandRecurringEvents(myEvents, now, horizon).filter(
       (e) => new Date(e.endTime) >= now && new Date(e.startTime) <= horizon
     );
-  }, [events, allScheduledEventIds]);
-
-  const agendaBadgeFor = (event: Event): AgendaBadge | null => {
-    const baseId = baseEventId(event.id);
-    if (currentUser?.createdEvents.includes(baseId)) return 'created';
-    const rsvp = currentUser
-      ? events
-          .find((e) => e.id === baseId)
-          ?.attendees.find((a) => a.userId === currentUser.id)?.status
-      : null;
-    if (rsvp === 'going') return 'going';
-    if (rsvp === 'maybe') return 'maybe';
-    return 'scheduled';
-  };
+  }, [myEvents]);
 
   // Get all events for sidebar (sorted by date)
   // Only include Universify events (Google events are already on the calendar)
@@ -210,8 +200,10 @@ export default function CalendarScreen() {
   };
 
   const handleScheduleEvent = async (event: Event) => {
-    // Schedule locally (handles both localStorage and Supabase)
-    await scheduleEventForWeek(event.id);
+    // Pin under the week the event actually falls in, not the week being
+    // viewed, and against the series rather than a display occurrence.
+    const baseId = baseEventId(event.id);
+    await scheduleEventForWeek(baseId, getWeekKey(new Date(event.startTime)));
 
     // Sync to Google Calendar if authenticated
     if (isGoogleAuthenticated) {
@@ -281,6 +273,7 @@ export default function CalendarScreen() {
   };
 
   const handleUnscheduleEvent = async (event: Event) => {
+    const baseId = baseEventId(event.id);
     if (isGoogleAuthenticated) {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.provider_token || providerToken || googleSession?.provider_token;
@@ -302,7 +295,14 @@ export default function CalendarScreen() {
         }
       }
     }
-    unscheduleEventForWeek(event.id);
+    await unscheduleEventForWeek(baseId);
+
+    // The × on a card means "not on my calendar" — an RSVP is enough to put an
+    // event there, so clear that too rather than leaving the card unchanged.
+    const relation = relationFor(event);
+    if (currentUser && (relation === 'going' || relation === 'maybe')) {
+      await updateRSVP(baseId, currentUser.id, null);
+    }
   };
 
   // Navigation handlers
@@ -364,7 +364,7 @@ export default function CalendarScreen() {
             <AgendaList
               events={agendaEvents}
               onEventPress={handleEventPress}
-              badgeFor={agendaBadgeFor}
+              badgeFor={relationFor}
               emptyTitle="Nothing scheduled yet"
               emptyBody="Pin events from Find or Home and they'll build your week here."
               emptyAction={{ label: 'Find events', onPress: () => router.push('/(tabs)/find') }}
@@ -386,7 +386,7 @@ export default function CalendarScreen() {
               </View>
             ) : (
               <WeekView
-                key={`calendar-m-${weekKey}-${scheduledEventIds.length}`}
+                key={`calendar-m-${weekKey}-${myEventIds.size}`}
                 weekDays={displayDays}
                 events={weekEvents}
                 onEventPress={handleEventPress}
@@ -454,7 +454,7 @@ export default function CalendarScreen() {
           ) : (
             <WeekView
               // Use a key that changes when the week or view changes to force proper re-rendering
-              key={`calendar-${weekKey}-${viewDays}-${scheduledEventIds.length}`} 
+              key={`calendar-${weekKey}-${viewDays}-${myEventIds.size}`}
               weekDays={displayDays}
               events={weekEvents}
               onEventPress={handleEventPress}
@@ -492,7 +492,8 @@ export default function CalendarScreen() {
                 {expandedCardId && (() => {
                   const expandedEvent = sortedEvents.find(e => e.id === expandedCardId);
                   if (!expandedEvent) return null;
-                  const isScheduled = scheduledEventIds.includes(expandedEvent.id);
+                  const isScheduled = myEventIds.has(expandedEvent.id);
+                  const isHosting = relationFor(expandedEvent) === 'created';
                   return (
                     <EventDisplayCard
                       key={`expanded-${expandedEvent.id}-${isScheduled}`}
@@ -500,7 +501,10 @@ export default function CalendarScreen() {
                       isScheduled={isScheduled}
                       isExpanded={true}
                       onSchedule={() => handleScheduleEvent(expandedEvent)}
-                      onUnschedule={() => handleUnscheduleEvent(expandedEvent)}
+                      // You can't remove an event you're hosting from your own calendar
+                      onUnschedule={
+                        isHosting ? undefined : () => handleUnscheduleEvent(expandedEvent)
+                      }
                       onToggleExpand={() => setExpandedCardId(null)}
                     />
                   );
@@ -515,7 +519,8 @@ export default function CalendarScreen() {
                   showsVerticalScrollIndicator
                 >
                   {sortedEvents.map((event) => {
-                    const isScheduled = scheduledEventIds.includes(event.id);
+                    const isScheduled = myEventIds.has(event.id);
+                    const isHosting = relationFor(event) === 'created';
                     const isExpanded = expandedCardId === event.id;
                     return (
                       <EventDisplayCard
@@ -524,7 +529,9 @@ export default function CalendarScreen() {
                         isScheduled={isScheduled}
                         isExpanded={false}
                         onSchedule={() => handleScheduleEvent(event)}
-                        onUnschedule={() => handleUnscheduleEvent(event)}
+                        onUnschedule={
+                          isHosting ? undefined : () => handleUnscheduleEvent(event)
+                        }
                         onToggleExpand={() => setExpandedCardId(isExpanded ? null : event.id)}
                       />
                     );

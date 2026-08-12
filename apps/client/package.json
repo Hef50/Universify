@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "reset-project": "node ./scripts/reset-project.js",
     "seed": "npx tsx scripts/seedEvents.ts",
+    "refresh-events": "node scripts/refreshEventDates.js",
     "test:backend": "npx tsx scripts/test-backend.ts",
     "test:unit": "tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",

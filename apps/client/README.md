@@ -124,9 +124,8 @@ apps/client/
 │   ├── event.ts
 │   ├── user.ts
 │   └── settings.ts
-└── data/                         # Mock data
-    ├── mockEvents.json           # 40 diverse events
-    ├── mockUsers.json            # 5 test accounts
+└── data/                         # Demo data (used when Supabase is unset)
+    ├── allEvents.json            # 125 events, re-datable onto the current month
     └── categories.json           # 12 event categories
 ```
 

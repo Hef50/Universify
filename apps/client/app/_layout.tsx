@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { AuthProvider } from '@/contexts/AuthContext';
+import { DevModeProvider } from '@/contexts/DevModeContext';
 import { GoogleAuthProvider } from '@/contexts/GoogleAuthContext';
 import { GoogleCalendarProvider } from '@/contexts/GoogleCalendarContext';
 import { EventsProvider } from '@/contexts/EventsContext';
@@ -25,6 +26,8 @@ function ThemedStack() {
         <Stack.Screen name="(auth)/callback" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
+        <Stack.Screen name="resources" options={{ headerShown: false }} />
+        <Stack.Screen name="dev" options={{ headerShown: false }} />
         <Stack.Screen name="event/[id]" options={{ presentation: 'modal', title: 'Event Details' }} />
       </Stack>
       <StatusBar style={currentTheme === 'dark' ? 'light' : 'dark'} />
@@ -34,18 +37,20 @@ function ThemedStack() {
 
 export default function RootLayout() {
   return (
-    <GoogleAuthProvider>
-      <AuthProvider>
-        <GoogleCalendarProvider>
-          <SettingsProvider>
-            <EventsProvider>
-              <SlackProvider>
-                <ThemedStack />
-              </SlackProvider>
-            </EventsProvider>
-          </SettingsProvider>
-        </GoogleCalendarProvider>
-      </AuthProvider>
-    </GoogleAuthProvider>
+    <DevModeProvider>
+      <GoogleAuthProvider>
+        <AuthProvider>
+          <GoogleCalendarProvider>
+            <SettingsProvider>
+              <EventsProvider>
+                <SlackProvider>
+                  <ThemedStack />
+                </SlackProvider>
+              </EventsProvider>
+            </SettingsProvider>
+          </GoogleCalendarProvider>
+        </AuthProvider>
+      </GoogleAuthProvider>
+    </DevModeProvider>
   );
 }

@@ -11,6 +11,7 @@ import {
 } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { dedupeAgainst } from '@/utils/dedupe';
+import { isDevUserId } from '@/constants/devAccounts';
 import allEventsData from '@/data/allEvents.json';
 
 interface EventsContextType {
@@ -62,6 +63,39 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const createEvent = async (eventData: EventFormData, userId: string): Promise<Event> => {
     const organizerName = 'Current User';
+
+    // Dev-mode personas create events in local state only (they are not
+    // real auth.users rows, so a Supabase insert would be rejected anyway)
+    if (isDevUserId(userId)) {
+      const now = new Date().toISOString();
+      const localEvent: Event = {
+        id: `dev-evt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        title: eventData.title,
+        description: eventData.description,
+        startTime: new Date(`${eventData.startDate}T${eventData.startTime}:00`).toISOString(),
+        endTime: new Date(`${eventData.endDate}T${eventData.endTime}:00`).toISOString(),
+        location: eventData.location,
+        categories: eventData.categories,
+        organizer: { id: userId, name: organizerName, type: eventData.isClubEvent ? 'club' : 'individual' },
+        color: eventData.color,
+        rsvpEnabled: eventData.rsvpEnabled,
+        rsvpCounts: { going: 0, maybe: 0, notGoing: 0 },
+        attendees: [],
+        attendeeVisibility: eventData.attendeeVisibility,
+        isClubEvent: eventData.isClubEvent,
+        isSocialEvent: eventData.isSocialEvent,
+        capacity: eventData.capacity,
+        recurring: eventData.recurring,
+        tags: eventData.tags,
+        createdAt: now,
+        updatedAt: now,
+        imageUrl: eventData.imageUrl,
+      };
+      setEvents((prev) => [...prev, localEvent]);
+      addCreatedEvent(localEvent.id);
+      return localEvent;
+    }
+
     const newEvent = await createEventAPI(eventData, userId, organizerName);
     setEvents((prev) => [...prev, newEvent]);
     addCreatedEvent(newEvent.id);
@@ -118,6 +152,9 @@ export const EventsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           : e
       )
     );
+
+    // Dev-mode personas keep RSVPs in local state only
+    if (isDevUserId(userId)) return;
 
     try {
       // Write the user's own RSVP row; a DB trigger recomputes the aggregates

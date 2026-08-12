@@ -12,8 +12,12 @@ import {
   unscheduleEventInSupabase,
   getAllScheduledEventIdsFromSupabase,
 } from '@/lib/scheduledEventsApi';
+import { isDevUserId } from '@/constants/devAccounts';
 
-export function useScheduledEvents(userId: string | undefined, weekKey: string) {
+export function useScheduledEvents(rawUserId: string | undefined, weekKey: string) {
+  // Dev-mode personas are not real auth.users rows — route them through the
+  // local-storage path exactly like an unauthenticated visitor.
+  const userId = isDevUserId(rawUserId) ? undefined : rawUserId;
   const [scheduledEventIds, setScheduledEventIds] = useState<string[]>([]);
   const [allScheduledIds, setAllScheduledIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);

@@ -67,12 +67,20 @@ export default function LandingPage() {
           <Text style={styles.wordmark}>
             CMU<Text style={styles.wordmarkAccent}>nify</Text>
           </Text>
-          <TouchableOpacity
-            style={styles.topBarButton}
-            onPress={() => router.push('/(auth)/login')}
-          >
-            <Text style={styles.topBarButtonText}>Sign in</Text>
-          </TouchableOpacity>
+          <View style={styles.topBarActions}>
+            <TouchableOpacity
+              style={styles.topBarLink}
+              onPress={() => router.push('/resources')}
+            >
+              <Text style={styles.topBarLinkText}>Freshman Guide</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.topBarButton}
+              onPress={() => router.push('/(auth)/login')}
+            >
+              <Text style={styles.topBarButtonText}>Sign in</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Hero */}
@@ -232,6 +240,9 @@ export default function LandingPage() {
 
         {/* Footer */}
         <View style={styles.footer}>
+          <TouchableOpacity onPress={() => router.push('/resources')}>
+            <Text style={styles.footerLink}>New to CMU? Read the Freshman Guide →</Text>
+          </TouchableOpacity>
           <Text style={styles.footerText}>
             Made with care at Carnegie Mellon · ScottyLabs Labrador · © 2026 CMUnify
           </Text>
@@ -379,6 +390,20 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
     },
     wordmarkAccent: {
       color: colors.primary,
+    },
+    topBarActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    topBarLink: {
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+    },
+    topBarLinkText: {
+      fontSize: 14 * fontScale,
+      fontWeight: '600',
+      color: colors.textSecondary,
     },
     topBarButton: {
       paddingHorizontal: 16,
@@ -706,6 +731,12 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
       alignItems: 'center',
       paddingHorizontal: 24,
       paddingTop: 8,
+      gap: 10,
+    },
+    footerLink: {
+      fontSize: 14 * fontScale,
+      fontWeight: '600',
+      color: colors.primary,
     },
     footerText: {
       fontSize: 13 * fontScale,

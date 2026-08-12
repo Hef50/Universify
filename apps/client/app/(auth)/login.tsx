@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,18 +7,29 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
+import { useDevMode } from '@/contexts/DevModeContext';
+import { DEV_ACCOUNTS } from '@/constants/devAccounts';
 import { useResponsive } from '@/hooks/useResponsive';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { AppPalette } from '@/constants/theme';
 
 export default function LoginScreen() {
-  const { isLoading, error } = useAuth();
+  const { isLoading, error, isAuthenticated } = useAuth();
   const { googleSignIn, isLoading: isGoogleLoading } = useGoogleAuth();
+  const { isDevMode, signInAsDevUser } = useDevMode();
   const { isMobile } = useResponsive();
   const { colors, fontScale } = useAppTheme();
   const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
+
+  // Covers both Google sign-in and dev-mode test accounts
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/(tabs)');
+    }
+  }, [isAuthenticated]);
 
   const handleGoogleSignIn = async () => {
     await googleSignIn();
@@ -73,7 +84,32 @@ export default function LoginScreen() {
             <Text style={styles.signupLink}>Sign up with Google</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Dev mode: CMU SSO becomes optional — sign in as a local test persona */}
+        {isDevMode && (
+          <View style={styles.devSection}>
+            <View style={styles.devDivider}>
+              <View style={styles.devDividerLine} />
+              <Text style={styles.devDividerText}>DEV MODE · TEST ACCOUNTS</Text>
+              <View style={styles.devDividerLine} />
+            </View>
+            {DEV_ACCOUNTS.map((account) => (
+              <TouchableOpacity
+                key={account.user.id}
+                style={styles.devAccountButton}
+                onPress={() => signInAsDevUser(account.user.id)}
+              >
+                <Text style={styles.devAccountName}>{account.user.name}</Text>
+                <Text style={styles.devAccountHint}>{account.description}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </View>
+
+      <TouchableOpacity onPress={() => router.push('/dev')} style={styles.devLink}>
+        <Text style={styles.devLinkText}>Developer mode</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
@@ -186,5 +222,51 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
       fontSize: 14 * fontScale,
       color: colors.primary,
       fontWeight: '600',
+    },
+    devSection: {
+      marginTop: 24,
+    },
+    devDivider: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      marginBottom: 12,
+    },
+    devDividerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.border,
+    },
+    devDividerText: {
+      fontSize: 10 * fontScale,
+      fontWeight: '700',
+      letterSpacing: 1,
+      color: colors.textTertiary,
+    },
+    devAccountButton: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 10,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      marginBottom: 8,
+    },
+    devAccountName: {
+      fontSize: 14 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+    },
+    devAccountHint: {
+      fontSize: 12 * fontScale,
+      color: colors.textSecondary,
+      marginTop: 1,
+    },
+    devLink: {
+      marginTop: 20,
+      padding: 8,
+    },
+    devLinkText: {
+      fontSize: 12 * fontScale,
+      color: colors.textTertiary,
     },
   });

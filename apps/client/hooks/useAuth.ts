@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { User, AuthCredentials, SignupData } from '@/types/user';
 import { EventCategory } from '@/types/event';
 import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
+import { useDevMode } from '@/contexts/DevModeContext';
 import { fetchUserProfile, upsertUserProfile, updateUserProfile, updateUserProfilePreferences } from '@/lib/userProfilesApi';
 import { fetchCreatedEventIds } from '@/lib/api';
 
@@ -76,6 +77,11 @@ export const useAuth = () => {
     error: googleError,
     clearError: clearGoogleError,
   } = useGoogleAuth();
+  // Dev mode can substitute a local test persona for real CMU SSO. Dev
+  // users never reach Supabase (their ids carry a "dev-" prefix that the
+  // data layer checks before every write).
+  const { devUser, signOutDevUser, isHydrating: isDevHydrating } = useDevMode();
+  const [devUserOverrides, setDevUserOverrides] = useState<Partial<User>>({});
 
   useEffect(() => {
     if (!isGoogleAuthenticated || !googleSession?.user) {
@@ -132,19 +138,38 @@ export const useAuth = () => {
   }, [isGoogleAuthenticated, googleSession]);
 
   const logout = useCallback(async () => {
+    if (devUser) {
+      signOutDevUser();
+      setDevUserOverrides({});
+      return;
+    }
     await googleSignOut();
     setCurrentUser(null);
-  }, [googleSignOut]);
+  }, [googleSignOut, devUser, signOutDevUser]);
 
   const addCreatedEvent = useCallback((eventId: string) => {
+    if (devUser) {
+      setDevUserOverrides((prev) => {
+        const created = prev.createdEvents ?? devUser.createdEvents;
+        return created.includes(eventId)
+          ? prev
+          : { ...prev, createdEvents: [...created, eventId] };
+      });
+      return;
+    }
     setCurrentUser((prev) =>
       prev && !prev.createdEvents.includes(eventId)
         ? { ...prev, createdEvents: [...prev.createdEvents, eventId] }
         : prev
     );
-  }, []);
+  }, [devUser]);
 
   const updateUser = useCallback(async (updates: Partial<User>) => {
+    if (devUser) {
+      // Dev personas live in memory only — never write to Supabase
+      setDevUserOverrides((prev) => ({ ...prev, ...updates }));
+      return;
+    }
     if (!currentUser) return;
     setCurrentUser((prev) => (prev ? { ...prev, ...updates } : null));
     try {
@@ -164,12 +189,14 @@ export const useAuth = () => {
     } catch (err) {
       console.error('Failed to update user profile:', err);
     }
-  }, [currentUser]);
+  }, [currentUser, devUser]);
+
+  const effectiveDevUser: User | null = devUser ? { ...devUser, ...devUserOverrides } : null;
 
   return {
-    currentUser,
-    isAuthenticated: isGoogleAuthenticated,
-    isLoading: isGoogleLoading,
+    currentUser: effectiveDevUser ?? currentUser,
+    isAuthenticated: Boolean(effectiveDevUser) || isGoogleAuthenticated,
+    isLoading: isGoogleLoading || isDevHydrating,
     error: googleError,
     login: async (_credentials?: AuthCredentials) => {
       await googleSignIn();

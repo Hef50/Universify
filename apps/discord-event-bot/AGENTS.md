@@ -32,8 +32,11 @@ Storage:
 - Persist review sessions locally so restarts do not lose state
 
 Backend:
-- Do not implement real backend submission yet
-- Stub submission with a function that logs the final normalized payload
+- Approved events are inserted into the shared Supabase `events` table via
+  `src/supabaseSubmit.js` (service-role key; see .env.example)
+- A cross-source duplicate check (`src/dedupe.js`) runs before insert
+- When Supabase env vars are missing, submission falls back to logging the
+  normalized payload
 
 Coding expectations:
 - Generate complete runnable files, not snippets

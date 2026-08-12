@@ -1,6 +1,5 @@
 {
   "name": "discord-event-bot",
-  "private": true,
   "version": "1.0.0",
   "description": "A Discord bot for reviewing event announcements",
   "main": "src/bot.js",
@@ -21,9 +20,9 @@
     "chrono-node": "^2.7.0",
     "discord.js": "^14.14.1",
     "dotenv": "^16.3.1",
-    "luxon": "^3.7.2",
-    "moment-timezone": "^0.5.43"
+    "luxon": "^3.7.2"
   },
   "packageManager": "pnpm@10.18.3",
   "private": true
 }
+

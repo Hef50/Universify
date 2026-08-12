@@ -3,15 +3,16 @@
   "private": true,
   "version": "1.0.0",
   "description": "Universify monorepo",
-  "main": "index.js",
   "scripts": {
-    "install": "pnpm install",
     "build": "pnpm --filter client build",
     "dev": "pnpm --filter client start",
+    "dev:slack": "pnpm --filter slack-bot dev",
     "dev:discord": "pnpm --filter discord-event-bot dev",
     "start:discord": "pnpm --filter discord-event-bot start",
     "lint": "pnpm --filter client lint",
-    "test": "pnpm --filter client test"
+    "typecheck": "pnpm --filter client typecheck && pnpm --filter slack-bot typecheck",
+    "test": "pnpm --filter client test:unit",
+    "test:e2e": "pnpm --filter client test:e2e"
   },
   "keywords": [],
   "author": "",

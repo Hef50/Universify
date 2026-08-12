@@ -86,7 +86,7 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
-      borderRadius: 8,
+      borderRadius: 12,
       gap: 8,
     },
     fullWidth: {
@@ -101,8 +101,8 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
     },
     outline: {
       backgroundColor: 'transparent',
-      borderWidth: 2,
-      borderColor: colors.primary,
+      borderWidth: 1,
+      borderColor: colors.border,
     },
     ghost: {
       backgroundColor: 'transparent',
@@ -131,7 +131,7 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
       color: colors.onPrimary,
     },
     outlineText: {
-      color: colors.primary,
+      color: colors.textPrimary,
     },
     ghostText: {
       color: colors.primary,

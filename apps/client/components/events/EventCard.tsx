@@ -105,7 +105,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onPress, index = 0 
           )}
           {event.isSocialEvent && (
             <View style={[styles.badge, styles.socialBadge]}>
-              <Text style={styles.badgeText}>Social</Text>
+              <Text style={[styles.badgeText, styles.socialBadgeText]}>Social</Text>
             </View>
           )}
         </View>
@@ -177,13 +177,15 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
   StyleSheet.create({
     card: {
       backgroundColor: colors.surface,
-      borderRadius: 12,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: colors.border,
       overflow: 'hidden',
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
+      shadowOpacity: 0.04,
+      shadowRadius: 8,
+      elevation: 1,
       marginBottom: 16,
     },
     colorBar: {
@@ -209,19 +211,23 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
       color: colors.textPrimary,
     },
     badge: {
-      backgroundColor: '#8B7FFF',
+      backgroundColor: 'rgba(139, 127, 255, 0.14)',
       paddingHorizontal: 8,
       paddingVertical: 4,
-      borderRadius: 4,
+      borderRadius: 6,
     },
     socialBadge: {
-      backgroundColor: '#FF6BA8',
+      backgroundColor: 'rgba(255, 107, 168, 0.14)',
+    },
+    socialBadgeText: {
+      color: '#E24E8C',
     },
     badgeText: {
       fontSize: 10 * fontScale,
-      fontWeight: '600',
-      color: colors.onPrimary,
+      fontWeight: '700',
+      color: '#8B7FFF',
       textTransform: 'uppercase',
+      letterSpacing: 0.4,
     },
     infoRow: {
       flexDirection: 'row',

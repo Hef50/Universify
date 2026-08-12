@@ -65,65 +65,72 @@ export interface AppPalette {
   overlay: string;
 }
 
+// Light: soft "unbleached" warm neutrals instead of pure white/cool gray —
+// easier on the eyes for content-heavy screens — with a refined crimson
+// accent reserved for actions and highlights (WCAG AA on light surfaces).
 const lightPalette: AppPalette = {
-  background: '#F8F9FA',
+  background: '#FAFAF9',
   surface: '#FFFFFF',
-  surfaceAlt: '#F3F4F6',
-  border: '#E5E7EB',
-  textPrimary: '#1F2937',
-  textSecondary: '#6B7280',
-  textTertiary: '#9CA3AF',
-  primary: '#FF6B6B',
+  surfaceAlt: '#F5F5F4',
+  border: '#E7E5E4',
+  textPrimary: '#1C1917',
+  textSecondary: '#57534E',
+  textTertiary: '#A8A29E',
+  primary: '#E11D48',
   onPrimary: '#FFFFFF',
-  success: '#6BCF7F',
+  success: '#059669',
   danger: '#DC2626',
-  dangerSoft: '#FEE2E2',
+  dangerSoft: '#FEF2F2',
   infoSoft: '#EFF6FF',
-  infoText: '#1E40AF',
-  overlay: 'rgba(0, 0, 0, 0.5)',
+  infoText: '#1D4ED8',
+  overlay: 'rgba(28, 25, 23, 0.5)',
 };
 
 const lightHighContrastPalette: AppPalette = {
   ...lightPalette,
   background: '#FFFFFF',
-  surfaceAlt: '#EDEEF1',
-  border: '#6B7280',
+  surfaceAlt: '#EDECEA',
+  border: '#57534E',
   textPrimary: '#000000',
-  textSecondary: '#1F2937',
-  textTertiary: '#374151',
-  primary: '#D63333',
+  textSecondary: '#292524',
+  textTertiary: '#44403C',
+  primary: '#BE123C',
   danger: '#B91C1C',
   infoText: '#1E3A8A',
 };
 
+// Dark: stepped surfaces (~5-8% luminance per level) instead of pure black,
+// desaturated text (not pure white) to avoid glare, and a more luminous
+// accent — colors need extra saturation/lightness on dark backgrounds.
 const darkPalette: AppPalette = {
-  background: '#111418',
-  surface: '#1C2127',
-  surfaceAlt: '#262C34',
-  border: '#3A424D',
-  textPrimary: '#F3F4F6',
-  textSecondary: '#B0B8C1',
-  textTertiary: '#7D8590',
-  primary: '#FF6B6B',
-  onPrimary: '#FFFFFF',
-  success: '#6BCF7F',
+  background: '#0C0E12',
+  surface: '#15181E',
+  surfaceAlt: '#1E222A',
+  border: '#2A2F38',
+  textPrimary: '#F4F4F5',
+  textSecondary: '#A1A1AA',
+  textTertiary: '#70737C',
+  primary: '#FB7185',
+  onPrimary: '#26060C',
+  success: '#34D399',
   danger: '#F87171',
-  dangerSoft: '#3F1D1D',
-  infoSoft: '#1E2A44',
+  dangerSoft: '#2D1517',
+  infoSoft: '#16233B',
   infoText: '#93C5FD',
-  overlay: 'rgba(0, 0, 0, 0.65)',
+  overlay: 'rgba(0, 0, 0, 0.6)',
 };
 
 const darkHighContrastPalette: AppPalette = {
   ...darkPalette,
   background: '#000000',
   surface: '#101317',
-  surfaceAlt: '#1A1F26',
-  border: '#9CA3AF',
+  surfaceAlt: '#1A1E24',
+  border: '#8A8F98',
   textPrimary: '#FFFFFF',
-  textSecondary: '#E5E7EB',
-  textTertiary: '#C3C9D1',
-  primary: '#FF8585',
+  textSecondary: '#E4E4E7',
+  textTertiary: '#C3C7CD',
+  primary: '#FDA4AF',
+  onPrimary: '#26060C',
 };
 
 export const AppPalettes = {

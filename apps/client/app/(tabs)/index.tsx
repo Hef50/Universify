@@ -3,6 +3,8 @@ import { View, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { useEvents } from '@/contexts/EventsContext';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { useResponsive } from '@/hooks/useResponsive';
 import { FilterProvider, useFilters } from '@/contexts/FilterContext';
@@ -10,48 +12,51 @@ import { RecommendationsList } from '@/components/recommendations/Recommendation
 import { EventDetailSidebar } from '@/components/events/EventDetailSidebar';
 import { FilterDrawer } from '@/components/layout/FilterDrawer';
 import { Event } from '@/types/event';
-import { getRandomEvents, getUpcomingEvents } from '@/utils/eventHelpers';
+import { getUpcomingEvents } from '@/utils/eventHelpers';
+import { useUserInterests, rankEventsForUser } from '@/hooks/useRecommendations';
+import { useScheduledEvents, getWeekKey } from '@/hooks/useScheduledEvents';
 
 function HomeScreenContent() {
   const { events } = useEvents();
   const { settings } = useSettings();
   const { currentUser } = useAuth();
-  const { isMobile, isDesktop } = useResponsive();
-  const {
-    filteredEvents,
-    selectedCategories,
-    clubEvents,
-    socialEvents,
-    toggleCategory,
-    toggleEventType,
-    clearAllFilters,
-  } = useFilters();
+  const { isDesktop } = useResponsive();
+  const { filteredEvents } = useFilters();
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
 
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Get recommendations based on user preferences
+  // Events the user engaged with (scheduled, RSVP'd, created) form the
+  // interest profile that the recommendation engine mines.
+  const { allScheduledIds } = useScheduledEvents(currentUser?.id, getWeekKey(new Date()));
+  const engagedEvents = useMemo(() => {
+    const userId = currentUser?.id;
+    const createdIds = new Set(currentUser?.createdEvents ?? []);
+    const scheduledIds = new Set(allScheduledIds);
+    return events.filter(
+      (event) =>
+        scheduledIds.has(event.id) ||
+        createdIds.has(event.id) ||
+        (userId != null && event.attendees.some((a) => a.userId === userId))
+    );
+  }, [events, currentUser, allScheduledIds]);
+
+  const { topInterests } = useUserInterests({ events: engagedEvents });
+
+  // Ranked recommendations: interest profile + explicit category preferences
+  // + popularity, over upcoming events (respecting any active filters).
   const recommendations = useMemo(() => {
-    let recommendedEvents = filteredEvents.length > 0 ? filteredEvents : events;
-
-    // Filter by user's category interests if available
-    if (currentUser?.preferences.categoryInterests.length) {
-      const interested = recommendedEvents.filter((event) =>
-        event.categories.some((cat) =>
-          currentUser.preferences.categoryInterests.includes(cat)
-        )
-      );
-      if (interested.length > 0) {
-        recommendedEvents = interested;
-      }
-    }
-
-    // Get upcoming events only
-    recommendedEvents = getUpcomingEvents(recommendedEvents);
-
-    // Randomize for variety
-    return getRandomEvents(recommendedEvents, 20);
-  }, [events, filteredEvents, currentUser]);
+    const base = filteredEvents.length > 0 ? filteredEvents : events;
+    const upcoming = getUpcomingEvents(base);
+    const ranked = rankEventsForUser(
+      upcoming,
+      topInterests,
+      currentUser?.preferences.categoryInterests ?? []
+    );
+    return ranked.slice(0, 20);
+  }, [events, filteredEvents, currentUser, topInterests]);
 
   // Check if user's default home page is calendar
   if (settings.defaultHomePage === 'calendar' && isDesktop) {
@@ -70,17 +75,7 @@ function HomeScreenContent() {
       />
 
       {/* Filter Drawer */}
-      <FilterDrawer
-        visible={showFilters}
-        onClose={() => setShowFilters(false)}
-        selectedCategories={selectedCategories}
-        onCategoryToggle={toggleCategory}
-        clubEvents={clubEvents}
-        socialEvents={socialEvents}
-        onEventTypeToggle={toggleEventType}
-        onClearFilters={clearAllFilters}
-        onApply={() => {}}
-      />
+      <FilterDrawer visible={showFilters} onClose={() => setShowFilters(false)} />
 
       {/* Event Detail Sidebar */}
       <EventDetailSidebar
@@ -102,9 +97,10 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-});
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+  });

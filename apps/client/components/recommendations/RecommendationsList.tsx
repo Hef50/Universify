@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Event } from '@/types/event';
 import { RecommendationCard } from './RecommendationCard';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 interface RecommendationsListProps {
   events: Event[];
@@ -20,11 +22,11 @@ const getRecommendationReason = (event: Event, index: number): string => {
     'Similar to events you liked',
     'Recommended for you',
   ];
-  
+
   if (event.rsvpCounts.going > 50) return 'Popular event';
   if (event.isSocialEvent) return 'Social event nearby';
   if (event.isClubEvent) return 'Club event';
-  
+
   return reasons[index % reasons.length];
 };
 
@@ -35,6 +37,9 @@ export const RecommendationsList: React.FC<RecommendationsListProps> = ({
   showFilters = false,
   onFilterPress,
 }) => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
+
   if (events.length === 0) {
     return (
       <View style={styles.emptyState}>
@@ -77,58 +82,58 @@ export const RecommendationsList: React.FC<RecommendationsListProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  filterButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#F3F4F6',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  filterIcon: {
-    fontSize: 18,
-  },
-  listContent: {
-    padding: 16,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 8,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#6B7280',
-    textAlign: 'center',
-  },
-});
-
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 16,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    headerTitle: {
+      fontSize: 18 * fontScale,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+    },
+    filterButton: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: colors.surfaceAlt,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    filterIcon: {
+      fontSize: 18,
+    },
+    listContent: {
+      padding: 16,
+    },
+    emptyState: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 32,
+    },
+    emptyIcon: {
+      fontSize: 64,
+      marginBottom: 16,
+    },
+    emptyTitle: {
+      fontSize: 20 * fontScale,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 8,
+    },
+    emptyText: {
+      fontSize: 16 * fontScale,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+  });

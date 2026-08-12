@@ -9,6 +9,8 @@ import {
   ViewStyle,
 } from 'react-native';
 import { SearchMode } from '@/types/settings';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 interface SearchBarProps {
   value: string;
@@ -27,6 +29,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   placeholder = 'Search events...',
   containerStyle,
 }) => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const [showModeSelector, setShowModeSelector] = useState(false);
 
   const searchModeLabels: Record<SearchMode, string> = {
@@ -44,7 +48,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={colors.textTertiary}
         />
         {value.length > 0 && (
           <TouchableOpacity
@@ -112,97 +116,97 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  searchContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    paddingHorizontal: 12,
-    height: 44,
-  },
-  searchIcon: {
-    fontSize: 18,
-    marginRight: 8,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: '#1F2937',
-  },
-  clearButton: {
-    padding: 4,
-  },
-  clearIcon: {
-    fontSize: 16,
-    color: '#9CA3AF',
-  },
-  modeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    paddingHorizontal: 12,
-    height: 44,
-    gap: 6,
-  },
-  modeButtonText: {
-    fontSize: 14,
-    color: '#374151',
-    fontWeight: '500',
-  },
-  dropdownIcon: {
-    fontSize: 10,
-    color: '#6B7280',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modeSelector: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 8,
-    minWidth: 200,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  modeOption: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 8,
-  },
-  modeOptionActive: {
-    backgroundColor: '#FEE2E2',
-  },
-  modeOptionText: {
-    fontSize: 16,
-    color: '#374151',
-  },
-  modeOptionTextActive: {
-    color: '#FF6B6B',
-    fontWeight: '600',
-  },
-  checkmark: {
-    fontSize: 16,
-    color: '#FF6B6B',
-    fontWeight: 'bold',
-  },
-});
-
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    searchContainer: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: 12,
+      height: 44,
+    },
+    searchIcon: {
+      fontSize: 18,
+      marginRight: 8,
+    },
+    input: {
+      flex: 1,
+      fontSize: 16 * fontScale,
+      color: colors.textPrimary,
+    },
+    clearButton: {
+      padding: 4,
+    },
+    clearIcon: {
+      fontSize: 16,
+      color: colors.textTertiary,
+    },
+    modeButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: 12,
+      height: 44,
+      gap: 6,
+    },
+    modeButtonText: {
+      fontSize: 14 * fontScale,
+      color: colors.textPrimary,
+      fontWeight: '500',
+    },
+    dropdownIcon: {
+      fontSize: 10,
+      color: colors.textSecondary,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: colors.overlay,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modeSelector: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: 8,
+      minWidth: 200,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 8,
+    },
+    modeOption: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 12,
+      borderRadius: 8,
+    },
+    modeOptionActive: {
+      backgroundColor: colors.dangerSoft,
+    },
+    modeOptionText: {
+      fontSize: 16 * fontScale,
+      color: colors.textPrimary,
+    },
+    modeOptionTextActive: {
+      color: colors.primary,
+      fontWeight: '600',
+    },
+    checkmark: {
+      fontSize: 16,
+      color: colors.primary,
+      fontWeight: 'bold',
+    },
+  });

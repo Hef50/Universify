@@ -5,6 +5,7 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { AnimatedDrawer } from '@/components/ui/AnimatedDrawer';
 import { Button } from '@/components/ui/Button';
@@ -14,6 +15,8 @@ import { formatFullDate, formatTimeRange } from '@/utils/dateHelpers';
 import { useResponsive } from '@/hooks/useResponsive';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEvents } from '@/contexts/EventsContext';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 interface EventDetailSidebarProps {
   event: Event | null;
@@ -26,6 +29,8 @@ export const EventDetailSidebar: React.FC<EventDetailSidebarProps> = ({
   visible,
   onClose,
 }) => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const { isMobile } = useResponsive();
   const { currentUser } = useAuth();
   const { updateRSVP, getRSVPStatus } = useEvents();
@@ -67,6 +72,11 @@ export const EventDetailSidebar: React.FC<EventDetailSidebarProps> = ({
 
         {/* Content */}
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          {/* Flyer Image */}
+          {event.imageUrl ? (
+            <Image source={{ uri: event.imageUrl }} style={styles.image} resizeMode="cover" />
+          ) : null}
+
           {/* Date & Time */}
           <View style={styles.section}>
             <View style={styles.infoRow}>
@@ -79,6 +89,13 @@ export const EventDetailSidebar: React.FC<EventDetailSidebarProps> = ({
                 <Text style={styles.infoValue}>
                   {formatTimeRange(event.startTime, event.endTime)}
                 </Text>
+                {event.recurring && (
+                  <Text style={styles.recurringNote}>
+                    🔁 Repeats {event.recurring.frequency}
+                    {event.recurring.interval > 1 ? ` (every ${event.recurring.interval})` : ''}
+                    {event.recurring.endDate ? ` until ${event.recurring.endDate}` : ''}
+                  </Text>
+                )}
               </View>
             </View>
           </View>
@@ -221,139 +238,151 @@ export const EventDetailSidebar: React.FC<EventDetailSidebarProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  header: {
-    padding: 20,
-  },
-  headerContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginRight: 12,
-  },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  closeIcon: {
-    fontSize: 20,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  content: {
-    flex: 1,
-  },
-  section: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  infoRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  infoIcon: {
-    fontSize: 20,
-  },
-  infoContent: {
-    flex: 1,
-  },
-  infoLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#6B7280',
-    textTransform: 'uppercase',
-    marginBottom: 4,
-  },
-  infoValue: {
-    fontSize: 16,
-    color: '#1F2937',
-    marginBottom: 2,
-  },
-  organizerType: {
-    fontSize: 12,
-    color: '#8B7FFF',
-    fontWeight: '600',
-    marginTop: 4,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#6B7280',
-    textTransform: 'uppercase',
-    marginBottom: 12,
-  },
-  description: {
-    fontSize: 16,
-    color: '#374151',
-    lineHeight: 24,
-  },
-  categories: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  capacityInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  capacityLabel: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  capacityValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1F2937',
-  },
-  capacityBar: {
-    height: 8,
-    backgroundColor: '#E5E7EB',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  capacityFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  rsvpStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  rsvpStat: {
-    alignItems: 'center',
-  },
-  rsvpCount: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  rsvpLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginTop: 4,
-  },
-  footer: {
-    flexDirection: 'row',
-    padding: 16,
-    gap: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-  },
-});
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.surface,
+    },
+    header: {
+      padding: 20,
+    },
+    headerContent: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+    },
+    headerTitle: {
+      flex: 1,
+      fontSize: 24 * fontScale,
+      fontWeight: 'bold',
+      color: colors.onPrimary,
+      marginRight: 12,
+    },
+    closeButton: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    closeIcon: {
+      fontSize: 20 * fontScale,
+      color: colors.onPrimary,
+      fontWeight: 'bold',
+    },
+    content: {
+      flex: 1,
+    },
+    image: {
+      width: '100%',
+      height: 180,
+      borderRadius: 12,
+      marginBottom: 16,
+    },
+    recurringNote: {
+      fontSize: 13 * fontScale,
+      color: colors.textSecondary,
+      marginTop: 4,
+    },
+    section: {
+      padding: 20,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    infoRow: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    infoIcon: {
+      fontSize: 20,
+    },
+    infoContent: {
+      flex: 1,
+    },
+    infoLabel: {
+      fontSize: 12 * fontScale,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      textTransform: 'uppercase',
+      marginBottom: 4,
+    },
+    infoValue: {
+      fontSize: 16 * fontScale,
+      color: colors.textPrimary,
+      marginBottom: 2,
+    },
+    organizerType: {
+      fontSize: 12 * fontScale,
+      color: '#8B7FFF',
+      fontWeight: '600',
+      marginTop: 4,
+    },
+    sectionTitle: {
+      fontSize: 14 * fontScale,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      textTransform: 'uppercase',
+      marginBottom: 12,
+    },
+    description: {
+      fontSize: 16 * fontScale,
+      color: colors.textPrimary,
+      lineHeight: 24,
+    },
+    categories: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    capacityInfo: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 8,
+    },
+    capacityLabel: {
+      fontSize: 14 * fontScale,
+      color: colors.textSecondary,
+    },
+    capacityValue: {
+      fontSize: 14 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+    },
+    capacityBar: {
+      height: 8,
+      backgroundColor: colors.border,
+      borderRadius: 4,
+      overflow: 'hidden',
+    },
+    capacityFill: {
+      height: '100%',
+      borderRadius: 4,
+    },
+    rsvpStats: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+    },
+    rsvpStat: {
+      alignItems: 'center',
+    },
+    rsvpCount: {
+      fontSize: 24 * fontScale,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+    },
+    rsvpLabel: {
+      fontSize: 12 * fontScale,
+      color: colors.textSecondary,
+      marginTop: 4,
+    },
+    footer: {
+      flexDirection: 'row',
+      padding: 16,
+      gap: 8,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+  });
 

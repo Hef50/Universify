@@ -10,6 +10,8 @@ import {
   SafeAreaView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 interface DateTimePickerProps {
   label?: string;
@@ -28,6 +30,8 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   placeholder,
   error,
 }) => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const [showPicker, setShowPicker] = useState(false);
   const [inputValue, setInputValue] = useState(value);
 
@@ -49,7 +53,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           value={inputValue}
           onChangeText={handleManualChange}
           placeholder={placeholder}
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={colors.textTertiary}
         />
         <TouchableOpacity
           style={styles.iconButton}
@@ -58,7 +62,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           <Ionicons
             name={type === 'date' ? 'calendar-outline' : 'time-outline'}
             size={20}
-            color="#6B7280"
+            color={colors.textSecondary}
           />
         </TouchableOpacity>
       </View>
@@ -73,14 +77,14 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           <SafeAreaView style={styles.fullScreenContainer}>
             <View style={styles.pickerHeader}>
               <TouchableOpacity onPress={() => setShowPicker(false)} style={styles.closeButton}>
-                <Ionicons name="close" size={24} color="#1F2937" />
+                <Ionicons name="close" size={24} color={colors.textPrimary} />
               </TouchableOpacity>
               <Text style={styles.pickerHeaderTitle}>
                 Select {type === 'date' ? 'Date' : 'Time'}
               </Text>
               <View style={styles.placeholderButton} />
             </View>
-            
+
             <View style={styles.pickerContent}>
               {type === 'date' ? (
                 <CalendarPicker
@@ -111,6 +115,8 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
 // Simple Calendar Component
 const CalendarPicker = ({ selectedDate, onSelect }: { selectedDate: string; onSelect: (date: string) => void }) => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const [currentDate, setCurrentDate] = useState(() => {
     return selectedDate ? new Date(selectedDate) : new Date();
   });
@@ -156,13 +162,13 @@ const CalendarPicker = ({ selectedDate, onSelect }: { selectedDate: string; onSe
     <View style={styles.calendar}>
       <View style={styles.calendarHeader}>
         <TouchableOpacity onPress={() => changeMonth(-1)} style={styles.arrowButton}>
-          <Ionicons name="chevron-back" size={24} color="#374151" />
+          <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.monthTitle}>
           {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
         </Text>
         <TouchableOpacity onPress={() => changeMonth(1)} style={styles.arrowButton}>
-          <Ionicons name="chevron-forward" size={24} color="#374151" />
+          <Ionicons name="chevron-forward" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
       <View style={styles.weekDays}>
@@ -177,6 +183,8 @@ const CalendarPicker = ({ selectedDate, onSelect }: { selectedDate: string; onSe
 
 // Simple Time Picker Component (List of 15min intervals)
 const TimePicker = ({ selectedTime, onSelect }: { selectedTime: string; onSelect: (time: string) => void }) => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const times = [];
   for (let i = 0; i < 24; i++) {
     for (let j = 0; j < 60; j += 30) { // 30 min intervals
@@ -198,7 +206,7 @@ const TimePicker = ({ selectedTime, onSelect }: { selectedTime: string; onSelect
             {time}
           </Text>
           {selectedTime === time && (
-            <Ionicons name="checkmark" size={20} color="#FF6B6B" />
+            <Ionicons name="checkmark" size={20} color={colors.primary} />
           )}
         </TouchableOpacity>
       ))}
@@ -206,150 +214,151 @@ const TimePicker = ({ selectedTime, onSelect }: { selectedTime: string; onSelect
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#374151',
-    marginBottom: 6,
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 12, // Matching Input component
-    backgroundColor: '#FFFFFF',
-  },
-  input: {
-    flex: 1,
-    padding: 12,
-    fontSize: 16,
-    color: '#1F2937',
-  },
-  inputError: {
-    borderColor: '#DC2626',
-  },
-  iconButton: {
-    padding: 12,
-  },
-  errorText: {
-    fontSize: 12,
-    color: '#DC2626',
-    marginTop: 4,
-  },
-  
-  // Full Screen Modal Styles
-  fullScreenContainer: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  pickerHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  pickerHeaderTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1F2937',
-  },
-  closeButton: {
-    padding: 8,
-  },
-  placeholderButton: {
-    width: 40, // Balance header
-  },
-  pickerContent: {
-    flex: 1,
-    padding: 24,
-  },
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      marginBottom: 16,
+    },
+    label: {
+      fontSize: 14 * fontScale,
+      fontWeight: '500',
+      color: colors.textPrimary,
+      marginBottom: 6,
+    },
+    inputWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 12, // Matching Input component
+      backgroundColor: colors.surface,
+    },
+    input: {
+      flex: 1,
+      padding: 12,
+      fontSize: 16 * fontScale,
+      color: colors.textPrimary,
+    },
+    inputError: {
+      borderColor: colors.danger,
+    },
+    iconButton: {
+      padding: 12,
+    },
+    errorText: {
+      fontSize: 12 * fontScale,
+      color: colors.danger,
+      marginTop: 4,
+    },
 
-  // Calendar Styles
-  calendar: {
-    width: '100%',
-  },
-  calendarHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  arrowButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: '#F9FAFB',
-  },
-  monthTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1F2937',
-  },
-  weekDays: {
-    flexDirection: 'row',
-    marginBottom: 12,
-  },
-  weekDayText: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 13,
-    color: '#9CA3AF',
-    fontWeight: '600',
-  },
-  daysGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  dayCell: {
-    width: '14.28%',
-    aspectRatio: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  dayCellSelected: {
-    backgroundColor: '#FF6B6B',
-    borderRadius: 12,
-  },
-  dayText: {
-    fontSize: 16,
-    color: '#374151',
-  },
-  dayTextSelected: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-  },
+    // Full Screen Modal Styles
+    fullScreenContainer: {
+      flex: 1,
+      backgroundColor: colors.surface,
+    },
+    pickerHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.surfaceAlt,
+    },
+    pickerHeaderTitle: {
+      fontSize: 18 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+    },
+    closeButton: {
+      padding: 8,
+    },
+    placeholderButton: {
+      width: 40, // Balance header
+    },
+    pickerContent: {
+      flex: 1,
+      padding: 24,
+    },
 
-  // Time Picker Styles
-  timePicker: {
-    flex: 1,
-  },
-  timeOption: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  timeOptionSelected: {
-    backgroundColor: '#FFF1F1',
-    borderRadius: 8,
-    borderBottomWidth: 0,
-  },
-  timeText: {
-    fontSize: 16,
-    color: '#374151',
-  },
-  timeTextSelected: {
-    color: '#FF6B6B',
-    fontWeight: '600',
-  },
-});
+    // Calendar Styles
+    calendar: {
+      width: '100%',
+    },
+    calendarHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 24,
+    },
+    arrowButton: {
+      padding: 8,
+      borderRadius: 8,
+      backgroundColor: colors.surfaceAlt,
+    },
+    monthTitle: {
+      fontSize: 18 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+    },
+    weekDays: {
+      flexDirection: 'row',
+      marginBottom: 12,
+    },
+    weekDayText: {
+      flex: 1,
+      textAlign: 'center',
+      fontSize: 13 * fontScale,
+      color: colors.textTertiary,
+      fontWeight: '600',
+    },
+    daysGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+    },
+    dayCell: {
+      width: '14.28%',
+      aspectRatio: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    dayCellSelected: {
+      backgroundColor: colors.primary,
+      borderRadius: 12,
+    },
+    dayText: {
+      fontSize: 16 * fontScale,
+      color: colors.textPrimary,
+    },
+    dayTextSelected: {
+      color: colors.onPrimary,
+      fontWeight: '600',
+    },
+
+    // Time Picker Styles
+    timePicker: {
+      flex: 1,
+    },
+    timeOption: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 16,
+      paddingHorizontal: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.surfaceAlt,
+    },
+    timeOptionSelected: {
+      backgroundColor: 'rgba(255, 107, 107, 0.12)',
+      borderRadius: 8,
+      borderBottomWidth: 0,
+    },
+    timeText: {
+      fontSize: 16 * fontScale,
+      color: colors.textPrimary,
+    },
+    timeTextSelected: {
+      color: colors.primary,
+      fontWeight: '600',
+    },
+  });

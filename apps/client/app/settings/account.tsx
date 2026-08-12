@@ -5,21 +5,22 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { supabase } from '@/lib/supabase';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 export default function AccountSettingsScreen() {
   const { currentUser, updateUser, logout } = useAuth();
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const [name, setName] = useState(currentUser?.name ?? '');
   const [university, setUniversity] = useState(currentUser?.university ?? '');
+  const currentName = currentUser?.name;
+  const currentUniversity = currentUser?.university;
   useEffect(() => {
-    if (currentUser) {
-      setName(currentUser.name);
-      setUniversity(currentUser.university);
-    }
-  }, [currentUser?.name, currentUser?.university]);
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+    if (currentName != null) setName(currentName);
+    if (currentUniversity != null) setUniversity(currentUniversity);
+  }, [currentName, currentUniversity]);
   const [savingProfile, setSavingProfile] = useState(false);
-  const [updatingPassword, setUpdatingPassword] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   if (!currentUser) return null;
@@ -36,29 +37,6 @@ export default function AccountSettingsScreen() {
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to save profile.');
     } finally {
       setSavingProfile(false);
-    }
-  };
-
-  const handleUpdatePassword = async () => {
-    if (newPassword.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters.');
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match.');
-      return;
-    }
-    setUpdatingPassword(true);
-    try {
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) throw error;
-      setNewPassword('');
-      setConfirmPassword('');
-      Alert.alert('Done', 'Your password has been updated.');
-    } catch (err: unknown) {
-      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to update password.');
-    } finally {
-      setUpdatingPassword(false);
     }
   };
 
@@ -138,30 +116,13 @@ export default function AccountSettingsScreen() {
           disabled={savingProfile}
         />
 
-        <Text style={styles.sectionTitle}>Change Password</Text>
-        <Input
-          label="New Password"
-          placeholder="Enter new password"
-          secureTextEntry
-          value={newPassword}
-          onChangeText={setNewPassword}
-        />
-        <Input
-          label="Confirm New Password"
-          placeholder="Confirm new password"
-          secureTextEntry
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-        />
-        <Button
-          title={updatingPassword ? 'Updating…' : 'Update Password'}
-          onPress={handleUpdatePassword}
-          variant="primary"
-          size="large"
-          fullWidth
-          style={{ marginTop: 16 }}
-          disabled={updatingPassword}
-        />
+        <Text style={styles.sectionTitle}>Sign-in Method</Text>
+        <View style={styles.signInInfo}>
+          <Text style={styles.signInText}>
+            You sign in with your CMU Google account. There is no separate
+            password for Universify — manage your credentials through Google.
+          </Text>
+        </View>
 
         <View style={styles.dangerZone}>
           <Text style={styles.dangerTitle}>Danger Zone</Text>
@@ -171,8 +132,8 @@ export default function AccountSettingsScreen() {
             variant="outline"
             size="large"
             fullWidth
-            style={{ borderColor: '#DC2626' }}
-            textStyle={{ color: '#DC2626' }}
+            style={{ borderColor: colors.danger }}
+            textStyle={{ color: colors.danger }}
             disabled={deleting}
           />
         </View>
@@ -181,53 +142,66 @@ export default function AccountSettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  backButton: {
-    fontSize: 24,
-    color: '#FF6B6B',
-    marginRight: 12,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginTop: 24,
-    marginBottom: 16,
-  },
-  dangerZone: {
-    marginTop: 40,
-    padding: 16,
-    backgroundColor: '#FEE2E2',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#FCA5A5',
-  },
-  dangerTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#DC2626',
-    marginBottom: 12,
-  },
-});
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 16,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    backButton: {
+      fontSize: 24 * fontScale,
+      color: colors.primary,
+      marginRight: 12,
+    },
+    title: {
+      fontSize: 20 * fontScale,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+    },
+    content: {
+      flex: 1,
+      padding: 16,
+    },
+    sectionTitle: {
+      fontSize: 16 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+      marginTop: 24,
+      marginBottom: 16,
+    },
+    signInInfo: {
+      padding: 16,
+      backgroundColor: colors.infoSoft,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    signInText: {
+      fontSize: 14 * fontScale,
+      lineHeight: 20,
+      color: colors.infoText,
+    },
+    dangerZone: {
+      marginTop: 40,
+      padding: 16,
+      backgroundColor: colors.dangerSoft,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.danger,
+    },
+    dangerTitle: {
+      fontSize: 14 * fontScale,
+      fontWeight: '600',
+      color: colors.danger,
+      marginBottom: 12,
+    },
+  });
 

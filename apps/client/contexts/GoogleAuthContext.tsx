@@ -57,10 +57,6 @@ export const GoogleAuthProvider: React.FC<{ children: ReactNode }> = ({ children
         return;
       }
 
-      // #region agent log
-      if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'GoogleAuthContext.tsx:onAuthStateChange',message:'Session from onAuthStateChange',data:{hasSession:!!session,hasProviderToken:!!session?.provider_token},timestamp:Date.now(),hypothesisId:'C'})}).catch(()=>{});
-      // #endregion
-
       if (session?.provider_token) providerTokenRef.current = session.provider_token;
       if (!session) providerTokenRef.current = null;
       setGoogleSession(session);
@@ -183,10 +179,6 @@ export const GoogleAuthProvider: React.FC<{ children: ReactNode }> = ({ children
         expiresAt: session.expires_at,
       });
       
-      // #region agent log
-      if (typeof fetch !== 'undefined') fetch('http://127.0.0.1:7249/ingest/6ce6a0bd-b1d8-4a58-95c8-c0ef781b168b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'GoogleAuthContext.tsx:refreshSession',message:'refreshSession returned',data:{hasSession:!!session,hasProviderToken:!!session?.provider_token},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
-
       setGoogleSession(session);
       return session;
     } catch (err) {

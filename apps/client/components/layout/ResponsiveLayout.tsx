@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import { useResponsive } from '@/hooks/useResponsive';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 interface ResponsiveLayoutProps {
   children: React.ReactNode;
@@ -17,7 +19,9 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   desktopStyle,
   style,
 }) => {
-  const { isMobile, isTablet, isDesktop } = useResponsive();
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
+  const { isMobile, isTablet } = useResponsive();
 
   const responsiveStyle = isMobile
     ? mobileStyle
@@ -32,9 +36,9 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
-
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+  });

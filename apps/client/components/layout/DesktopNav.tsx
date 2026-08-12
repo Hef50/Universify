@@ -3,18 +3,27 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native
 import { router, usePathname } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 // Re-using the SpinningPetalLogo from index.tsx (or a smaller version)
 // Ideally this should be in a shared component file, but for now:
-const SmallPetalLogo = () => (
-  <View style={styles.logoContainer}>
-     <View style={[styles.petal, styles.petalVertical]} />
-     <View style={[styles.petal, styles.petalRotated1]} />
-     <View style={[styles.petal, styles.petalRotated2]} />
-  </View>
-);
+const SmallPetalLogo = () => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
+
+  return (
+    <View style={styles.logoContainer}>
+       <View style={[styles.petal, styles.petalVertical]} />
+       <View style={[styles.petal, styles.petalRotated1]} />
+       <View style={[styles.petal, styles.petalRotated2]} />
+    </View>
+  );
+};
 
 export const DesktopNav = () => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const pathname = usePathname();
   const { currentUser, logout } = useAuth();
 
@@ -56,10 +65,10 @@ export const DesktopNav = () => {
               onPress={() => router.push(item.path as any)}
               activeOpacity={0.7}
             >
-              <Ionicons 
-                name={active ? item.activeIcon as any : item.icon as any} 
-                size={20} 
-                color={active ? '#FF6B6B' : '#6B7280'} 
+              <Ionicons
+                name={active ? item.activeIcon as any : item.icon as any}
+                size={20}
+                color={active ? colors.primary : colors.textSecondary}
               />
               <Text
                 style={[
@@ -96,7 +105,7 @@ export const DesktopNav = () => {
             onPress={logout}
             activeOpacity={0.7}
           >
-            <Ionicons name="log-out-outline" size={20} color="#6B7280" />
+            <Ionicons name="log-out-outline" size={20} color={colors.textSecondary} />
             <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
         </View>
@@ -105,146 +114,147 @@ export const DesktopNav = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    height: 70,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    ...Platform.select({
-      web: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-      },
-      default: {
-        elevation: 2,
-      },
-    }),
-  },
-  navContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: '100%',
-    paddingHorizontal: 32,
-    maxWidth: 1600,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  brand: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginRight: 48,
-  },
-  // Logo Styles
-  logoContainer: {
-    width: 32,
-    height: 32,
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  petal: {
-    position: 'absolute',
-    width: 10,
-    height: 32,
-    backgroundColor: '#FF6B6B',
-    borderRadius: 50,
-    opacity: 0.9,
-  },
-  petalVertical: {
-    transform: [{ rotate: '0deg' }],
-  },
-  petalRotated1: {
-    transform: [{ rotate: '60deg' }],
-  },
-  petalRotated2: {
-    transform: [{ rotate: '-60deg' }],
-  },
-  brandName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FF6B6B',
-  },
-  navItems: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    flex: 1,
-  },
-  navItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
-    // transition: 'all 0.2s ease', // Transition not supported in native styles
-  },
-  navItemActive: {
-    backgroundColor: '#FFF1F1', // Lighter red/orange background
-  },
-  navLabel: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#6B7280',
-  },
-  navLabelActive: {
-    color: '#FF6B6B',
-    fontWeight: '600',
-  },
-  userSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    marginLeft: 24,
-  },
-  userInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  userAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#FF6B6B',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  userInitial: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  userDetails: {
-    maxWidth: 150,
-  },
-  userName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1F2937',
-  },
-  userEmail: {
-    fontSize: 12,
-    color: '#6B7280',
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#FFFFFF',
-  },
-  logoutText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#6B7280',
-  },
-});
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      height: 70,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      ...Platform.select({
+        web: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 4,
+        },
+        default: {
+          elevation: 2,
+        },
+      }),
+    },
+    navContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      height: '100%',
+      paddingHorizontal: 32,
+      maxWidth: 1600,
+      alignSelf: 'center',
+      width: '100%',
+    },
+    brand: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      marginRight: 48,
+    },
+    // Logo Styles
+    logoContainer: {
+      width: 32,
+      height: 32,
+      position: 'relative',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    petal: {
+      position: 'absolute',
+      width: 10,
+      height: 32,
+      backgroundColor: colors.primary,
+      borderRadius: 50,
+      opacity: 0.9,
+    },
+    petalVertical: {
+      transform: [{ rotate: '0deg' }],
+    },
+    petalRotated1: {
+      transform: [{ rotate: '60deg' }],
+    },
+    petalRotated2: {
+      transform: [{ rotate: '-60deg' }],
+    },
+    brandName: {
+      fontSize: 24 * fontScale,
+      fontWeight: 'bold',
+      color: colors.primary,
+    },
+    navItems: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      flex: 1,
+    },
+    navItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      borderRadius: 8,
+      // transition: 'all 0.2s ease', // Transition not supported in native styles
+    },
+    navItemActive: {
+      backgroundColor: 'rgba(255, 107, 107, 0.12)', // Lighter red/orange background
+    },
+    navLabel: {
+      fontSize: 15 * fontScale,
+      fontWeight: '500',
+      color: colors.textSecondary,
+    },
+    navLabelActive: {
+      color: colors.primary,
+      fontWeight: '600',
+    },
+    userSection: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 16,
+      marginLeft: 24,
+    },
+    userInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    userAvatar: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    userInitial: {
+      color: colors.onPrimary,
+      fontSize: 16 * fontScale,
+      fontWeight: 'bold',
+    },
+    userDetails: {
+      maxWidth: 150,
+    },
+    userName: {
+      fontSize: 14 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+    },
+    userEmail: {
+      fontSize: 12 * fontScale,
+      color: colors.textSecondary,
+    },
+    logoutButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+    },
+    logoutText: {
+      fontSize: 14 * fontScale,
+      fontWeight: '500',
+      color: colors.textSecondary,
+    },
+  });

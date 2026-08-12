@@ -6,6 +6,8 @@ import { useSettings } from '@/contexts/SettingsContext';
 import { useSlack } from '@/contexts/SlackContext';
 import { CategoryPill } from '@/components/ui/CategoryPill';
 import { EventCategory } from '@/types/event';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 const ALL_CATEGORIES: EventCategory[] = [
   'Career',
@@ -27,6 +29,8 @@ export default function PreferencesScreen() {
   const { settings, updateSettings } = useSettings();
   const slack = useSlack();
   const [botUrlInput, setBotUrlInput] = useState(slack.config.botUrl);
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
 
   if (!currentUser) return null;
 
@@ -142,7 +146,7 @@ export default function PreferencesScreen() {
                 },
               })
             }
-            trackColor={{ false: '#D1D5DB', true: '#FF6B6B' }}
+            trackColor={{ false: colors.border, true: colors.primary }}
           />
         </View>
 
@@ -161,7 +165,7 @@ export default function PreferencesScreen() {
                 },
               })
             }
-            trackColor={{ false: '#D1D5DB', true: '#FF6B6B' }}
+            trackColor={{ false: colors.border, true: colors.primary }}
           />
         </View>
 
@@ -179,7 +183,7 @@ export default function PreferencesScreen() {
             value={botUrlInput}
             onChangeText={setBotUrlInput}
             placeholder="http://localhost:3001"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.textTertiary}
             autoCapitalize="none"
             autoCorrect={false}
           />
@@ -192,7 +196,7 @@ export default function PreferencesScreen() {
             disabled={slack.isConnecting}
           >
             {slack.isConnecting ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
+              <ActivityIndicator size="small" color={colors.onPrimary} />
             ) : (
               <Text style={styles.slackButtonText}>
                 {slack.isConnected ? 'Reconnect' : 'Connect'}
@@ -264,7 +268,7 @@ export default function PreferencesScreen() {
               disabled={slack.isImporting || slack.config.selectedChannelIds.length === 0}
             >
               {slack.isImporting ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
+                <ActivityIndicator size="small" color={colors.onPrimary} />
               ) : (
                 <Text style={styles.slackImportButtonText}>
                   Import Events from Slack
@@ -293,7 +297,7 @@ export default function PreferencesScreen() {
               <Switch
                 value={slack.config.autoImport}
                 onValueChange={slack.setAutoImport}
-                trackColor={{ false: '#D1D5DB', true: '#611f69' }}
+                trackColor={{ false: colors.border, true: '#611f69' }}
               />
             </View>
 
@@ -315,267 +319,268 @@ export default function PreferencesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  backButton: {
-    fontSize: 24,
-    color: '#FF6B6B',
-    marginRight: 12,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginTop: 16,
-    marginBottom: 12,
-  },
-  sectionDescription: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 12,
-  },
-  optionGroup: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  option: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  optionActive: {
-    backgroundColor: '#FEE2E2',
-  },
-  optionText: {
-    fontSize: 16,
-    color: '#1F2937',
-  },
-  checkmark: {
-    fontSize: 18,
-    color: '#FF6B6B',
-    fontWeight: 'bold',
-  },
-  daysSelector: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  dayOption: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    alignItems: 'center',
-  },
-  dayOptionActive: {
-    borderColor: '#FF6B6B',
-    backgroundColor: '#FEE2E2',
-  },
-  dayOptionText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#6B7280',
-  },
-  dayOptionTextActive: {
-    color: '#FF6B6B',
-  },
-  categoryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  switchRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  switchLabel: {
-    fontSize: 16,
-    color: '#1F2937',
-  },
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 16,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    backButton: {
+      fontSize: 24 * fontScale,
+      color: colors.primary,
+      marginRight: 12,
+    },
+    title: {
+      fontSize: 20 * fontScale,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+    },
+    content: {
+      flex: 1,
+      padding: 16,
+    },
+    sectionTitle: {
+      fontSize: 16 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+      marginTop: 16,
+      marginBottom: 12,
+    },
+    sectionDescription: {
+      fontSize: 14 * fontScale,
+      color: colors.textSecondary,
+      marginBottom: 12,
+    },
+    optionGroup: {
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      overflow: 'hidden',
+    },
+    option: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    optionActive: {
+      backgroundColor: colors.dangerSoft,
+    },
+    optionText: {
+      fontSize: 16 * fontScale,
+      color: colors.textPrimary,
+    },
+    checkmark: {
+      fontSize: 18 * fontScale,
+      color: colors.primary,
+      fontWeight: 'bold',
+    },
+    daysSelector: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    dayOption: {
+      flex: 1,
+      padding: 16,
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      borderWidth: 2,
+      borderColor: colors.border,
+      alignItems: 'center',
+    },
+    dayOptionActive: {
+      borderColor: colors.primary,
+      backgroundColor: colors.dangerSoft,
+    },
+    dayOptionText: {
+      fontSize: 18 * fontScale,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    dayOptionTextActive: {
+      color: colors.primary,
+    },
+    categoryGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    switchRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 16,
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      marginBottom: 8,
+    },
+    switchLabel: {
+      fontSize: 16 * fontScale,
+      color: colors.textPrimary,
+    },
 
-  // ─── Slack Integration styles ───
-  slackDivider: {
-    height: 1,
-    backgroundColor: '#E5E7EB',
-    marginTop: 24,
-    marginBottom: 8,
-  },
-  slackInputRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 8,
-  },
-  slackInput: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-    color: '#1F2937',
-  },
-  slackButton: {
-    backgroundColor: '#611f69',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    minWidth: 90,
-  },
-  slackButtonDisabled: {
-    opacity: 0.5,
-  },
-  slackButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  slackStatusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 4,
-    paddingVertical: 4,
-  },
-  slackStatusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#10B981',
-  },
-  slackStatusText: {
-    fontSize: 13,
-    color: '#10B981',
-    fontWeight: '500',
-  },
-  slackErrorRow: {
-    backgroundColor: '#FEF2F2',
-    borderRadius: 8,
-    padding: 12,
-    marginVertical: 4,
-  },
-  slackErrorText: {
-    fontSize: 13,
-    color: '#DC2626',
-  },
-  slackChannelList: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    overflow: 'hidden',
-    marginBottom: 12,
-  },
-  slackChannel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  slackChannelSelected: {
-    backgroundColor: '#F5F0F6',
-  },
-  slackChannelInfo: {
-    flex: 1,
-    marginRight: 12,
-  },
-  slackChannelName: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#1F2937',
-  },
-  slackChannelNameSelected: {
-    color: '#611f69',
-    fontWeight: '600',
-  },
-  slackChannelPurpose: {
-    fontSize: 12,
-    color: '#9CA3AF',
-    marginTop: 2,
-  },
-  slackCheckbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#D1D5DB',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  slackCheckboxChecked: {
-    borderColor: '#611f69',
-    backgroundColor: '#611f69',
-  },
-  slackCheckboxMark: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: 'bold',
-  },
-  slackImportButton: {
-    backgroundColor: '#611f69',
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  slackImportButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 15,
-  },
-  slackImportStatus: {
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-  },
-  slackImportStatusText: {
-    fontSize: 13,
-    color: '#6B7280',
-  },
-  slackClearButton: {
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#DC2626',
-    paddingVertical: 10,
-    alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 24,
-  },
-  slackClearButtonText: {
-    color: '#DC2626',
-    fontWeight: '500',
-    fontSize: 14,
-  },
-});
+    // ─── Slack Integration styles ───
+    slackDivider: {
+      height: 1,
+      backgroundColor: colors.border,
+      marginTop: 24,
+      marginBottom: 8,
+    },
+    slackInputRow: {
+      flexDirection: 'row',
+      gap: 8,
+      marginBottom: 8,
+    },
+    slackInput: {
+      flex: 1,
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      fontSize: 14 * fontScale,
+      color: colors.textPrimary,
+    },
+    slackButton: {
+      backgroundColor: '#611f69',
+      borderRadius: 8,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      justifyContent: 'center',
+      alignItems: 'center',
+      minWidth: 90,
+    },
+    slackButtonDisabled: {
+      opacity: 0.5,
+    },
+    slackButtonText: {
+      color: colors.onPrimary,
+      fontWeight: '600',
+      fontSize: 14 * fontScale,
+    },
+    slackStatusRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 4,
+      paddingVertical: 4,
+    },
+    slackStatusDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.success,
+    },
+    slackStatusText: {
+      fontSize: 13 * fontScale,
+      color: colors.success,
+      fontWeight: '500',
+    },
+    slackErrorRow: {
+      backgroundColor: colors.dangerSoft,
+      borderRadius: 8,
+      padding: 12,
+      marginVertical: 4,
+    },
+    slackErrorText: {
+      fontSize: 13 * fontScale,
+      color: colors.danger,
+    },
+    slackChannelList: {
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      overflow: 'hidden',
+      marginBottom: 12,
+    },
+    slackChannel: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.surfaceAlt,
+    },
+    slackChannelSelected: {
+      backgroundColor: '#F5F0F6',
+    },
+    slackChannelInfo: {
+      flex: 1,
+      marginRight: 12,
+    },
+    slackChannelName: {
+      fontSize: 15 * fontScale,
+      fontWeight: '500',
+      color: colors.textPrimary,
+    },
+    slackChannelNameSelected: {
+      color: '#611f69',
+      fontWeight: '600',
+    },
+    slackChannelPurpose: {
+      fontSize: 12 * fontScale,
+      color: colors.textTertiary,
+      marginTop: 2,
+    },
+    slackCheckbox: {
+      width: 22,
+      height: 22,
+      borderRadius: 4,
+      borderWidth: 2,
+      borderColor: colors.border,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    slackCheckboxChecked: {
+      borderColor: '#611f69',
+      backgroundColor: '#611f69',
+    },
+    slackCheckboxMark: {
+      color: colors.onPrimary,
+      fontSize: 13 * fontScale,
+      fontWeight: 'bold',
+    },
+    slackImportButton: {
+      backgroundColor: '#611f69',
+      borderRadius: 8,
+      paddingVertical: 14,
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    slackImportButtonText: {
+      color: colors.onPrimary,
+      fontWeight: '600',
+      fontSize: 15 * fontScale,
+    },
+    slackImportStatus: {
+      paddingVertical: 8,
+      paddingHorizontal: 4,
+    },
+    slackImportStatusText: {
+      fontSize: 13 * fontScale,
+      color: colors.textSecondary,
+    },
+    slackClearButton: {
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.danger,
+      paddingVertical: 10,
+      alignItems: 'center',
+      marginTop: 8,
+      marginBottom: 24,
+    },
+    slackClearButtonText: {
+      color: colors.danger,
+      fontWeight: '500',
+      fontSize: 14 * fontScale,
+    },
+  });
 

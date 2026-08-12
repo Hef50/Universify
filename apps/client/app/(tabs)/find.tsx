@@ -12,30 +12,30 @@ import { EventDetailSidebar } from '@/components/events/EventDetailSidebar';
 import { FilterDrawer } from '@/components/layout/FilterDrawer';
 import { Event, EventCategory } from '@/types/event';
 import { useResponsive } from '@/hooks/useResponsive';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 const QUICK_FILTERS: EventCategory[] = ['Career', 'Food', 'Fun', 'Tech', 'Sports', 'Social'];
 
 function FindScreenContent() {
   const params = useLocalSearchParams();
   const { currentUser } = useAuth();
-  const { events } = useEvents();
   const {
     filteredEvents,
     searchQuery,
     searchMode,
     selectedCategories,
-    clubEvents,
-    socialEvents,
     activeFilterCount,
     setSearchQuery,
     setSearchMode,
     toggleCategory,
-    toggleEventType,
     clearAllFilters,
   } = useFilters();
 
   const { settings } = useSettings();
   const { isMobile } = useResponsive();
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -175,17 +175,7 @@ function FindScreenContent() {
       )}
 
       {/* Filter Drawer */}
-      <FilterDrawer
-        visible={showFilters}
-        onClose={() => setShowFilters(false)}
-        selectedCategories={selectedCategories}
-        onCategoryToggle={toggleCategory}
-        clubEvents={clubEvents}
-        socialEvents={socialEvents}
-        onEventTypeToggle={toggleEventType}
-        onClearFilters={clearAllFilters}
-        onApply={() => {}}
-      />
+      <FilterDrawer visible={showFilters} onClose={() => setShowFilters(false)} />
 
       {/* Event Detail Sidebar */}
       <EventDetailSidebar
@@ -207,160 +197,161 @@ export default function FindScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-  header: {
-    flexDirection: 'row',
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    gap: 12,
-  },
-  searchBar: {
-    flex: 1,
-  },
-  viewToggle: {
-    flexDirection: 'row',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    overflow: 'hidden',
-  },
-  viewButton: {
-    width: 44,
-    height: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  viewButtonActive: {
-    backgroundColor: '#FF6B6B',
-  },
-  viewIcon: {
-    fontSize: 18,
-  },
-  quickFilters: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    gap: 12,
-  },
-  filterButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: '#F3F4F6',
-    borderRadius: 8,
-    gap: 6,
-  },
-  filterIcon: {
-    fontSize: 16,
-  },
-  filterButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-  },
-  filterBadge: {
-    backgroundColor: '#FF6B6B',
-    borderRadius: 10,
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  filterBadgeText: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  quickFiltersContent: {
-    gap: 8,
-  },
-  quickFilterPill: {
-    marginRight: 0,
-  },
-  clearButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  clearButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FF6B6B',
-  },
-  myEventsButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: '#F3F4F6',
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  myEventsButtonActive: {
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FF6B6B',
-  },
-  myEventsText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-  },
-  myEventsTextActive: {
-    color: '#FF6B6B',
-  },
-  resultsHeader: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
-  },
-  resultsCount: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#6B7280',
-  },
-  listContent: {
-    padding: 16,
-  },
-  listContentCompact: {
-    padding: 8,
-  },
-  gridItem: {
-    flex: 1,
-    margin: 8,
-  },
-  listItem: {
-    marginBottom: 0,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 8,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#6B7280',
-    textAlign: 'center',
-  },
-});
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      padding: 16,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      gap: 12,
+    },
+    searchBar: {
+      flex: 1,
+    },
+    viewToggle: {
+      flexDirection: 'row',
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+      overflow: 'hidden',
+    },
+    viewButton: {
+      width: 44,
+      height: 44,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+    },
+    viewButtonActive: {
+      backgroundColor: colors.primary,
+    },
+    viewIcon: {
+      fontSize: 18,
+    },
+    quickFilters: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      gap: 12,
+    },
+    filterButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: 8,
+      gap: 6,
+    },
+    filterIcon: {
+      fontSize: 16,
+    },
+    filterButtonText: {
+      fontSize: 14 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+    },
+    filterBadge: {
+      backgroundColor: colors.primary,
+      borderRadius: 10,
+      width: 20,
+      height: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    filterBadgeText: {
+      fontSize: 11 * fontScale,
+      fontWeight: 'bold',
+      color: colors.onPrimary,
+    },
+    quickFiltersContent: {
+      gap: 8,
+    },
+    quickFilterPill: {
+      marginRight: 0,
+    },
+    clearButton: {
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+    },
+    clearButtonText: {
+      fontSize: 14 * fontScale,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+    myEventsButton: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: 8,
+      borderWidth: 2,
+      borderColor: 'transparent',
+    },
+    myEventsButtonActive: {
+      backgroundColor: colors.dangerSoft,
+      borderColor: colors.primary,
+    },
+    myEventsText: {
+      fontSize: 14 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+    },
+    myEventsTextActive: {
+      color: colors.primary,
+    },
+    resultsHeader: {
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      backgroundColor: colors.surface,
+    },
+    resultsCount: {
+      fontSize: 14 * fontScale,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    listContent: {
+      padding: 16,
+    },
+    listContentCompact: {
+      padding: 8,
+    },
+    gridItem: {
+      flex: 1,
+      margin: 8,
+    },
+    listItem: {
+      marginBottom: 0,
+    },
+    emptyState: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 32,
+    },
+    emptyIcon: {
+      fontSize: 64,
+      marginBottom: 16,
+    },
+    emptyTitle: {
+      fontSize: 20 * fontScale,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 8,
+    },
+    emptyText: {
+      fontSize: 16 * fontScale,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+  });
 

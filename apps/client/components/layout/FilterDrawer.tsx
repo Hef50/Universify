@@ -3,6 +3,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  TextInput,
   StyleSheet,
   ScrollView,
 } from 'react-native';
@@ -10,18 +11,14 @@ import { AnimatedDrawer } from '@/components/ui/AnimatedDrawer';
 import { CategoryPill } from '@/components/ui/CategoryPill';
 import { Button } from '@/components/ui/Button';
 import { EventCategory } from '@/types/event';
+import { useFilters } from '@/contexts/FilterContext';
 import { useResponsive } from '@/hooks/useResponsive';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 interface FilterDrawerProps {
   visible: boolean;
   onClose: () => void;
-  selectedCategories: EventCategory[];
-  onCategoryToggle: (category: EventCategory) => void;
-  clubEvents: boolean;
-  socialEvents: boolean;
-  onEventTypeToggle: (type: 'clubEvents' | 'socialEvents') => void;
-  onClearFilters: () => void;
-  onApply: () => void;
 }
 
 const ALL_CATEGORIES: EventCategory[] = [
@@ -39,18 +36,58 @@ const ALL_CATEGORIES: EventCategory[] = [
   'Wellness',
 ];
 
-export const FilterDrawer: React.FC<FilterDrawerProps> = ({
-  visible,
-  onClose,
-  selectedCategories,
-  onCategoryToggle,
-  clubEvents,
-  socialEvents,
-  onEventTypeToggle,
-  onClearFilters,
-  onApply,
-}) => {
+const TIME_OF_DAY_OPTIONS: {
+  id: 'morning' | 'afternoon' | 'evening' | 'night';
+  label: string;
+  hint: string;
+}[] = [
+  { id: 'morning', label: 'Morning', hint: '6am–12pm' },
+  { id: 'afternoon', label: 'Afternoon', hint: '12–5pm' },
+  { id: 'evening', label: 'Evening', hint: '5–9pm' },
+  { id: 'night', label: 'Night', hint: '9pm–6am' },
+];
+
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+export const FilterDrawer: React.FC<FilterDrawerProps> = ({ visible, onClose }) => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const { isMobile } = useResponsive();
+  const {
+    selectedCategories,
+    clubEvents,
+    socialEvents,
+    dateRange,
+    location,
+    timeOfDay,
+    hasAvailability,
+    toggleCategory,
+    toggleEventType,
+    setDateRange,
+    clearDateRange,
+    setLocation,
+    setTimeOfDay,
+    setHasAvailability,
+    clearAllFilters,
+  } = useFilters();
+
+  // Local text state for the date inputs so partial typing doesn't clobber
+  // the applied range; committed once both ends are valid dates.
+  const [startText, setStartText] = React.useState(dateRange?.start ?? '');
+  const [endText, setEndText] = React.useState(dateRange?.end ?? '');
+
+  React.useEffect(() => {
+    setStartText(dateRange?.start ?? '');
+    setEndText(dateRange?.end ?? '');
+  }, [dateRange]);
+
+  const commitDateRange = (start: string, end: string) => {
+    if (DATE_PATTERN.test(start) && DATE_PATTERN.test(end)) {
+      setDateRange(start, end);
+    } else if (!start && !end) {
+      clearDateRange();
+    }
+  };
 
   return (
     <AnimatedDrawer
@@ -77,7 +114,7 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
             <View style={styles.checkboxGroup}>
               <TouchableOpacity
                 style={styles.checkbox}
-                onPress={() => onEventTypeToggle('clubEvents')}
+                onPress={() => toggleEventType('clubEvents')}
               >
                 <View style={[styles.checkboxBox, clubEvents && styles.checkboxBoxChecked]}>
                   {clubEvents && <Text style={styles.checkmark}>✓</Text>}
@@ -87,7 +124,7 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
 
               <TouchableOpacity
                 style={styles.checkbox}
-                onPress={() => onEventTypeToggle('socialEvents')}
+                onPress={() => toggleEventType('socialEvents')}
               >
                 <View style={[styles.checkboxBox, socialEvents && styles.checkboxBoxChecked]}>
                   {socialEvents && <Text style={styles.checkmark}>✓</Text>}
@@ -106,29 +143,105 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
                   key={category}
                   category={category}
                   active={selectedCategories.includes(category)}
-                  onPress={() => onCategoryToggle(category)}
+                  onPress={() => toggleCategory(category)}
                   size="medium"
                 />
               ))}
             </View>
           </View>
 
-          {/* Date Range - Placeholder */}
+          {/* Date Range */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Date Range</Text>
-            <Text style={styles.comingSoon}>Coming soon</Text>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Date Range</Text>
+              {dateRange && (
+                <TouchableOpacity onPress={() => clearDateRange()}>
+                  <Text style={styles.sectionClear}>Clear</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+            <View style={styles.dateRow}>
+              <View style={styles.dateField}>
+                <Text style={styles.dateLabel}>From</Text>
+                <TextInput
+                  style={styles.dateInput}
+                  value={startText}
+                  onChangeText={(text) => {
+                    setStartText(text);
+                    commitDateRange(text, endText);
+                  }}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor={colors.textTertiary}
+                  maxLength={10}
+                  autoCapitalize="none"
+                />
+              </View>
+              <View style={styles.dateField}>
+                <Text style={styles.dateLabel}>To</Text>
+                <TextInput
+                  style={styles.dateInput}
+                  value={endText}
+                  onChangeText={(text) => {
+                    setEndText(text);
+                    commitDateRange(startText, text);
+                  }}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor={colors.textTertiary}
+                  maxLength={10}
+                  autoCapitalize="none"
+                />
+              </View>
+            </View>
           </View>
 
-          {/* Time of Day - Placeholder */}
+          {/* Time of Day */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Time of Day</Text>
-            <Text style={styles.comingSoon}>Coming soon</Text>
+            <View style={styles.timeGrid}>
+              {TIME_OF_DAY_OPTIONS.map((option) => {
+                const active = timeOfDay === option.id;
+                return (
+                  <TouchableOpacity
+                    key={option.id}
+                    style={[styles.timeOption, active && styles.timeOptionActive]}
+                    onPress={() => setTimeOfDay(active ? undefined : option.id)}
+                  >
+                    <Text style={[styles.timeOptionLabel, active && styles.timeOptionLabelActive]}>
+                      {option.label}
+                    </Text>
+                    <Text style={[styles.timeOptionHint, active && styles.timeOptionHintActive]}>
+                      {option.hint}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
 
-          {/* Location - Placeholder */}
+          {/* Location */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Location</Text>
-            <Text style={styles.comingSoon}>Coming soon</Text>
+            <TextInput
+              style={styles.locationInput}
+              value={location ?? ''}
+              onChangeText={(text) => setLocation(text)}
+              placeholder="e.g., Wiegand Gym, Gates"
+              placeholderTextColor={colors.textTertiary}
+            />
+          </View>
+
+          {/* Availability */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Availability</Text>
+            <TouchableOpacity
+              style={styles.checkbox}
+              onPress={() => setHasAvailability(!hasAvailability)}
+            >
+              <View style={[styles.checkboxBox, hasAvailability && styles.checkboxBoxChecked]}>
+                {hasAvailability && <Text style={styles.checkmark}>✓</Text>}
+              </View>
+              <Text style={styles.checkboxLabel}>Only events with open spots</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
 
@@ -136,17 +249,14 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
         <View style={styles.footer}>
           <Button
             title="Clear All"
-            onPress={onClearFilters}
+            onPress={clearAllFilters}
             variant="outline"
             size="medium"
             style={{ flex: 1 }}
           />
           <Button
-            title="Apply"
-            onPress={() => {
-              onApply();
-              onClose();
-            }}
+            title="Done"
+            onPress={onClose}
             variant="primary"
             size="medium"
             style={{ flex: 1 }}
@@ -157,87 +267,156 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  closeIcon: {
-    fontSize: 24,
-    color: '#6B7280',
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  section: {
-    marginBottom: 28,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 12,
-  },
-  checkboxGroup: {
-    gap: 12,
-  },
-  checkbox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  checkboxBox: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: '#D1D5DB',
-    marginRight: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxBoxChecked: {
-    backgroundColor: '#FF6B6B',
-    borderColor: '#FF6B6B',
-  },
-  checkmark: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  checkboxLabel: {
-    fontSize: 15,
-    color: '#374151',
-  },
-  categoryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  comingSoon: {
-    fontSize: 14,
-    color: '#9CA3AF',
-    fontStyle: 'italic',
-  },
-  footer: {
-    flexDirection: 'row',
-    padding: 20,
-    gap: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-  },
-});
-
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.surface,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 20,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    title: {
+      fontSize: 20 * fontScale,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+    },
+    closeIcon: {
+      fontSize: 24,
+      color: colors.textSecondary,
+    },
+    content: {
+      flex: 1,
+      padding: 20,
+    },
+    section: {
+      marginBottom: 28,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    sectionTitle: {
+      fontSize: 16 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+      marginBottom: 12,
+    },
+    sectionClear: {
+      fontSize: 13 * fontScale,
+      fontWeight: '500',
+      color: colors.primary,
+    },
+    checkboxGroup: {
+      gap: 12,
+    },
+    checkbox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    checkboxBox: {
+      width: 22,
+      height: 22,
+      borderRadius: 6,
+      borderWidth: 2,
+      borderColor: colors.border,
+      marginRight: 10,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    checkboxBoxChecked: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    checkmark: {
+      color: colors.onPrimary,
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+    checkboxLabel: {
+      fontSize: 15 * fontScale,
+      color: colors.textPrimary,
+    },
+    categoryGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    dateRow: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    dateField: {
+      flex: 1,
+    },
+    dateLabel: {
+      fontSize: 13 * fontScale,
+      color: colors.textSecondary,
+      marginBottom: 6,
+    },
+    dateInput: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      fontSize: 14 * fontScale,
+      color: colors.textPrimary,
+    },
+    locationInput: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      fontSize: 14 * fontScale,
+      color: colors.textPrimary,
+    },
+    timeGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    timeOption: {
+      flexBasis: '47%',
+      flexGrow: 1,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 8,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+    },
+    timeOptionActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    timeOptionLabel: {
+      fontSize: 14 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+    },
+    timeOptionLabelActive: {
+      color: colors.onPrimary,
+    },
+    timeOptionHint: {
+      fontSize: 12 * fontScale,
+      color: colors.textTertiary,
+      marginTop: 2,
+    },
+    timeOptionHintActive: {
+      color: 'rgba(255, 255, 255, 0.85)',
+    },
+    footer: {
+      flexDirection: 'row',
+      padding: 20,
+      gap: 12,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+  });

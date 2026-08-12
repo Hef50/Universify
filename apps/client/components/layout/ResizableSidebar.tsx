@@ -7,6 +7,8 @@ import {
   PanResponder,
 } from 'react-native';
 import { useResponsive } from '@/hooks/useResponsive';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { AppPalette } from '@/constants/theme';
 
 interface ResizableSidebarProps {
   children: React.ReactNode;
@@ -25,6 +27,8 @@ export const ResizableSidebar: React.FC<ResizableSidebarProps> = ({
   position = 'right',
   style,
 }) => {
+  const { colors, fontScale } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
   const { isDesktop, isMobile } = useResponsive();
   const [width, setWidth] = useState(initialWidth);
 
@@ -74,43 +78,45 @@ export const ResizableSidebar: React.FC<ResizableSidebarProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    height: '100%',
-  },
-  containerLeft: {
-    flexDirection: 'row-reverse',
-  },
-  sidebar: {
-    backgroundColor: '#FFFFFF',
-    borderLeftWidth: 1,
-    borderLeftColor: '#E5E7EB',
-    height: '100%',
-  },
-  sidebarMobile: {
-    width: '100%',
-    borderLeftWidth: 0,
-  },
-  resizeHandleLeft: {
-    width: 8,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    cursor: 'col-resize',
-  },
-  resizeHandleRight: {
-    width: 8,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    cursor: 'col-resize',
-  },
-  resizeIndicator: {
-    width: 3,
-    height: 40,
-    backgroundColor: '#D1D5DB',
-    borderRadius: 2,
-  },
-});
+const createStyles = (colors: AppPalette, fontScale: number) =>
+  StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      height: '100%',
+    },
+    containerLeft: {
+      flexDirection: 'row-reverse',
+    },
+    sidebar: {
+      backgroundColor: colors.surface,
+      borderLeftWidth: 1,
+      borderLeftColor: colors.border,
+      height: '100%',
+    },
+    sidebarMobile: {
+      width: '100%',
+      borderLeftWidth: 0,
+    },
+    resizeHandleLeft: {
+      width: 8,
+      height: '100%',
+      justifyContent: 'center',
+      alignItems: 'center',
+      // react-native-web supports any CSS cursor; RN's types only know a subset
+      cursor: 'col-resize' as 'pointer',
+    },
+    resizeHandleRight: {
+      width: 8,
+      height: '100%',
+      justifyContent: 'center',
+      alignItems: 'center',
+      cursor: 'col-resize' as 'pointer',
+    },
+    resizeIndicator: {
+      width: 3,
+      height: 40,
+      backgroundColor: colors.border,
+      borderRadius: 2,
+    },
+  });
 

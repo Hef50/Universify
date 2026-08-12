@@ -6,7 +6,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  Platform,
 } from 'react-native';
+import * as Linking from 'expo-linking';
+import { Ionicons } from '@expo/vector-icons';
+import { googleCalendarUrl, downloadIcs, shareEvent } from '@/utils/calendarLinks';
 import { AnimatedDrawer } from '@/components/ui/AnimatedDrawer';
 import { Button } from '@/components/ui/Button';
 import { CategoryPill } from '@/components/ui/CategoryPill';
@@ -35,6 +39,7 @@ export const EventDetailSidebar: React.FC<EventDetailSidebarProps> = ({
   const { currentUser } = useAuth();
   const { updateRSVP, getRSVPStatus } = useEvents();
   const [isUpdatingRSVP, setIsUpdatingRSVP] = useState(false);
+  const [shareNote, setShareNote] = useState<string | null>(null);
 
   if (!event) return null;
 
@@ -48,6 +53,28 @@ export const EventDetailSidebar: React.FC<EventDetailSidebarProps> = ({
       await updateRSVP(event.id, currentUser.id, status);
     } finally {
       setIsUpdatingRSVP(false);
+    }
+  };
+
+  const isWeb = Platform.OS === 'web' && typeof window !== 'undefined';
+
+  const handleOpenGoogleCalendar = () => {
+    const url = googleCalendarUrl(event);
+    if (isWeb) {
+      window.open(url, '_blank', 'noopener');
+    } else {
+      Linking.openURL(url);
+    }
+  };
+
+  const handleShare = async () => {
+    const url = isWeb
+      ? `${window.location.origin}/event/${event.id}`
+      : Linking.createURL(`/event/${event.id}`);
+    const result = await shareEvent(event, url);
+    if (result === 'copied') {
+      setShareNote('Link copied');
+      setTimeout(() => setShareNote(null), 2000);
     }
   };
 
@@ -126,6 +153,37 @@ export const EventDetailSidebar: React.FC<EventDetailSidebarProps> = ({
                 )}
               </View>
             </View>
+          </View>
+
+          {/* Calendar & share actions */}
+          <View style={styles.section}>
+            <View style={styles.calendarActions}>
+              <TouchableOpacity
+                style={styles.calendarActionButton}
+                onPress={handleOpenGoogleCalendar}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="calendar-clear-outline" size={14} color={colors.textSecondary} />
+                <Text style={styles.calendarActionText}>Google Calendar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.calendarActionButton}
+                onPress={() => downloadIcs(event)}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="download-outline" size={14} color={colors.textSecondary} />
+                <Text style={styles.calendarActionText}>.ics</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.calendarActionButton}
+                onPress={handleShare}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="share-outline" size={14} color={colors.textSecondary} />
+                <Text style={styles.calendarActionText}>Share</Text>
+              </TouchableOpacity>
+            </View>
+            {shareNote ? <Text style={styles.calendarActionNote}>{shareNote}</Text> : null}
           </View>
 
           {/* Description */}
@@ -318,6 +376,33 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
       color: '#8B7FFF',
       fontWeight: '600',
       marginTop: 4,
+    },
+    calendarActions: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    calendarActionButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      height: 32,
+      paddingHorizontal: 10,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+    },
+    calendarActionText: {
+      fontSize: 12 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+    },
+    calendarActionNote: {
+      fontSize: 12 * fontScale,
+      fontWeight: '600',
+      color: colors.success,
+      marginTop: 8,
     },
     sectionTitle: {
       fontSize: 14 * fontScale,

@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { View, StyleSheet, Text, ActivityIndicator, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import { router } from 'expo-router';
 import { useEvents } from '@/contexts/EventsContext';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useResponsive } from '@/hooks/useResponsive';
@@ -21,6 +22,8 @@ import { useEventReminders } from '@/hooks/useEventReminders';
 import { storage } from '@/lib/storage';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { AppPalette } from '@/constants/theme';
+import { AgendaList, AgendaBadge } from '@/components/events/AgendaList';
+import { SegmentedControl } from '@/components/ui/SegmentedControl';
 
 // Universify event id -> Google Calendar event id map, persisted so
 // unscheduling can delete the Google copy even after a reload
@@ -46,10 +49,11 @@ export default function CalendarScreen() {
     unscheduleEvent: unscheduleEventForWeek,
   } = useScheduledEvents(currentUser?.id, weekKey);
 
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
   const [customDays, setCustomDays] = useState(settings.calendarViewDays.toString());
   const [timeSelection, setTimeSelection] = useState<{ startDate: Date; endDate: Date } | null>(null);
+  // Mobile defaults to a Luma-style agenda timeline; the hour grid is opt-in
+  const [mobileView, setMobileView] = useState<'agenda' | 'grid'>('agenda');
   // Map Universify event id -> Google Calendar event id when we create in Google on schedule (so we can delete on unschedule)
   const scheduleEventToGoogleIdRef = useRef<Map<string, string>>(new Map());
 
@@ -143,6 +147,30 @@ export default function CalendarScreen() {
     currentUser?.preferences.notificationPreferences.eventReminders ?? false
   );
 
+  // Agenda view: the user's scheduled events (with recurring occurrences)
+  // over the next 30 days, in a date-grouped timeline
+  const agendaEvents = useMemo(() => {
+    const now = new Date();
+    const horizon = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const scheduled = events.filter((e) => allScheduledEventIds.includes(e.id));
+    return expandRecurringEvents(scheduled, now, horizon).filter(
+      (e) => new Date(e.endTime) >= now && new Date(e.startTime) <= horizon
+    );
+  }, [events, allScheduledEventIds]);
+
+  const agendaBadgeFor = (event: Event): AgendaBadge | null => {
+    const baseId = baseEventId(event.id);
+    if (currentUser?.createdEvents.includes(baseId)) return 'created';
+    const rsvp = currentUser
+      ? events
+          .find((e) => e.id === baseId)
+          ?.attendees.find((a) => a.userId === currentUser.id)?.status
+      : null;
+    if (rsvp === 'going') return 'going';
+    if (rsvp === 'maybe') return 'maybe';
+    return 'scheduled';
+  };
+
   // Get all events for sidebar (sorted by date)
   // Only include Universify events (Google events are already on the calendar)
   // Only show future/current events (end time >= now) so past events don't clutter the list
@@ -173,12 +201,11 @@ export default function CalendarScreen() {
     // Recurring occurrences carry a synthetic "<id>::<date>" id; act on the
     // base event so scheduling/expansion always target the real record.
     const baseId = baseEventId(event.id);
-    const base = events.find((e) => e.id === baseId) ?? event;
     if (isDesktop) {
       // Toggle expansion
       setExpandedCardId((prevId) => (prevId === baseId ? null : baseId));
     } else {
-      setSelectedEvent(base);
+      router.push(`/event/${baseId}`);
     }
   };
 
@@ -303,6 +330,75 @@ export default function CalendarScreen() {
           updateSettings({ calendarViewDays: days });
       }
   };
+
+  // ── Mobile: Luma-style agenda by default, hour grid opt-in ──
+  if (isMobile) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.mobileHeader}>
+          <Text style={styles.mobileTitle}>Calendar</Text>
+          <TouchableOpacity
+            style={styles.myEventsLink}
+            onPress={() => router.push('/my-events')}
+          >
+            <Text style={styles.myEventsLinkText}>My events</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.mobileSegmentWrap}>
+          <SegmentedControl
+            options={[
+              { value: 'agenda', label: 'Agenda' },
+              { value: 'grid', label: 'Grid' },
+            ]}
+            value={mobileView}
+            onChange={setMobileView}
+          />
+        </View>
+
+        {mobileView === 'agenda' ? (
+          isLoading || isLoadingScheduled ? (
+            <View style={styles.calendarLoadingContainer}>
+              <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+          ) : (
+            <AgendaList
+              events={agendaEvents}
+              onEventPress={handleEventPress}
+              badgeFor={agendaBadgeFor}
+              emptyTitle="Nothing scheduled yet"
+              emptyBody="Pin events from Find or Home and they'll build your week here."
+              emptyAction={{ label: 'Find events', onPress: () => router.push('/(tabs)/find') }}
+            />
+          )
+        ) : (
+          <View style={styles.mobileGridWrap}>
+            <View style={styles.mobileGridControls}>
+              <CalendarHeader
+                currentDate={calendar.currentDate}
+                onToday={calendar.goToToday}
+                onPrevWeek={handlePrev}
+                onNextWeek={handleNext}
+              />
+            </View>
+            {isLoading || isGoogleLoading ? (
+              <View style={styles.calendarLoadingContainer}>
+                <ActivityIndicator size="large" color={colors.primary} />
+              </View>
+            ) : (
+              <WeekView
+                key={`calendar-m-${weekKey}-${scheduledEventIds.length}`}
+                weekDays={displayDays}
+                events={weekEvents}
+                onEventPress={handleEventPress}
+                onSelectionChange={setTimeSelection}
+                externalSelection={timeSelection}
+              />
+            )}
+          </View>
+        )}
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -441,27 +537,6 @@ export default function CalendarScreen() {
         )}
       </View>
 
-      {/* Event Detail Modal - Placeholder */}
-      {selectedEvent && (
-        <View style={styles.eventDetailOverlay}>
-          <TouchableOpacity
-            style={styles.eventDetailBackdrop}
-            onPress={() => setSelectedEvent(null)}
-          />
-          <View style={styles.eventDetail}>
-            <Text style={styles.eventDetailTitle}>{selectedEvent.title}</Text>
-            <Text style={styles.eventDetailDescription}>
-              {selectedEvent.description}
-            </Text>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setSelectedEvent(null)}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
     </View>
   );
 }
@@ -471,6 +546,44 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
     container: {
       flex: 1,
       backgroundColor: colors.background,
+    },
+    mobileHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      paddingTop: 14,
+      paddingBottom: 8,
+    },
+    mobileTitle: {
+      fontSize: 24 * fontScale,
+      fontWeight: '800',
+      letterSpacing: -0.5,
+      color: colors.textPrimary,
+    },
+    myEventsLink: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 10,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+    },
+    myEventsLinkText: {
+      fontSize: 13 * fontScale,
+      fontWeight: '600',
+      color: colors.textPrimary,
+    },
+    mobileSegmentWrap: {
+      paddingHorizontal: 16,
+      paddingBottom: 10,
+    },
+    mobileGridWrap: {
+      flex: 1,
+      paddingHorizontal: 8,
+    },
+    mobileGridControls: {
+      paddingHorizontal: 8,
+      paddingBottom: 8,
     },
     content: {
       flex: 1,

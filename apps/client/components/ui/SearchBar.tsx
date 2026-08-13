@@ -9,6 +9,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import { SearchMode } from '@/types/settings';
+import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { AppPalette } from '@/constants/theme';
 
@@ -42,7 +43,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   return (
     <View style={[styles.container, containerStyle]}>
       <View style={styles.searchContainer}>
-        <Text style={styles.searchIcon}>🔍</Text>
+        <Ionicons name="search" size={16} color={colors.textTertiary} style={styles.searchIcon} />
         <TextInput
           style={styles.input}
           value={value}
@@ -134,7 +135,6 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
       height: 44,
     },
     searchIcon: {
-      fontSize: 18,
       marginRight: 8,
     },
     input: {

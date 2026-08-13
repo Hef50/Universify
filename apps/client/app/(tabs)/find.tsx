@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity, Text } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useEvents } from '@/contexts/EventsContext';
@@ -7,6 +7,7 @@ import { useSettings } from '@/contexts/SettingsContext';
 import { FilterProvider, useFilters } from '@/contexts/FilterContext';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { CategoryPill } from '@/components/ui/CategoryPill';
+import { Ionicons } from '@expo/vector-icons';
 import { EventCard } from '@/components/events/EventCard';
 import { EventDetailSidebar } from '@/components/events/EventDetailSidebar';
 import { FilterDrawer } from '@/components/layout/FilterDrawer';
@@ -49,9 +50,23 @@ function FindScreenContent() {
   }, [params.filterMyEvents]);
 
   // Filter for my events
-  const displayEvents = showMyEventsOnly
+  const visibleEvents = showMyEventsOnly
     ? filteredEvents.filter((event) => event.organizer.id === currentUser?.id)
     : filteredEvents;
+
+  // Browsing leads with what you can still go to; events that already happened
+  // stay findable, just after the upcoming ones.
+  const displayEvents = useMemo(() => {
+    const now = Date.now();
+    const upcoming: Event[] = [];
+    const past: Event[] = [];
+    for (const event of visibleEvents) {
+      (new Date(event.endTime).getTime() >= now ? upcoming : past).push(event);
+    }
+    const byStart = (a: Event, b: Event) =>
+      new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+    return [...upcoming.sort(byStart), ...past.sort((a, b) => byStart(b, a))];
+  }, [visibleEvents]);
 
   const numColumns = isMobile ? 1 : viewMode === 'grid' ? 3 : 1;
 
@@ -75,13 +90,13 @@ function FindScreenContent() {
               style={[styles.viewButton, viewMode === 'grid' && styles.viewButtonActive]}
               onPress={() => setViewMode('grid')}
             >
-              <Text style={styles.viewIcon}>▦</Text>
+              <Ionicons name="grid-outline" size={16} color={colors.textSecondary} />
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.viewButton, viewMode === 'list' && styles.viewButtonActive]}
               onPress={() => setViewMode('list')}
             >
-              <Text style={styles.viewIcon}>☰</Text>
+              <Ionicons name="list-outline" size={18} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
         )}
@@ -93,7 +108,7 @@ function FindScreenContent() {
           style={styles.filterButton}
           onPress={() => setShowFilters(true)}
         >
-          <Text style={styles.filterIcon}>⚙</Text>
+          <Ionicons name="options-outline" size={16} color={colors.textSecondary} />
           <Text style={styles.filterButtonText}>Filters</Text>
           {activeFilterCount > 0 && (
             <View style={styles.filterBadge}>
@@ -152,7 +167,9 @@ function FindScreenContent() {
       {/* Events List */}
       {displayEvents.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyIcon}>🔍</Text>
+          <View style={styles.emptyIconWrap}>
+            <Ionicons name="search-outline" size={26} color={colors.textTertiary} />
+          </View>
           <Text style={styles.emptyTitle}>No events found</Text>
           <Text style={styles.emptyText}>
             Try adjusting your filters or search query
@@ -338,8 +355,13 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
       alignItems: 'center',
       padding: 32,
     },
-    emptyIcon: {
-      fontSize: 64,
+    emptyIconWrap: {
+      width: 56,
+      height: 56,
+      borderRadius: 16,
+      backgroundColor: colors.surfaceAlt,
+      alignItems: 'center',
+      justifyContent: 'center',
       marginBottom: 16,
     },
     emptyTitle: {

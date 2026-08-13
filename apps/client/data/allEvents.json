@@ -62,7 +62,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 30,
+    "capacity": 48,
     "tags": [
       "arduino",
       "electronics",
@@ -98,7 +98,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": false,
     "isSocialEvent": true,
-    "capacity": 12,
+    "capacity": 15,
     "tags": [
       "poker",
       "games",
@@ -146,8 +146,8 @@
     "id": "evt-005",
     "title": "Basketball Pickup Game",
     "description": "Looking for 4 more players for a casual basketball game. All levels welcome!",
-    "startTime": "2026-08-01T20:00:00.000Z",
-    "endTime": "2026-08-01T22:00:00.000Z",
+    "startTime": "2026-08-02T20:00:00.000Z",
+    "endTime": "2026-08-02T22:00:00.000Z",
     "location": "Highmark Center Court 2",
     "categories": [
       "Sports",
@@ -175,8 +175,8 @@
       "sports",
       "pickup"
     ],
-    "createdAt": "2026-07-11T20:00:00.000Z",
-    "updatedAt": "2026-07-25T20:00:00.000Z"
+    "createdAt": "2026-07-12T20:00:00.000Z",
+    "updatedAt": "2026-07-26T20:00:00.000Z"
   },
   {
     "id": "evt-006",
@@ -241,7 +241,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 400,
+    "capacity": 465,
     "tags": [
       "hackathon",
       "coding",
@@ -289,8 +289,8 @@
     "id": "evt-009",
     "title": "Coffee Chat: Alumni in Tech",
     "description": "Informal networking with CMU alumni working at FAANG companies.",
-    "startTime": "2026-08-02T19:00:00.000Z",
-    "endTime": "2026-08-02T20:30:00.000Z",
+    "startTime": "2026-08-03T19:00:00.000Z",
+    "endTime": "2026-08-03T20:30:00.000Z",
     "location": "Rothberg's Roasters",
     "categories": [
       "Career",
@@ -312,14 +312,14 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 50,
+    "capacity": 88,
     "tags": [
       "networking",
       "alumni",
       "career"
     ],
-    "createdAt": "2026-07-12T19:00:00.000Z",
-    "updatedAt": "2026-07-26T19:00:00.000Z"
+    "createdAt": "2026-07-13T19:00:00.000Z",
+    "updatedAt": "2026-07-27T19:00:00.000Z"
   },
   {
     "id": "evt-010",
@@ -348,7 +348,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 600,
+    "capacity": 648,
     "tags": [
       "fashion",
       "show",
@@ -384,7 +384,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 120,
+    "capacity": 126,
     "tags": [
       "trivia",
       "games",
@@ -420,7 +420,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 100,
+    "capacity": 150,
     "tags": [
       "ml",
       "ai",
@@ -433,8 +433,8 @@
     "id": "evt-013",
     "title": "Bubble Tea Run",
     "description": "Going to get bubble tea in Oakland, anyone want to join? Meeting at UC.",
-    "startTime": "2026-08-03T18:30:00.000Z",
-    "endTime": "2026-08-03T20:00:00.000Z",
+    "startTime": "2026-08-04T18:30:00.000Z",
+    "endTime": "2026-08-04T20:00:00.000Z",
     "location": "University Center Entrance",
     "categories": [
       "Food",
@@ -462,8 +462,8 @@
       "boba",
       "social"
     ],
-    "createdAt": "2026-07-13T18:30:00.000Z",
-    "updatedAt": "2026-07-27T18:30:00.000Z"
+    "createdAt": "2026-07-14T18:30:00.000Z",
+    "updatedAt": "2026-07-28T18:30:00.000Z"
   },
   {
     "id": "evt-014",
@@ -492,7 +492,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 200,
+    "capacity": 221,
     "tags": [
       "startup",
       "pitch",
@@ -528,7 +528,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 80,
+    "capacity": 84,
     "tags": [
       "dance",
       "salsa",
@@ -564,7 +564,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 60,
+    "capacity": 107,
     "tags": [
       "study-abroad",
       "international",
@@ -577,8 +577,8 @@
     "id": "evt-017",
     "title": "Rock Climbing @ The Climbing Wall",
     "description": "Casual climbing session. Equipment provided, all levels welcome!",
-    "startTime": "2026-08-04T19:00:00.000Z",
-    "endTime": "2026-08-04T21:00:00.000Z",
+    "startTime": "2026-08-05T19:00:00.000Z",
+    "endTime": "2026-08-05T21:00:00.000Z",
     "location": "Cohon Center Climbing Wall",
     "categories": [
       "Sports",
@@ -606,8 +606,8 @@
       "sports",
       "fitness"
     ],
-    "createdAt": "2026-07-14T19:00:00.000Z",
-    "updatedAt": "2026-07-28T19:00:00.000Z"
+    "createdAt": "2026-07-15T19:00:00.000Z",
+    "updatedAt": "2026-07-29T19:00:00.000Z"
   },
   {
     "id": "evt-018",
@@ -721,8 +721,8 @@
     "id": "evt-021",
     "title": "Cybersecurity CTF Competition",
     "description": "Capture the flag competition testing your hacking skills. Form teams of 3-4.",
-    "startTime": "2026-08-05T22:00:00.000Z",
-    "endTime": "2026-08-06T10:00:00.000Z",
+    "startTime": "2026-08-06T22:00:00.000Z",
+    "endTime": "2026-08-07T10:00:00.000Z",
     "location": "Gates Hillman Center",
     "categories": [
       "Tech",
@@ -744,14 +744,14 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 100,
+    "capacity": 113,
     "tags": [
       "ctf",
       "security",
       "hacking"
     ],
-    "createdAt": "2026-07-15T22:00:00.000Z",
-    "updatedAt": "2026-07-29T22:00:00.000Z"
+    "createdAt": "2026-07-16T22:00:00.000Z",
+    "updatedAt": "2026-07-30T22:00:00.000Z"
   },
   {
     "id": "evt-022",
@@ -851,7 +851,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 30,
+    "capacity": 47,
     "tags": [
       "meditation",
       "wellness",
@@ -864,8 +864,8 @@
     "id": "evt-025",
     "title": "Late Night Breakfast",
     "description": "Free pancakes, waffles, and breakfast foods served at midnight.",
-    "startTime": "2026-08-07T02:00:00.000Z",
-    "endTime": "2026-08-07T05:00:00.000Z",
+    "startTime": "2026-08-08T02:00:00.000Z",
+    "endTime": "2026-08-08T05:00:00.000Z",
     "location": "Resnik Dining Hall",
     "categories": [
       "Food",
@@ -892,8 +892,8 @@
       "breakfast",
       "free"
     ],
-    "createdAt": "2026-07-17T02:00:00.000Z",
-    "updatedAt": "2026-07-31T02:00:00.000Z"
+    "createdAt": "2026-07-18T02:00:00.000Z",
+    "updatedAt": "2026-08-01T02:00:00.000Z"
   },
   {
     "id": "evt-026",
@@ -922,7 +922,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": false,
     "isSocialEvent": true,
-    "capacity": 20,
+    "capacity": 21,
     "tags": [
       "photography",
       "nature",
@@ -958,7 +958,7 @@
     "attendeeVisibility": "private",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 60,
+    "capacity": 97,
     "tags": [
       "interview",
       "career",
@@ -1012,8 +1012,8 @@
     "id": "evt-029",
     "title": "Open Mic Night",
     "description": "Share your music, poetry, or comedy. Sign up at the door or just watch!",
-    "startTime": "2026-08-07T23:00:00.000Z",
-    "endTime": "2026-08-08T02:00:00.000Z",
+    "startTime": "2026-08-08T23:00:00.000Z",
+    "endTime": "2026-08-09T02:00:00.000Z",
     "location": "The Underground",
     "categories": [
       "Arts",
@@ -1035,14 +1035,14 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 100,
+    "capacity": 109,
     "tags": [
       "open-mic",
       "music",
       "performance"
     ],
-    "createdAt": "2026-07-17T23:00:00.000Z",
-    "updatedAt": "2026-07-31T23:00:00.000Z"
+    "createdAt": "2026-07-18T23:00:00.000Z",
+    "updatedAt": "2026-08-01T23:00:00.000Z"
   },
   {
     "id": "evt-030",
@@ -1071,7 +1071,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 50,
+    "capacity": 70,
     "tags": [
       "sustainability",
       "environment",
@@ -1161,8 +1161,8 @@
     "id": "evt-033",
     "title": "3D Printing Workshop",
     "description": "Learn to design and print 3D models. Beginners welcome!",
-    "startTime": "2026-08-08T19:00:00.000Z",
-    "endTime": "2026-08-08T21:00:00.000Z",
+    "startTime": "2026-08-09T19:00:00.000Z",
+    "endTime": "2026-08-09T21:00:00.000Z",
     "location": "Hunt Library Maker Space",
     "categories": [
       "Tech",
@@ -1184,14 +1184,14 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 30,
+    "capacity": 35,
     "tags": [
       "3d-printing",
       "maker",
       "workshop"
     ],
-    "createdAt": "2026-07-18T19:00:00.000Z",
-    "updatedAt": "2026-08-01T19:00:00.000Z"
+    "createdAt": "2026-07-19T19:00:00.000Z",
+    "updatedAt": "2026-08-02T19:00:00.000Z"
   },
   {
     "id": "evt-034",
@@ -1220,7 +1220,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": false,
     "isSocialEvent": true,
-    "capacity": 22,
+    "capacity": 59,
     "tags": [
       "soccer",
       "sports",
@@ -1293,7 +1293,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 100,
+    "capacity": 150,
     "tags": [
       "data-science",
       "networking",
@@ -1306,8 +1306,8 @@
     "id": "evt-037",
     "title": "Acapella Concert",
     "description": "CMU's acapella groups perform. Free admission!",
-    "startTime": "2026-08-10T00:00:00.000Z",
-    "endTime": "2026-08-10T02:00:00.000Z",
+    "startTime": "2026-08-11T00:00:00.000Z",
+    "endTime": "2026-08-11T02:00:00.000Z",
     "location": "Kresge Theatre",
     "categories": [
       "Arts",
@@ -1329,14 +1329,14 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 200,
+    "capacity": 239,
     "tags": [
       "acapella",
       "music",
       "concert"
     ],
-    "createdAt": "2026-07-20T00:00:00.000Z",
-    "updatedAt": "2026-08-03T00:00:00.000Z"
+    "createdAt": "2026-07-21T00:00:00.000Z",
+    "updatedAt": "2026-08-04T00:00:00.000Z"
   },
   {
     "id": "evt-038",
@@ -1365,7 +1365,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 20,
+    "capacity": 46,
     "tags": [
       "cooking",
       "food",
@@ -1401,7 +1401,7 @@
     "attendeeVisibility": "private",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 60,
+    "capacity": 88,
     "tags": [
       "mental-health",
       "wellness",
@@ -1451,8 +1451,8 @@
     "id": "evt-041",
     "title": "Activities Fair on the Cut",
     "description": "Every student org on campus in one place. Free swag, sign-up sheets, and a lot of free food.",
-    "startTime": "2026-08-10T19:00:00.000Z",
-    "endTime": "2026-08-10T22:00:00.000Z",
+    "startTime": "2026-08-11T19:00:00.000Z",
+    "endTime": "2026-08-11T22:00:00.000Z",
     "location": "The Cut",
     "categories": [
       "Social",
@@ -1480,8 +1480,8 @@
       "orgs",
       "freshman"
     ],
-    "createdAt": "2026-07-20T19:00:00.000Z",
-    "updatedAt": "2026-08-03T19:00:00.000Z"
+    "createdAt": "2026-07-21T19:00:00.000Z",
+    "updatedAt": "2026-08-04T19:00:00.000Z"
   },
   {
     "id": "evt-042",
@@ -1593,8 +1593,8 @@
     "id": "evt-045",
     "title": "Student Org Open House",
     "description": "Drop in and meet officers from 40+ clubs. Bring questions, leave with a calendar full of meetings.",
-    "startTime": "2026-08-11T22:00:00.000Z",
-    "endTime": "2026-08-12T00:00:00.000Z",
+    "startTime": "2026-08-12T22:00:00.000Z",
+    "endTime": "2026-08-13T00:00:00.000Z",
     "location": "Rangos Ballroom",
     "categories": [
       "Networking",
@@ -1621,8 +1621,8 @@
       "clubs",
       "networking"
     ],
-    "createdAt": "2026-07-21T22:00:00.000Z",
-    "updatedAt": "2026-08-04T22:00:00.000Z"
+    "createdAt": "2026-07-22T22:00:00.000Z",
+    "updatedAt": "2026-08-05T22:00:00.000Z"
   },
   {
     "id": "evt-046",
@@ -1698,8 +1698,8 @@
     "id": "evt-048",
     "title": "Career Center Kickoff: Resume Lab",
     "description": "Bring a draft, leave with a resume that survives a recruiter skim. Walk-in reviews all afternoon.",
-    "startTime": "2026-08-12T17:00:00.000Z",
-    "endTime": "2026-08-12T21:00:00.000Z",
+    "startTime": "2026-08-13T17:00:00.000Z",
+    "endTime": "2026-08-13T21:00:00.000Z",
     "location": "Career & Professional Development Center",
     "categories": [
       "Career"
@@ -1726,15 +1726,15 @@
       "resume",
       "jobs"
     ],
-    "createdAt": "2026-07-22T17:00:00.000Z",
-    "updatedAt": "2026-08-05T17:00:00.000Z"
+    "createdAt": "2026-07-23T17:00:00.000Z",
+    "updatedAt": "2026-08-06T17:00:00.000Z"
   },
   {
     "id": "evt-current-001",
     "title": "Morning Yoga Session",
     "description": "Start your day with a relaxing yoga session",
-    "startTime": "2026-08-12T12:00:00.000Z",
-    "endTime": "2026-08-12T13:00:00.000Z",
+    "startTime": "2026-08-13T12:00:00.000Z",
+    "endTime": "2026-08-13T13:00:00.000Z",
     "location": "UC Gym",
     "categories": [
       "Wellness",
@@ -1762,8 +1762,8 @@
       "wellness",
       "morning"
     ],
-    "createdAt": "2026-07-22T12:00:00.000Z",
-    "updatedAt": "2026-08-05T12:00:00.000Z"
+    "createdAt": "2026-07-23T12:00:00.000Z",
+    "updatedAt": "2026-08-06T12:00:00.000Z"
   },
   {
     "id": "evt-current-002",
@@ -1841,8 +1841,8 @@
     "id": "evt-current-004",
     "title": "Tech Talk: AI in Healthcare",
     "description": "Guest speaker from Google discussing AI applications in healthcare",
-    "startTime": "2026-08-13T21:00:00.000Z",
-    "endTime": "2026-08-13T22:30:00.000Z",
+    "startTime": "2026-08-14T21:00:00.000Z",
+    "endTime": "2026-08-14T22:30:00.000Z",
     "location": "Gates Hillman Center",
     "categories": [
       "Tech",
@@ -1871,15 +1871,15 @@
       "healthcare",
       "talk"
     ],
-    "createdAt": "2026-07-23T21:00:00.000Z",
-    "updatedAt": "2026-08-06T21:00:00.000Z"
+    "createdAt": "2026-07-24T21:00:00.000Z",
+    "updatedAt": "2026-08-07T21:00:00.000Z"
   },
   {
     "id": "evt-current-005",
     "title": "Coffee & Code",
     "description": "Casual coding session at Entropy. Work on projects or just hang out!",
-    "startTime": "2026-08-13T14:00:00.000Z",
-    "endTime": "2026-08-13T16:00:00.000Z",
+    "startTime": "2026-08-14T14:00:00.000Z",
+    "endTime": "2026-08-14T16:00:00.000Z",
     "location": "Entropy Coffee",
     "categories": [
       "Social",
@@ -1907,8 +1907,8 @@
       "coding",
       "social"
     ],
-    "createdAt": "2026-07-23T14:00:00.000Z",
-    "updatedAt": "2026-08-06T14:00:00.000Z"
+    "createdAt": "2026-07-24T14:00:00.000Z",
+    "updatedAt": "2026-08-07T14:00:00.000Z"
   },
   {
     "id": "evt-current-006",
@@ -1937,7 +1937,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": false,
     "isSocialEvent": true,
-    "capacity": 10,
+    "capacity": 13,
     "tags": [
       "poker",
       "games",
@@ -1986,8 +1986,8 @@
     "id": "evt-current-008",
     "title": "Lunch & Learn: Entrepreneurship",
     "description": "Free lunch and discussion about starting your own company",
-    "startTime": "2026-08-14T16:00:00.000Z",
-    "endTime": "2026-08-14T17:30:00.000Z",
+    "startTime": "2026-08-15T16:00:00.000Z",
+    "endTime": "2026-08-15T17:30:00.000Z",
     "location": "Tepper Quad",
     "categories": [
       "Career",
@@ -2009,21 +2009,21 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 60,
+    "capacity": 98,
     "tags": [
       "entrepreneurship",
       "lunch",
       "career"
     ],
-    "createdAt": "2026-07-24T16:00:00.000Z",
-    "updatedAt": "2026-08-07T16:00:00.000Z"
+    "createdAt": "2026-07-25T16:00:00.000Z",
+    "updatedAt": "2026-08-08T16:00:00.000Z"
   },
   {
     "id": "evt-current-009",
     "title": "Movie Night: The Social Network",
     "description": "Watch The Social Network with free popcorn!",
-    "startTime": "2026-08-14T23:00:00.000Z",
-    "endTime": "2026-08-15T01:30:00.000Z",
+    "startTime": "2026-08-15T23:00:00.000Z",
+    "endTime": "2026-08-16T01:30:00.000Z",
     "location": "McConomy Auditorium",
     "categories": [
       "Entertainment",
@@ -2051,8 +2051,8 @@
       "social",
       "entertainment"
     ],
-    "createdAt": "2026-07-24T23:00:00.000Z",
-    "updatedAt": "2026-08-07T23:00:00.000Z"
+    "createdAt": "2026-07-25T23:00:00.000Z",
+    "updatedAt": "2026-08-08T23:00:00.000Z"
   },
   {
     "id": "evt-current-010",
@@ -2117,7 +2117,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 60,
+    "capacity": 68,
     "tags": [
       "study",
       "exams",
@@ -2130,8 +2130,8 @@
     "id": "evt-dec-002",
     "title": "Cookie Decorating Night",
     "description": "Decorate cookies and take a box home. No baking skills required.",
-    "startTime": "2026-08-15T19:00:00.000Z",
-    "endTime": "2026-08-15T21:00:00.000Z",
+    "startTime": "2026-08-16T19:00:00.000Z",
+    "endTime": "2026-08-16T21:00:00.000Z",
     "location": "UC Activities Room",
     "categories": [
       "Social",
@@ -2153,20 +2153,20 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 40,
+    "capacity": 52,
     "tags": [
       "cookies",
       "social"
     ],
-    "createdAt": "2026-07-25T19:00:00.000Z",
-    "updatedAt": "2026-08-08T19:00:00.000Z"
+    "createdAt": "2026-07-26T19:00:00.000Z",
+    "updatedAt": "2026-08-09T19:00:00.000Z"
   },
   {
     "id": "evt-dec-003",
     "title": "Alumni Career Networking Mixer",
     "description": "Network with alumni and recruiters over appetizers.",
-    "startTime": "2026-08-15T21:00:00.000Z",
-    "endTime": "2026-08-15T23:30:00.000Z",
+    "startTime": "2026-08-16T21:00:00.000Z",
+    "endTime": "2026-08-16T23:30:00.000Z",
     "location": "Tepper Quad",
     "categories": [
       "Career",
@@ -2188,14 +2188,14 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 120,
+    "capacity": 128,
     "tags": [
       "networking",
       "career",
       "alumni"
     ],
-    "createdAt": "2026-07-25T21:00:00.000Z",
-    "updatedAt": "2026-08-08T21:00:00.000Z"
+    "createdAt": "2026-07-26T21:00:00.000Z",
+    "updatedAt": "2026-08-09T21:00:00.000Z"
   },
   {
     "id": "evt-dec-004",
@@ -2273,8 +2273,8 @@
     "id": "evt-dec-006",
     "title": "Basketball Tournament",
     "description": "Intramural basketball tournament - sign up your team!",
-    "startTime": "2026-08-16T22:00:00.000Z",
-    "endTime": "2026-08-17T01:00:00.000Z",
+    "startTime": "2026-08-17T22:00:00.000Z",
+    "endTime": "2026-08-18T01:00:00.000Z",
     "location": "Highmark Center",
     "categories": [
       "Sports",
@@ -2302,15 +2302,15 @@
       "tournament",
       "sports"
     ],
-    "createdAt": "2026-07-26T22:00:00.000Z",
-    "updatedAt": "2026-08-09T22:00:00.000Z"
+    "createdAt": "2026-07-27T22:00:00.000Z",
+    "updatedAt": "2026-08-10T22:00:00.000Z"
   },
   {
     "id": "evt-dec-007",
     "title": "Movie Marathon Night",
     "description": "Back-to-back classics with hot chocolate and popcorn.",
-    "startTime": "2026-08-16T23:00:00.000Z",
-    "endTime": "2026-08-17T03:00:00.000Z",
+    "startTime": "2026-08-17T23:00:00.000Z",
+    "endTime": "2026-08-18T03:00:00.000Z",
     "location": "McConomy Auditorium",
     "categories": [
       "Entertainment",
@@ -2337,8 +2337,8 @@
       "movies",
       "social"
     ],
-    "createdAt": "2026-07-26T23:00:00.000Z",
-    "updatedAt": "2026-08-09T23:00:00.000Z"
+    "createdAt": "2026-07-27T23:00:00.000Z",
+    "updatedAt": "2026-08-10T23:00:00.000Z"
   },
   {
     "id": "evt-dec-008",
@@ -2367,7 +2367,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": false,
     "isSocialEvent": false,
-    "capacity": 35,
+    "capacity": 70,
     "tags": [
       "projects",
       "help",
@@ -2415,8 +2415,8 @@
     "id": "evt-dec-010",
     "title": "Paper Craft Workshop",
     "description": "Learn folding and wrapping techniques. Materials provided.",
-    "startTime": "2026-08-17T18:00:00.000Z",
-    "endTime": "2026-08-17T20:00:00.000Z",
+    "startTime": "2026-08-18T18:00:00.000Z",
+    "endTime": "2026-08-18T20:00:00.000Z",
     "location": "Hunt Library Study Room",
     "categories": [
       "Social",
@@ -2443,15 +2443,15 @@
       "gifts",
       "workshop"
     ],
-    "createdAt": "2026-07-27T18:00:00.000Z",
-    "updatedAt": "2026-08-10T18:00:00.000Z"
+    "createdAt": "2026-07-28T18:00:00.000Z",
+    "updatedAt": "2026-08-11T18:00:00.000Z"
   },
   {
     "id": "evt-dec-011",
     "title": "Break & Travel Planning Session",
     "description": "Compare travel plans, internships, and break activities.",
-    "startTime": "2026-08-17T15:00:00.000Z",
-    "endTime": "2026-08-17T16:30:00.000Z",
+    "startTime": "2026-08-18T15:00:00.000Z",
+    "endTime": "2026-08-18T16:30:00.000Z",
     "location": "Tepper Quad",
     "categories": [
       "Social",
@@ -2473,14 +2473,14 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 50,
+    "capacity": 58,
     "tags": [
       "planning",
       "break",
       "social"
     ],
-    "createdAt": "2026-07-27T15:00:00.000Z",
-    "updatedAt": "2026-08-10T15:00:00.000Z"
+    "createdAt": "2026-07-28T15:00:00.000Z",
+    "updatedAt": "2026-08-11T15:00:00.000Z"
   },
   {
     "id": "evt-dec-012",
@@ -2509,7 +2509,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": false,
     "isSocialEvent": true,
-    "capacity": 40,
+    "capacity": 62,
     "tags": [
       "study",
       "late-night"
@@ -2556,8 +2556,8 @@
     "id": "evt-dec-014",
     "title": "End of Semester Celebration",
     "description": "Celebrate finishing the semester! Food, music, and fun",
-    "startTime": "2026-08-18T21:00:00.000Z",
-    "endTime": "2026-08-19T00:00:00.000Z",
+    "startTime": "2026-08-19T21:00:00.000Z",
+    "endTime": "2026-08-20T00:00:00.000Z",
     "location": "Wiegand Gymnasium",
     "categories": [
       "Social",
@@ -2585,15 +2585,15 @@
       "semester",
       "social"
     ],
-    "createdAt": "2026-07-28T21:00:00.000Z",
-    "updatedAt": "2026-08-11T21:00:00.000Z"
+    "createdAt": "2026-07-29T21:00:00.000Z",
+    "updatedAt": "2026-08-12T21:00:00.000Z"
   },
   {
     "id": "evt-dec-015",
     "title": "AI & Machine Learning Workshop",
     "description": "Hands-on workshop on building neural networks and ML models",
-    "startTime": "2026-08-18T17:00:00.000Z",
-    "endTime": "2026-08-18T20:00:00.000Z",
+    "startTime": "2026-08-19T17:00:00.000Z",
+    "endTime": "2026-08-19T20:00:00.000Z",
     "location": "Gates Hillman Center 4401",
     "categories": [
       "Tech",
@@ -2615,7 +2615,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 100,
+    "capacity": 131,
     "tags": [
       "ai",
       "machine-learning",
@@ -2623,8 +2623,8 @@
       "tech",
       "workshop"
     ],
-    "createdAt": "2026-07-28T17:00:00.000Z",
-    "updatedAt": "2026-08-11T17:00:00.000Z"
+    "createdAt": "2026-07-29T17:00:00.000Z",
+    "updatedAt": "2026-08-12T17:00:00.000Z"
   },
   {
     "id": "evt-dec-016",
@@ -2653,7 +2653,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 50,
+    "capacity": 71,
     "tags": [
       "yoga",
       "meditation",
@@ -2691,7 +2691,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": false,
     "isSocialEvent": true,
-    "capacity": 40,
+    "capacity": 50,
     "tags": [
       "photography",
       "arts",
@@ -2706,8 +2706,8 @@
     "id": "evt-dec-018",
     "title": "Entrepreneurship Pitch Night",
     "description": "Students pitch startup ideas to judges and investors",
-    "startTime": "2026-08-19T23:00:00.000Z",
-    "endTime": "2026-08-20T02:00:00.000Z",
+    "startTime": "2026-08-20T23:00:00.000Z",
+    "endTime": "2026-08-21T02:00:00.000Z",
     "location": "Tepper School of Business",
     "categories": [
       "Career",
@@ -2729,7 +2729,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 150,
+    "capacity": 157,
     "tags": [
       "entrepreneurship",
       "startup",
@@ -2737,15 +2737,15 @@
       "business",
       "networking"
     ],
-    "createdAt": "2026-07-29T23:00:00.000Z",
-    "updatedAt": "2026-08-12T23:00:00.000Z"
+    "createdAt": "2026-07-30T23:00:00.000Z",
+    "updatedAt": "2026-08-13T23:00:00.000Z"
   },
   {
     "id": "evt-dec-019",
     "title": "Board Game Night",
     "description": "Play board games, card games, and tabletop RPGs",
-    "startTime": "2026-08-19T23:00:00.000Z",
-    "endTime": "2026-08-20T03:00:00.000Z",
+    "startTime": "2026-08-20T23:00:00.000Z",
+    "endTime": "2026-08-21T03:00:00.000Z",
     "location": "UC Game Room",
     "categories": [
       "Social",
@@ -2767,7 +2767,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 80,
+    "capacity": 103,
     "tags": [
       "gaming",
       "board-games",
@@ -2775,8 +2775,8 @@
       "fun",
       "tabletop"
     ],
-    "createdAt": "2026-07-29T23:00:00.000Z",
-    "updatedAt": "2026-08-12T23:00:00.000Z"
+    "createdAt": "2026-07-30T23:00:00.000Z",
+    "updatedAt": "2026-08-13T23:00:00.000Z"
   },
   {
     "id": "evt-dec-020",
@@ -2805,7 +2805,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 50,
+    "capacity": 60,
     "tags": [
       "cooking",
       "baking",
@@ -2857,8 +2857,8 @@
     "id": "evt-dec-022",
     "title": "Robotics Demo Day",
     "description": "See student-built robots in action and learn about robotics",
-    "startTime": "2026-08-20T19:00:00.000Z",
-    "endTime": "2026-08-20T22:00:00.000Z",
+    "startTime": "2026-08-21T19:00:00.000Z",
+    "endTime": "2026-08-21T22:00:00.000Z",
     "location": "Newell-Simon Hall",
     "categories": [
       "Tech",
@@ -2888,15 +2888,15 @@
       "demos",
       "hands-on"
     ],
-    "createdAt": "2026-07-30T19:00:00.000Z",
-    "updatedAt": "2026-08-13T19:00:00.000Z"
+    "createdAt": "2026-07-31T19:00:00.000Z",
+    "updatedAt": "2026-08-14T19:00:00.000Z"
   },
   {
     "id": "evt-dec-023",
     "title": "Language Exchange Meetup",
     "description": "Practice languages with native speakers - Spanish, French, Chinese, Japanese, and more",
-    "startTime": "2026-08-20T20:00:00.000Z",
-    "endTime": "2026-08-20T22:00:00.000Z",
+    "startTime": "2026-08-21T20:00:00.000Z",
+    "endTime": "2026-08-21T22:00:00.000Z",
     "location": "Hunt Library Study Room 3",
     "categories": [
       "Social",
@@ -2918,7 +2918,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 60,
+    "capacity": 81,
     "tags": [
       "language",
       "exchange",
@@ -2926,8 +2926,8 @@
       "social",
       "learning"
     ],
-    "createdAt": "2026-07-30T20:00:00.000Z",
-    "updatedAt": "2026-08-13T20:00:00.000Z"
+    "createdAt": "2026-07-31T20:00:00.000Z",
+    "updatedAt": "2026-08-14T20:00:00.000Z"
   },
   {
     "id": "evt-dec-024",
@@ -2994,7 +2994,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 100,
+    "capacity": 105,
     "tags": [
       "volunteering",
       "community",
@@ -3009,8 +3009,8 @@
     "id": "evt-dec-026",
     "title": "Hackathon Kickoff",
     "description": "24-hour coding competition - build something awesome!",
-    "startTime": "2026-08-21T14:00:00.000Z",
-    "endTime": "2026-08-22T14:00:00.000Z",
+    "startTime": "2026-08-22T14:00:00.000Z",
+    "endTime": "2026-08-23T14:00:00.000Z",
     "location": "Gates Hillman Center",
     "categories": [
       "Tech",
@@ -3032,7 +3032,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 200,
+    "capacity": 223,
     "tags": [
       "hackathon",
       "coding",
@@ -3040,15 +3040,15 @@
       "competition",
       "programming"
     ],
-    "createdAt": "2026-07-31T14:00:00.000Z",
-    "updatedAt": "2026-08-14T14:00:00.000Z"
+    "createdAt": "2026-08-01T14:00:00.000Z",
+    "updatedAt": "2026-08-15T14:00:00.000Z"
   },
   {
     "id": "evt-dec-027",
     "title": "Poetry Slam",
     "description": "Share original poetry or just listen to amazing performances",
-    "startTime": "2026-08-21T23:00:00.000Z",
-    "endTime": "2026-08-22T01:30:00.000Z",
+    "startTime": "2026-08-22T23:00:00.000Z",
+    "endTime": "2026-08-23T01:30:00.000Z",
     "location": "UC Coffeehouse",
     "categories": [
       "Arts",
@@ -3070,7 +3070,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 50,
+    "capacity": 62,
     "tags": [
       "poetry",
       "arts",
@@ -3078,8 +3078,8 @@
       "creative",
       "spoken-word"
     ],
-    "createdAt": "2026-07-31T23:00:00.000Z",
-    "updatedAt": "2026-08-14T23:00:00.000Z"
+    "createdAt": "2026-08-01T23:00:00.000Z",
+    "updatedAt": "2026-08-15T23:00:00.000Z"
   },
   {
     "id": "evt-dec-028",
@@ -3108,7 +3108,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 80,
+    "capacity": 95,
     "tags": [
       "sustainability",
       "environment",
@@ -3146,7 +3146,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 60,
+    "capacity": 92,
     "tags": [
       "dance",
       "hip-hop",
@@ -3161,8 +3161,8 @@
     "id": "evt-dec-030",
     "title": "Music Jam Session",
     "description": "Bring your instrument and jam with other musicians",
-    "startTime": "2026-08-23T00:00:00.000Z",
-    "endTime": "2026-08-23T03:00:00.000Z",
+    "startTime": "2026-08-24T00:00:00.000Z",
+    "endTime": "2026-08-24T03:00:00.000Z",
     "location": "UC Music Room",
     "categories": [
       "Arts",
@@ -3184,7 +3184,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 50,
+    "capacity": 64,
     "tags": [
       "music",
       "jam",
@@ -3192,15 +3192,15 @@
       "arts",
       "collaboration"
     ],
-    "createdAt": "2026-08-02T00:00:00.000Z",
-    "updatedAt": "2026-08-16T00:00:00.000Z"
+    "createdAt": "2026-08-03T00:00:00.000Z",
+    "updatedAt": "2026-08-17T00:00:00.000Z"
   },
   {
     "id": "evt-dec-031",
     "title": "Cybersecurity Workshop",
     "description": "Learn about encryption, network security, and ethical hacking",
-    "startTime": "2026-08-22T18:00:00.000Z",
-    "endTime": "2026-08-22T21:00:00.000Z",
+    "startTime": "2026-08-23T18:00:00.000Z",
+    "endTime": "2026-08-23T21:00:00.000Z",
     "location": "Gates Hillman Center 4307",
     "categories": [
       "Tech",
@@ -3222,7 +3222,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 90,
+    "capacity": 107,
     "tags": [
       "cybersecurity",
       "security",
@@ -3230,8 +3230,8 @@
       "hacking",
       "encryption"
     ],
-    "createdAt": "2026-08-01T18:00:00.000Z",
-    "updatedAt": "2026-08-15T18:00:00.000Z"
+    "createdAt": "2026-08-02T18:00:00.000Z",
+    "updatedAt": "2026-08-16T18:00:00.000Z"
   },
   {
     "id": "evt-dec-032",
@@ -3260,7 +3260,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 70,
+    "capacity": 117,
     "tags": [
       "fitness",
       "workout",
@@ -3275,8 +3275,8 @@
     "id": "evt-dec-033",
     "title": "Travel Planning Session",
     "description": "Share travel tips, plan trips, and learn about study abroad programs",
-    "startTime": "2026-08-23T20:00:00.000Z",
-    "endTime": "2026-08-23T22:00:00.000Z",
+    "startTime": "2026-08-24T20:00:00.000Z",
+    "endTime": "2026-08-24T22:00:00.000Z",
     "location": "Hunt Library Study Room 2",
     "categories": [
       "Social",
@@ -3298,7 +3298,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 60,
+    "capacity": 68,
     "tags": [
       "travel",
       "study-abroad",
@@ -3306,15 +3306,15 @@
       "planning",
       "networking"
     ],
-    "createdAt": "2026-08-02T20:00:00.000Z",
-    "updatedAt": "2026-08-16T20:00:00.000Z"
+    "createdAt": "2026-08-03T20:00:00.000Z",
+    "updatedAt": "2026-08-17T20:00:00.000Z"
   },
   {
     "id": "evt-dec-034",
     "title": "Video Game Tournament",
     "description": "Competitive gaming tournament - multiple games and prizes",
-    "startTime": "2026-08-23T23:00:00.000Z",
-    "endTime": "2026-08-24T03:00:00.000Z",
+    "startTime": "2026-08-24T23:00:00.000Z",
+    "endTime": "2026-08-25T03:00:00.000Z",
     "location": "UC Game Room",
     "categories": [
       "Social",
@@ -3336,7 +3336,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 120,
+    "capacity": 138,
     "tags": [
       "gaming",
       "esports",
@@ -3344,15 +3344,15 @@
       "competition",
       "video-games"
     ],
-    "createdAt": "2026-08-02T23:00:00.000Z",
-    "updatedAt": "2026-08-16T23:00:00.000Z"
+    "createdAt": "2026-08-03T23:00:00.000Z",
+    "updatedAt": "2026-08-17T23:00:00.000Z"
   },
   {
     "id": "evt-dec-035",
     "title": "Web Development Bootcamp",
     "description": "Learn React, Node.js, and modern web development practices",
-    "startTime": "2026-08-23T14:00:00.000Z",
-    "endTime": "2026-08-23T19:00:00.000Z",
+    "startTime": "2026-08-24T14:00:00.000Z",
+    "endTime": "2026-08-24T19:00:00.000Z",
     "location": "Gates Hillman Center 4405",
     "categories": [
       "Tech",
@@ -3374,7 +3374,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 110,
+    "capacity": 167,
     "tags": [
       "web-dev",
       "react",
@@ -3382,8 +3382,8 @@
       "coding",
       "frontend"
     ],
-    "createdAt": "2026-08-02T14:00:00.000Z",
-    "updatedAt": "2026-08-16T14:00:00.000Z"
+    "createdAt": "2026-08-03T14:00:00.000Z",
+    "updatedAt": "2026-08-17T14:00:00.000Z"
   },
   {
     "id": "evt-dec-036",
@@ -3412,7 +3412,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 100,
+    "capacity": 127,
     "tags": [
       "karaoke",
       "music",
@@ -3427,8 +3427,8 @@
     "id": "evt-dec-037",
     "title": "Data Science Workshop",
     "description": "Introduction to Python, pandas, and data visualization",
-    "startTime": "2026-08-24T17:00:00.000Z",
-    "endTime": "2026-08-24T20:00:00.000Z",
+    "startTime": "2026-08-25T17:00:00.000Z",
+    "endTime": "2026-08-25T20:00:00.000Z",
     "location": "Gates Hillman Center 4303",
     "categories": [
       "Tech",
@@ -3450,7 +3450,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 90,
+    "capacity": 141,
     "tags": [
       "data-science",
       "python",
@@ -3458,15 +3458,15 @@
       "analytics",
       "statistics"
     ],
-    "createdAt": "2026-08-03T17:00:00.000Z",
-    "updatedAt": "2026-08-17T17:00:00.000Z"
+    "createdAt": "2026-08-04T17:00:00.000Z",
+    "updatedAt": "2026-08-18T17:00:00.000Z"
   },
   {
     "id": "evt-dec-038",
     "title": "Rock Climbing Session",
     "description": "Indoor rock climbing for all experience levels",
-    "startTime": "2026-08-24T22:00:00.000Z",
-    "endTime": "2026-08-25T00:00:00.000Z",
+    "startTime": "2026-08-25T22:00:00.000Z",
+    "endTime": "2026-08-26T00:00:00.000Z",
     "location": "UC Fitness Center Climbing Wall",
     "categories": [
       "Sports",
@@ -3488,7 +3488,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 60,
+    "capacity": 79,
     "tags": [
       "rock-climbing",
       "sports",
@@ -3496,15 +3496,15 @@
       "adventure",
       "outdoor"
     ],
-    "createdAt": "2026-08-03T22:00:00.000Z",
-    "updatedAt": "2026-08-17T22:00:00.000Z"
+    "createdAt": "2026-08-04T22:00:00.000Z",
+    "updatedAt": "2026-08-18T22:00:00.000Z"
   },
   {
     "id": "evt-dec-039",
     "title": "Creative Writing Workshop",
     "description": "Improve your writing skills with exercises and peer feedback",
-    "startTime": "2026-08-24T14:00:00.000Z",
-    "endTime": "2026-08-24T16:30:00.000Z",
+    "startTime": "2026-08-25T14:00:00.000Z",
+    "endTime": "2026-08-25T16:30:00.000Z",
     "location": "Hunt Library Study Room 1",
     "categories": [
       "Arts",
@@ -3526,7 +3526,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 45,
+    "capacity": 69,
     "tags": [
       "writing",
       "creative",
@@ -3534,8 +3534,8 @@
       "arts",
       "storytelling"
     ],
-    "createdAt": "2026-08-03T14:00:00.000Z",
-    "updatedAt": "2026-08-17T14:00:00.000Z"
+    "createdAt": "2026-08-04T14:00:00.000Z",
+    "updatedAt": "2026-08-18T14:00:00.000Z"
   },
   {
     "id": "evt-dec-040",
@@ -3564,7 +3564,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 40,
+    "capacity": 74,
     "tags": [
       "basketball",
       "sports",
@@ -3579,8 +3579,8 @@
     "id": "evt-dec-041",
     "title": "3D Printing Workshop",
     "description": "Learn to design and print 3D objects",
-    "startTime": "2026-08-25T15:00:00.000Z",
-    "endTime": "2026-08-25T18:00:00.000Z",
+    "startTime": "2026-08-26T15:00:00.000Z",
+    "endTime": "2026-08-26T18:00:00.000Z",
     "location": "Hunt Library Maker Space",
     "categories": [
       "Tech",
@@ -3602,7 +3602,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 50,
+    "capacity": 58,
     "tags": [
       "3d-printing",
       "maker",
@@ -3610,15 +3610,15 @@
       "tech",
       "prototyping"
     ],
-    "createdAt": "2026-08-04T15:00:00.000Z",
-    "updatedAt": "2026-08-18T15:00:00.000Z"
+    "createdAt": "2026-08-05T15:00:00.000Z",
+    "updatedAt": "2026-08-19T15:00:00.000Z"
   },
   {
     "id": "evt-dec-042",
     "title": "Movie Night: Cult Classics",
     "description": "Watch cult classics with popcorn and hot chocolate.",
-    "startTime": "2026-08-25T23:00:00.000Z",
-    "endTime": "2026-08-26T02:30:00.000Z",
+    "startTime": "2026-08-26T23:00:00.000Z",
+    "endTime": "2026-08-27T02:30:00.000Z",
     "location": "UC Theater",
     "categories": [
       "Social",
@@ -3640,22 +3640,22 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 150,
+    "capacity": 157,
     "tags": [
       "movies",
       "film",
       "entertainment",
       "social"
     ],
-    "createdAt": "2026-08-04T23:00:00.000Z",
-    "updatedAt": "2026-08-18T23:00:00.000Z"
+    "createdAt": "2026-08-05T23:00:00.000Z",
+    "updatedAt": "2026-08-19T23:00:00.000Z"
   },
   {
     "id": "evt-dec-043",
     "title": "Blockchain & Cryptocurrency Talk",
     "description": "Learn about blockchain technology and cryptocurrency trends",
-    "startTime": "2026-08-25T14:00:00.000Z",
-    "endTime": "2026-08-25T16:00:00.000Z",
+    "startTime": "2026-08-26T14:00:00.000Z",
+    "endTime": "2026-08-26T16:00:00.000Z",
     "location": "Tepper School of Business",
     "categories": [
       "Tech",
@@ -3677,7 +3677,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 85,
+    "capacity": 107,
     "tags": [
       "blockchain",
       "cryptocurrency",
@@ -3685,8 +3685,8 @@
       "tech",
       "finance"
     ],
-    "createdAt": "2026-08-04T14:00:00.000Z",
-    "updatedAt": "2026-08-18T14:00:00.000Z"
+    "createdAt": "2026-08-05T14:00:00.000Z",
+    "updatedAt": "2026-08-19T14:00:00.000Z"
   },
   {
     "id": "evt-dec-044",
@@ -3715,7 +3715,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": false,
     "isSocialEvent": true,
-    "capacity": 35,
+    "capacity": 53,
     "tags": [
       "origami",
       "arts",
@@ -3730,8 +3730,8 @@
     "id": "evt-dec-045",
     "title": "Speed Networking Event",
     "description": "Meet professionals and students in quick networking sessions",
-    "startTime": "2026-08-26T17:00:00.000Z",
-    "endTime": "2026-08-26T19:30:00.000Z",
+    "startTime": "2026-08-27T17:00:00.000Z",
+    "endTime": "2026-08-27T19:30:00.000Z",
     "location": "Tepper Quad",
     "categories": [
       "Career",
@@ -3753,7 +3753,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 160,
+    "capacity": 178,
     "tags": [
       "networking",
       "career",
@@ -3761,15 +3761,15 @@
       "connections",
       "business"
     ],
-    "createdAt": "2026-08-05T17:00:00.000Z",
-    "updatedAt": "2026-08-19T17:00:00.000Z"
+    "createdAt": "2026-08-06T17:00:00.000Z",
+    "updatedAt": "2026-08-20T17:00:00.000Z"
   },
   {
     "id": "evt-dec-046",
     "title": "Chess Tournament",
     "description": "Competitive chess tournament with prizes for winners",
-    "startTime": "2026-08-26T18:00:00.000Z",
-    "endTime": "2026-08-26T22:00:00.000Z",
+    "startTime": "2026-08-27T18:00:00.000Z",
+    "endTime": "2026-08-27T22:00:00.000Z",
     "location": "UC Game Room",
     "categories": [
       "Social",
@@ -3791,7 +3791,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 70,
+    "capacity": 99,
     "tags": [
       "chess",
       "strategy",
@@ -3799,15 +3799,15 @@
       "games",
       "intellectual"
     ],
-    "createdAt": "2026-08-05T18:00:00.000Z",
-    "updatedAt": "2026-08-19T18:00:00.000Z"
+    "createdAt": "2026-08-06T18:00:00.000Z",
+    "updatedAt": "2026-08-20T18:00:00.000Z"
   },
   {
     "id": "evt-dec-047",
     "title": "Podcast Recording Session",
     "description": "Record episodes for the student podcast - guests welcome",
-    "startTime": "2026-08-26T15:00:00.000Z",
-    "endTime": "2026-08-26T17:00:00.000Z",
+    "startTime": "2026-08-27T15:00:00.000Z",
+    "endTime": "2026-08-27T17:00:00.000Z",
     "location": "Hunt Library Media Lab",
     "categories": [
       "Arts",
@@ -3829,7 +3829,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 30,
+    "capacity": 39,
     "tags": [
       "podcast",
       "media",
@@ -3837,8 +3837,8 @@
       "audio",
       "broadcasting"
     ],
-    "createdAt": "2026-08-05T15:00:00.000Z",
-    "updatedAt": "2026-08-19T15:00:00.000Z"
+    "createdAt": "2026-08-06T15:00:00.000Z",
+    "updatedAt": "2026-08-20T15:00:00.000Z"
   },
   {
     "id": "evt-dec-048",
@@ -3867,7 +3867,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 44,
+    "capacity": 108,
     "tags": [
       "soccer",
       "football",
@@ -3882,8 +3882,8 @@
     "id": "evt-dec-049",
     "title": "Mental Health Support Group",
     "description": "Safe space to discuss stress, anxiety, and mental wellness",
-    "startTime": "2026-08-27T23:00:00.000Z",
-    "endTime": "2026-08-28T00:30:00.000Z",
+    "startTime": "2026-08-28T23:00:00.000Z",
+    "endTime": "2026-08-29T00:30:00.000Z",
     "location": "UC Counseling Center",
     "categories": [
       "Wellness",
@@ -3905,7 +3905,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 25,
+    "capacity": 38,
     "tags": [
       "mental-health",
       "wellness",
@@ -3913,15 +3913,15 @@
       "self-care",
       "therapy"
     ],
-    "createdAt": "2026-08-06T23:00:00.000Z",
-    "updatedAt": "2026-08-20T23:00:00.000Z"
+    "createdAt": "2026-08-07T23:00:00.000Z",
+    "updatedAt": "2026-08-21T23:00:00.000Z"
   },
   {
     "id": "evt-dec-050",
     "title": "Virtual Reality Demo",
     "description": "Try VR headsets and experience immersive technology",
-    "startTime": "2026-08-27T19:00:00.000Z",
-    "endTime": "2026-08-27T22:00:00.000Z",
+    "startTime": "2026-08-28T19:00:00.000Z",
+    "endTime": "2026-08-28T22:00:00.000Z",
     "location": "Gates Hillman Center VR Lab",
     "categories": [
       "Tech",
@@ -3943,7 +3943,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 90,
+    "capacity": 136,
     "tags": [
       "vr",
       "virtual-reality",
@@ -3951,15 +3951,15 @@
       "tech",
       "immersive"
     ],
-    "createdAt": "2026-08-06T19:00:00.000Z",
-    "updatedAt": "2026-08-20T19:00:00.000Z"
+    "createdAt": "2026-08-07T19:00:00.000Z",
+    "updatedAt": "2026-08-21T19:00:00.000Z"
   },
   {
     "id": "evt-dec-051",
     "title": "Comedy Night",
     "description": "Stand-up comedy performances by students",
-    "startTime": "2026-08-28T00:00:00.000Z",
-    "endTime": "2026-08-28T02:00:00.000Z",
+    "startTime": "2026-08-29T00:00:00.000Z",
+    "endTime": "2026-08-29T02:00:00.000Z",
     "location": "UC Coffeehouse",
     "categories": [
       "Arts",
@@ -3981,7 +3981,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 110,
+    "capacity": 130,
     "tags": [
       "comedy",
       "stand-up",
@@ -3989,8 +3989,8 @@
       "humor",
       "performance"
     ],
-    "createdAt": "2026-08-07T00:00:00.000Z",
-    "updatedAt": "2026-08-21T00:00:00.000Z"
+    "createdAt": "2026-08-08T00:00:00.000Z",
+    "updatedAt": "2026-08-22T00:00:00.000Z"
   },
   {
     "id": "evt-dec-052",
@@ -4019,7 +4019,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 60,
+    "capacity": 66,
     "tags": [
       "investment",
       "finance",
@@ -4034,8 +4034,8 @@
     "id": "evt-dec-053",
     "title": "Tennis Tournament",
     "description": "Singles and doubles tennis tournament",
-    "startTime": "2026-08-28T13:00:00.000Z",
-    "endTime": "2026-08-28T21:00:00.000Z",
+    "startTime": "2026-08-29T13:00:00.000Z",
+    "endTime": "2026-08-29T21:00:00.000Z",
     "location": "Tennis Courts",
     "categories": [
       "Sports",
@@ -4057,7 +4057,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 32,
+    "capacity": 53,
     "tags": [
       "tennis",
       "sports",
@@ -4065,15 +4065,15 @@
       "outdoor",
       "fitness"
     ],
-    "createdAt": "2026-08-07T13:00:00.000Z",
-    "updatedAt": "2026-08-21T13:00:00.000Z"
+    "createdAt": "2026-08-08T13:00:00.000Z",
+    "updatedAt": "2026-08-22T13:00:00.000Z"
   },
   {
     "id": "evt-dec-054",
     "title": "Study Abroad Info Session",
     "description": "Learn about study abroad opportunities and application process",
-    "startTime": "2026-08-28T18:00:00.000Z",
-    "endTime": "2026-08-28T20:00:00.000Z",
+    "startTime": "2026-08-29T18:00:00.000Z",
+    "endTime": "2026-08-29T20:00:00.000Z",
     "location": "Baker Hall",
     "categories": [
       "Academic",
@@ -4095,7 +4095,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 100,
+    "capacity": 117,
     "tags": [
       "study-abroad",
       "travel",
@@ -4103,15 +4103,15 @@
       "international",
       "academic"
     ],
-    "createdAt": "2026-08-07T18:00:00.000Z",
-    "updatedAt": "2026-08-21T18:00:00.000Z"
+    "createdAt": "2026-08-08T18:00:00.000Z",
+    "updatedAt": "2026-08-22T18:00:00.000Z"
   },
   {
     "id": "evt-dec-055",
     "title": "Afternoon Coding Workshop",
     "description": "Build a web app from scratch - React and Node.js",
-    "startTime": "2026-08-28T19:00:00.000Z",
-    "endTime": "2026-08-28T21:00:00.000Z",
+    "startTime": "2026-08-29T19:00:00.000Z",
+    "endTime": "2026-08-29T21:00:00.000Z",
     "location": "Gates Hillman Center 4401",
     "categories": [
       "Tech",
@@ -4133,7 +4133,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 80,
+    "capacity": 110,
     "tags": [
       "coding",
       "react",
@@ -4141,8 +4141,8 @@
       "workshop",
       "tech"
     ],
-    "createdAt": "2026-08-07T19:00:00.000Z",
-    "updatedAt": "2026-08-21T19:00:00.000Z"
+    "createdAt": "2026-08-08T19:00:00.000Z",
+    "updatedAt": "2026-08-22T19:00:00.000Z"
   },
   {
     "id": "evt-dec-056",
@@ -4171,7 +4171,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 50,
+    "capacity": 61,
     "tags": [
       "study",
       "coffee",
@@ -4185,8 +4185,8 @@
     "id": "evt-dec-057",
     "title": "Guitar Lessons",
     "description": "Learn basic guitar chords and strumming patterns",
-    "startTime": "2026-08-29T20:00:00.000Z",
-    "endTime": "2026-08-29T22:00:00.000Z",
+    "startTime": "2026-08-30T20:00:00.000Z",
+    "endTime": "2026-08-30T22:00:00.000Z",
     "location": "UC Music Room",
     "categories": [
       "Arts",
@@ -4208,7 +4208,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 30,
+    "capacity": 31,
     "tags": [
       "guitar",
       "music",
@@ -4216,15 +4216,15 @@
       "arts",
       "learning"
     ],
-    "createdAt": "2026-08-08T20:00:00.000Z",
-    "updatedAt": "2026-08-22T20:00:00.000Z"
+    "createdAt": "2026-08-09T20:00:00.000Z",
+    "updatedAt": "2026-08-23T20:00:00.000Z"
   },
   {
     "id": "evt-dec-058",
     "title": "Product Design Workshop",
     "description": "Learn UX/UI design principles and create mockups",
-    "startTime": "2026-08-29T20:30:00.000Z",
-    "endTime": "2026-08-29T22:30:00.000Z",
+    "startTime": "2026-08-30T20:30:00.000Z",
+    "endTime": "2026-08-30T22:30:00.000Z",
     "location": "Hunt Library Design Lab",
     "categories": [
       "Tech",
@@ -4246,7 +4246,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 55,
+    "capacity": 71,
     "tags": [
       "design",
       "ux",
@@ -4254,15 +4254,15 @@
       "product",
       "creative"
     ],
-    "createdAt": "2026-08-08T20:30:00.000Z",
-    "updatedAt": "2026-08-22T20:30:00.000Z"
+    "createdAt": "2026-08-09T20:30:00.000Z",
+    "updatedAt": "2026-08-23T20:30:00.000Z"
   },
   {
     "id": "evt-dec-059",
     "title": "Basketball Practice",
     "description": "Team practice and drills",
-    "startTime": "2026-08-29T21:00:00.000Z",
-    "endTime": "2026-08-29T23:00:00.000Z",
+    "startTime": "2026-08-30T21:00:00.000Z",
+    "endTime": "2026-08-30T23:00:00.000Z",
     "location": "Wiegand Gymnasium",
     "categories": [
       "Sports",
@@ -4284,7 +4284,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 20,
+    "capacity": 47,
     "tags": [
       "basketball",
       "sports",
@@ -4292,8 +4292,8 @@
       "team",
       "fitness"
     ],
-    "createdAt": "2026-08-08T21:00:00.000Z",
-    "updatedAt": "2026-08-22T21:00:00.000Z"
+    "createdAt": "2026-08-09T21:00:00.000Z",
+    "updatedAt": "2026-08-23T21:00:00.000Z"
   },
   {
     "id": "evt-dec-060",
@@ -4322,7 +4322,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 40,
+    "capacity": 79,
     "tags": [
       "books",
       "reading",
@@ -4337,8 +4337,8 @@
     "id": "evt-dec-061",
     "title": "Python Programming Session",
     "description": "Advanced Python topics and coding practice",
-    "startTime": "2026-08-30T20:00:00.000Z",
-    "endTime": "2026-08-30T22:00:00.000Z",
+    "startTime": "2026-08-31T20:00:00.000Z",
+    "endTime": "2026-08-31T22:00:00.000Z",
     "location": "Gates Hillman Center 4305",
     "categories": [
       "Tech",
@@ -4360,7 +4360,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 65,
+    "capacity": 93,
     "tags": [
       "python",
       "programming",
@@ -4368,15 +4368,15 @@
       "tech",
       "academic"
     ],
-    "createdAt": "2026-08-09T20:00:00.000Z",
-    "updatedAt": "2026-08-23T20:00:00.000Z"
+    "createdAt": "2026-08-10T20:00:00.000Z",
+    "updatedAt": "2026-08-24T20:00:00.000Z"
   },
   {
     "id": "evt-dec-062",
     "title": "Yoga & Stretching",
     "description": "Relaxing yoga session to unwind after classes",
-    "startTime": "2026-08-30T21:30:00.000Z",
-    "endTime": "2026-08-30T23:00:00.000Z",
+    "startTime": "2026-08-31T21:30:00.000Z",
+    "endTime": "2026-08-31T23:00:00.000Z",
     "location": "UC Fitness Center",
     "categories": [
       "Wellness",
@@ -4398,7 +4398,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 50,
+    "capacity": 93,
     "tags": [
       "yoga",
       "wellness",
@@ -4406,15 +4406,15 @@
       "relaxation",
       "health"
     ],
-    "createdAt": "2026-08-09T21:30:00.000Z",
-    "updatedAt": "2026-08-23T21:30:00.000Z"
+    "createdAt": "2026-08-10T21:30:00.000Z",
+    "updatedAt": "2026-08-24T21:30:00.000Z"
   },
   {
     "id": "evt-dec-063",
     "title": "Resume Review Session",
     "description": "Get feedback on your resume from career advisors",
-    "startTime": "2026-08-30T19:00:00.000Z",
-    "endTime": "2026-08-30T21:00:00.000Z",
+    "startTime": "2026-08-31T19:00:00.000Z",
+    "endTime": "2026-08-31T21:00:00.000Z",
     "location": "Tepper School of Business",
     "categories": [
       "Career",
@@ -4436,7 +4436,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 90,
+    "capacity": 102,
     "tags": [
       "resume",
       "career",
@@ -4444,8 +4444,8 @@
       "professional",
       "advice"
     ],
-    "createdAt": "2026-08-09T19:00:00.000Z",
-    "updatedAt": "2026-08-23T19:00:00.000Z"
+    "createdAt": "2026-08-10T19:00:00.000Z",
+    "updatedAt": "2026-08-24T19:00:00.000Z"
   },
   {
     "id": "evt-dec-064",
@@ -4474,7 +4474,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 8,
+    "capacity": 62,
     "tags": [
       "dnd",
       "dungeons-dragons",
@@ -4489,8 +4489,8 @@
     "id": "evt-dec-065",
     "title": "Machine Learning Study Group",
     "description": "Review ML concepts and work on projects together",
-    "startTime": "2026-08-31T19:30:00.000Z",
-    "endTime": "2026-08-31T21:30:00.000Z",
+    "startTime": "2026-09-01T19:30:00.000Z",
+    "endTime": "2026-09-01T21:30:00.000Z",
     "location": "Gates Hillman Center 4403",
     "categories": [
       "Tech",
@@ -4512,7 +4512,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": false,
     "isSocialEvent": false,
-    "capacity": 45,
+    "capacity": 62,
     "tags": [
       "machine-learning",
       "ml",
@@ -4520,15 +4520,15 @@
       "study",
       "academic"
     ],
-    "createdAt": "2026-08-10T19:30:00.000Z",
-    "updatedAt": "2026-08-24T19:30:00.000Z"
+    "createdAt": "2026-08-11T19:30:00.000Z",
+    "updatedAt": "2026-08-25T19:30:00.000Z"
   },
   {
     "id": "evt-dec-066",
     "title": "Pottery Workshop",
     "description": "Create ceramic pieces - materials provided",
-    "startTime": "2026-08-31T21:00:00.000Z",
-    "endTime": "2026-08-31T23:00:00.000Z",
+    "startTime": "2026-09-01T21:00:00.000Z",
+    "endTime": "2026-09-01T23:00:00.000Z",
     "location": "UC Arts & Crafts Room",
     "categories": [
       "Arts",
@@ -4550,7 +4550,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 35,
+    "capacity": 50,
     "tags": [
       "pottery",
       "ceramics",
@@ -4558,15 +4558,15 @@
       "crafts",
       "creative"
     ],
-    "createdAt": "2026-08-10T21:00:00.000Z",
-    "updatedAt": "2026-08-24T21:00:00.000Z"
+    "createdAt": "2026-08-11T21:00:00.000Z",
+    "updatedAt": "2026-08-25T21:00:00.000Z"
   },
   {
     "id": "evt-dec-067",
     "title": "Financial Planning Workshop",
     "description": "Learn about budgeting, investing, and financial literacy",
-    "startTime": "2026-08-31T20:30:00.000Z",
-    "endTime": "2026-08-31T22:00:00.000Z",
+    "startTime": "2026-09-01T20:30:00.000Z",
+    "endTime": "2026-09-01T22:00:00.000Z",
     "location": "Tepper School of Business",
     "categories": [
       "Career",
@@ -4588,7 +4588,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 70,
+    "capacity": 81,
     "tags": [
       "finance",
       "money",
@@ -4596,8 +4596,8 @@
       "budgeting",
       "career"
     ],
-    "createdAt": "2026-08-10T20:30:00.000Z",
-    "updatedAt": "2026-08-24T20:30:00.000Z"
+    "createdAt": "2026-08-11T20:30:00.000Z",
+    "updatedAt": "2026-08-25T20:30:00.000Z"
   },
   {
     "id": "evt-dec-068",
@@ -4626,7 +4626,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 40,
+    "capacity": 49,
     "tags": [
       "salsa",
       "dancing",
@@ -4641,8 +4641,8 @@
     "id": "evt-dec-069",
     "title": "Watercolor Painting Workshop",
     "description": "Learn watercolor techniques and create your own masterpiece",
-    "startTime": "2026-09-01T18:00:00.000Z",
-    "endTime": "2026-09-01T20:00:00.000Z",
+    "startTime": "2026-09-02T18:00:00.000Z",
+    "endTime": "2026-09-02T20:00:00.000Z",
     "location": "UC Arts & Crafts Room",
     "categories": [
       "Arts",
@@ -4664,7 +4664,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 35,
+    "capacity": 44,
     "tags": [
       "watercolor",
       "painting",
@@ -4672,15 +4672,15 @@
       "creative",
       "workshop"
     ],
-    "createdAt": "2026-08-11T18:00:00.000Z",
-    "updatedAt": "2026-08-25T18:00:00.000Z"
+    "createdAt": "2026-08-12T18:00:00.000Z",
+    "updatedAt": "2026-08-26T18:00:00.000Z"
   },
   {
     "id": "evt-dec-070",
     "title": "Digital Art & Illustration Class",
     "description": "Learn digital art techniques using tablets and software",
-    "startTime": "2026-09-01T19:00:00.000Z",
-    "endTime": "2026-09-01T21:00:00.000Z",
+    "startTime": "2026-09-02T19:00:00.000Z",
+    "endTime": "2026-09-02T21:00:00.000Z",
     "location": "Hunt Library Design Lab",
     "categories": [
       "Arts",
@@ -4702,7 +4702,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": false,
-    "capacity": 50,
+    "capacity": 62,
     "tags": [
       "digital-art",
       "illustration",
@@ -4710,15 +4710,15 @@
       "tech",
       "creative"
     ],
-    "createdAt": "2026-08-11T19:00:00.000Z",
-    "updatedAt": "2026-08-25T19:00:00.000Z"
+    "createdAt": "2026-08-12T19:00:00.000Z",
+    "updatedAt": "2026-08-26T19:00:00.000Z"
   },
   {
     "id": "evt-dec-071",
     "title": "Sculpture Making Session",
     "description": "Create sculptures using clay and other materials",
-    "startTime": "2026-09-01T20:00:00.000Z",
-    "endTime": "2026-09-01T22:00:00.000Z",
+    "startTime": "2026-09-02T20:00:00.000Z",
+    "endTime": "2026-09-02T22:00:00.000Z",
     "location": "UC Arts & Crafts Room",
     "categories": [
       "Arts",
@@ -4740,7 +4740,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 25,
+    "capacity": 30,
     "tags": [
       "sculpture",
       "clay",
@@ -4748,8 +4748,8 @@
       "crafts",
       "creative"
     ],
-    "createdAt": "2026-08-11T20:00:00.000Z",
-    "updatedAt": "2026-08-25T20:00:00.000Z"
+    "createdAt": "2026-08-12T20:00:00.000Z",
+    "updatedAt": "2026-08-26T20:00:00.000Z"
   },
   {
     "id": "evt-dec-072",
@@ -4778,7 +4778,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 40,
+    "capacity": 44,
     "tags": [
       "calligraphy",
       "handwriting",
@@ -4793,8 +4793,8 @@
     "id": "evt-dec-073",
     "title": "Art Gallery Opening",
     "description": "View student artwork and meet the artists",
-    "startTime": "2026-09-02T22:00:00.000Z",
-    "endTime": "2026-09-03T00:00:00.000Z",
+    "startTime": "2026-09-03T22:00:00.000Z",
+    "endTime": "2026-09-04T00:00:00.000Z",
     "location": "UC Gallery",
     "categories": [
       "Arts",
@@ -4824,15 +4824,15 @@
       "social",
       "networking"
     ],
-    "createdAt": "2026-08-12T22:00:00.000Z",
-    "updatedAt": "2026-08-26T22:00:00.000Z"
+    "createdAt": "2026-08-13T22:00:00.000Z",
+    "updatedAt": "2026-08-27T22:00:00.000Z"
   },
   {
     "id": "evt-dec-074",
     "title": "Sketching & Drawing Session",
     "description": "Practice drawing skills with live models and still life",
-    "startTime": "2026-09-02T17:00:00.000Z",
-    "endTime": "2026-09-02T19:00:00.000Z",
+    "startTime": "2026-09-03T17:00:00.000Z",
+    "endTime": "2026-09-03T19:00:00.000Z",
     "location": "UC Arts Studio",
     "categories": [
       "Arts",
@@ -4854,7 +4854,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 45,
+    "capacity": 69,
     "tags": [
       "sketching",
       "drawing",
@@ -4862,15 +4862,15 @@
       "creative",
       "practice"
     ],
-    "createdAt": "2026-08-12T17:00:00.000Z",
-    "updatedAt": "2026-08-26T17:00:00.000Z"
+    "createdAt": "2026-08-13T17:00:00.000Z",
+    "updatedAt": "2026-08-27T17:00:00.000Z"
   },
   {
     "id": "evt-dec-075",
     "title": "Collage Making Workshop",
     "description": "Create collages from magazines, photos, and mixed media",
-    "startTime": "2026-09-02T19:30:00.000Z",
-    "endTime": "2026-09-02T21:30:00.000Z",
+    "startTime": "2026-09-03T19:30:00.000Z",
+    "endTime": "2026-09-03T21:30:00.000Z",
     "location": "UC Arts & Crafts Room",
     "categories": [
       "Arts",
@@ -4892,7 +4892,7 @@
     "attendeeVisibility": "public",
     "isClubEvent": true,
     "isSocialEvent": true,
-    "capacity": 30,
+    "capacity": 34,
     "tags": [
       "collage",
       "mixed-media",
@@ -4900,7 +4900,7 @@
       "creative",
       "crafts"
     ],
-    "createdAt": "2026-08-12T19:30:00.000Z",
-    "updatedAt": "2026-08-26T19:30:00.000Z"
+    "createdAt": "2026-08-13T19:30:00.000Z",
+    "updatedAt": "2026-08-27T19:30:00.000Z"
   }
 ]

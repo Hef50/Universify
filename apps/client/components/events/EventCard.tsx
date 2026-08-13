@@ -1,10 +1,13 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Image } from 'react-native';
+import { View, Text, Pressable, StyleSheet, Animated, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Event } from '@/types/event';
 import { formatDate, formatTimeRange } from '@/utils/dateHelpers';
+import { getAvailableSpots, getClaimedSpots } from '@/utils/eventHelpers';
 import { CategoryPill } from '@/components/ui/CategoryPill';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { AppPalette } from '@/constants/theme';
+import { Elevation, Motion, Radii, Spacing, Typography } from '@/constants/design';
 
 interface EventCardProps {
   event: Event;
@@ -12,62 +15,62 @@ interface EventCardProps {
   index?: number;
 }
 
+/**
+ * Browse card. Same anatomy as the feed card — date tile, title, quiet meta —
+ * with room for the organiser, a cover image when there is one, and the
+ * capacity state. One card language across the app is most of what makes it
+ * feel designed rather than assembled.
+ */
 export const EventCard: React.FC<EventCardProps> = ({ event, onPress, index = 0 }) => {
-  const { colors, fontScale, reduceMotion } = useAppTheme();
-  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
+  const { colors, type, elevation, reduceMotion } = useAppTheme();
+  const styles = React.useMemo(
+    () => createStyles(colors, type, elevation),
+    [colors, type, elevation]
+  );
 
-  const totalRSVPs = event.rsvpCounts.going + event.rsvpCounts.maybe;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(20)).current;
-  const scaleAnim = useRef(new Animated.Value(0.95)).current;
+  const totalRSVPs = getClaimedSpots(event);
+  const spotsLeft = getAvailableSpots(event);
+  const fadeAnim = useRef(new Animated.Value(reduceMotion ? 1 : 0)).current;
+  const slideAnim = useRef(new Animated.Value(reduceMotion ? 0 : 12)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     if (reduceMotion) {
-      // Skip the entrance animation: jump straight to the final values
       fadeAnim.setValue(1);
       slideAnim.setValue(0);
       scaleAnim.setValue(1);
       return;
     }
+    const delay = Math.min(index, 8) * Motion.stagger;
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 400,
-        delay: index * 50,
+        duration: Motion.slow,
+        delay,
         useNativeDriver: true,
       }),
       Animated.spring(slideAnim, {
         toValue: 0,
-        delay: index * 50,
-        tension: 50,
-        friction: 7,
-        useNativeDriver: true,
-      }),
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        delay: index * 50,
-        tension: 50,
-        friction: 7,
+        delay,
+        tension: 90,
+        friction: 14,
         useNativeDriver: true,
       }),
     ]).start();
-  }, [event.id, reduceMotion, index, fadeAnim, slideAnim, scaleAnim]);
+  }, [fadeAnim, slideAnim, scaleAnim, index, reduceMotion]);
 
   const handlePressIn = () => {
     if (reduceMotion) return;
-    Animated.spring(scaleAnim, {
-      toValue: 0.97,
-      useNativeDriver: true,
-    }).start();
+    Animated.spring(scaleAnim, { toValue: 0.985, useNativeDriver: true }).start();
   };
 
   const handlePressOut = () => {
     if (reduceMotion) return;
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      useNativeDriver: true,
-    }).start();
+    Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true }).start();
   };
+
+  const start = new Date(event.startTime);
+  const weekday = start.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
 
   return (
     <Animated.View
@@ -76,209 +79,201 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onPress, index = 0 
         transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
       }}
     >
-      <TouchableOpacity
+      <Pressable
         style={styles.card}
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        activeOpacity={1}
+        accessibilityRole="button"
+        accessibilityLabel={event.title}
       >
-      {/* Color Bar */}
-      <View style={[styles.colorBar, { backgroundColor: event.color }]} />
+        {event.imageUrl ? (
+          <Image source={{ uri: event.imageUrl }} style={styles.cover} resizeMode="cover" />
+        ) : null}
 
-      {/* Flyer Image */}
-      {event.imageUrl ? (
-        <Image source={{ uri: event.imageUrl }} style={styles.image} resizeMode="cover" />
-      ) : null}
+        <View style={styles.row}>
+          <View style={[styles.tile, { backgroundColor: event.color }]}>
+            <Text style={styles.tileWeekday}>{weekday}</Text>
+            <Text style={styles.tileDay}>{start.getDate()}</Text>
+          </View>
 
-      {/* Content */}
-      <View style={styles.content}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title} numberOfLines={2}>
-            {event.title}
-          </Text>
-          {event.isClubEvent && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>Club</Text>
+          <View style={styles.body}>
+            <View style={styles.header}>
+              <Text style={styles.title} numberOfLines={2}>
+                {event.title}
+              </Text>
+              {event.isClubEvent ? (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>Club</Text>
+                </View>
+              ) : event.isSocialEvent ? (
+                <View style={[styles.badge, styles.socialBadge]}>
+                  <Text style={[styles.badgeText, styles.socialBadgeText]}>Social</Text>
+                </View>
+              ) : null}
             </View>
-          )}
-          {event.isSocialEvent && (
-            <View style={[styles.badge, styles.socialBadge]}>
-              <Text style={[styles.badgeText, styles.socialBadgeText]}>Social</Text>
+
+            <View style={styles.infoRow}>
+              <Ionicons name="time-outline" size={13} color={colors.textTertiary} />
+              <Text style={styles.infoText} numberOfLines={1}>
+                {formatDate(event.startTime)} · {formatTimeRange(event.startTime, event.endTime)}
+              </Text>
+              {event.recurring ? (
+                <Ionicons name="repeat" size={13} color={colors.textTertiary} />
+              ) : null}
             </View>
-          )}
+
+            {event.location ? (
+              <View style={styles.infoRow}>
+                <Ionicons name="location-outline" size={13} color={colors.textTertiary} />
+                <Text style={styles.infoText} numberOfLines={1}>
+                  {event.location} · {event.organizer.name}
+                </Text>
+              </View>
+            ) : null}
+
+            <View style={styles.categories}>
+              {event.categories.slice(0, 3).map((category) => (
+                <CategoryPill
+                  key={category}
+                  category={category}
+                  size="small"
+                  color={event.color}
+                />
+              ))}
+              {event.categories.length > 3 && (
+                <Text style={styles.moreCategories}>+{event.categories.length - 3}</Text>
+              )}
+            </View>
+          </View>
         </View>
 
-        {/* Time & Location */}
-        <View style={styles.infoRow}>
-          <Text style={styles.infoIcon}>🕒</Text>
-          <Text style={styles.infoText} numberOfLines={1}>
-            {formatDate(event.startTime)} • {formatTimeRange(event.startTime, event.endTime)}
-            {event.recurring ? '  🔁' : ''}
-          </Text>
-        </View>
-
-        <View style={styles.infoRow}>
-          <Text style={styles.infoIcon}>📍</Text>
-          <Text style={styles.infoText} numberOfLines={1}>
-            {event.location}
-          </Text>
-        </View>
-
-        {/* Organizer */}
-        <View style={styles.infoRow}>
-          <Text style={styles.infoIcon}>👤</Text>
-          <Text style={styles.infoText} numberOfLines={1}>
-            {event.organizer.name}
-          </Text>
-        </View>
-
-        {/* Categories */}
-        <View style={styles.categories}>
-          {event.categories.slice(0, 3).map((category) => (
-            <CategoryPill
-              key={category}
-              category={category}
-              size="small"
-              color={event.color}
-            />
-          ))}
-          {event.categories.length > 3 && (
-            <Text style={styles.moreCategories}>
-              +{event.categories.length - 3}
-            </Text>
-          )}
-        </View>
-
-        {/* Footer */}
         <View style={styles.footer}>
           {event.rsvpEnabled && (
-            <View style={styles.rsvpInfo}>
-              <Text style={styles.rsvpIcon}>✓</Text>
-              <Text style={styles.rsvpText}>
-                {totalRSVPs} {totalRSVPs === 1 ? 'person' : 'people'} interested
-              </Text>
-            </View>
+            <Text style={styles.rsvpText}>
+              {totalRSVPs} {totalRSVPs === 1 ? 'person' : 'people'} interested
+            </Text>
           )}
-          {event.capacity && (
-            <Text style={styles.capacity}>
-              {event.capacity - totalRSVPs} spots left
+          {spotsLeft !== null && (
+            <Text style={[styles.capacity, spotsLeft === 0 && styles.capacityFull]}>
+              {spotsLeft === 0
+                ? 'Full'
+                : `${spotsLeft} ${spotsLeft === 1 ? 'spot' : 'spots'} left`}
             </Text>
           )}
         </View>
-      </View>
-    </TouchableOpacity>
+      </Pressable>
     </Animated.View>
   );
 };
 
-const createStyles = (colors: AppPalette, fontScale: number) =>
+const createStyles = (colors: AppPalette, type: Typography, elevation: Elevation) =>
   StyleSheet.create({
     card: {
       backgroundColor: colors.surface,
-      borderRadius: 14,
+      borderRadius: Radii.lg,
       borderWidth: 1,
       borderColor: colors.border,
       overflow: 'hidden',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.04,
-      shadowRadius: 8,
-      elevation: 1,
-      marginBottom: 16,
+      marginBottom: Spacing.md,
+      ...elevation.low,
     },
-    colorBar: {
-      height: 4,
-    },
-    image: {
+    cover: {
       width: '100%',
-      height: 140,
+      height: 132,
     },
-    content: {
-      padding: 16,
+    row: {
+      flexDirection: 'row',
+      gap: Spacing.lg,
+      padding: Spacing.lg,
+    },
+    tile: {
+      width: 52,
+      height: 52,
+      borderRadius: Radii.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    tileWeekday: {
+      ...type.overline,
+      color: '#FFFFFF',
+    },
+    tileDay: {
+      ...type.title3,
+      color: '#FFFFFF',
+    },
+    body: {
+      flex: 1,
+      gap: Spacing.xs,
     },
     header: {
       flexDirection: 'row',
       alignItems: 'flex-start',
-      marginBottom: 12,
-      gap: 8,
+      gap: Spacing.sm,
     },
     title: {
       flex: 1,
-      fontSize: 18 * fontScale,
-      fontWeight: 'bold',
+      ...type.headline,
       color: colors.textPrimary,
     },
     badge: {
-      backgroundColor: 'rgba(139, 127, 255, 0.14)',
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 6,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: Spacing.xxs,
+      borderRadius: Radii.pill,
+      backgroundColor: colors.surfaceAlt,
     },
     socialBadge: {
-      backgroundColor: 'rgba(255, 107, 168, 0.14)',
-    },
-    socialBadgeText: {
-      color: '#E24E8C',
+      backgroundColor: colors.infoSoft,
     },
     badgeText: {
-      fontSize: 10 * fontScale,
-      fontWeight: '700',
-      color: '#8B7FFF',
-      textTransform: 'uppercase',
-      letterSpacing: 0.4,
+      ...type.overline,
+      color: colors.textSecondary,
+    },
+    socialBadgeText: {
+      color: colors.infoText,
     },
     infoRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 8,
-      gap: 8,
-    },
-    infoIcon: {
-      fontSize: 14,
+      gap: Spacing.sm,
     },
     infoText: {
       flex: 1,
-      fontSize: 14 * fontScale,
+      ...type.footnote,
       color: colors.textSecondary,
     },
     categories: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: 6,
-      marginTop: 12,
-      marginBottom: 12,
+      alignItems: 'center',
+      gap: Spacing.sm,
+      marginTop: Spacing.xs,
     },
     moreCategories: {
-      fontSize: 12 * fontScale,
+      ...type.caption,
       color: colors.textTertiary,
-      alignSelf: 'center',
     },
     footer: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      paddingTop: 12,
+      gap: Spacing.sm,
+      paddingHorizontal: Spacing.lg,
+      paddingVertical: Spacing.md,
       borderTopWidth: 1,
       borderTopColor: colors.border,
-    },
-    rsvpInfo: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 6,
-    },
-    rsvpIcon: {
-      fontSize: 14,
-      color: colors.success,
+      backgroundColor: colors.surfaceAlt,
     },
     rsvpText: {
-      fontSize: 13 * fontScale,
+      ...type.caption,
+      fontWeight: '500',
       color: colors.textSecondary,
     },
     capacity: {
-      fontSize: 13 * fontScale,
+      ...type.caption,
       color: colors.primary,
-      fontWeight: '500',
+    },
+    capacityFull: {
+      color: colors.textTertiary,
     },
   });

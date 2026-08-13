@@ -20,6 +20,10 @@ import { Button } from '@/components/ui/Button';
 import { Event, RSVPStatus } from '@/types/event';
 import { fetchEventAPI } from '@/lib/api';
 import { formatDate, formatFullDate, formatTimeRange } from '@/utils/dateHelpers';
+import { getAvailableSpots } from '@/utils/eventHelpers';
+import { EventThread } from '@/components/events/EventThread';
+import { RateEventRow } from '@/components/events/RateEventRow';
+import { useRatings } from '@/contexts/RatingsContext';
 import { googleCalendarUrl, downloadIcs, shareEvent } from '@/utils/calendarLinks';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { AppPalette } from '@/constants/theme';
@@ -67,6 +71,7 @@ function InfoRow({
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { getEventById, updateRSVP, getRSVPStatus } = useEvents();
+  const { ratingFor, rateEvent } = useRatings();
   const { currentUser } = useAuth();
   const { colors, fontScale, reduceMotion } = useAppTheme();
   const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
@@ -203,9 +208,8 @@ export default function EventDetailScreen() {
   };
 
   const recurrence = recurrenceLabel(event);
-  const spotsLeft = event.capacity
-    ? Math.max(event.capacity - (event.rsvpCounts.going + event.rsvpCounts.maybe), 0)
-    : null;
+  const spotsLeft = getAvailableSpots(event);
+  const hasEnded = new Date(event.endTime).getTime() < Date.now();
 
   const barAnimStyle = {
     opacity: barAnim,
@@ -281,9 +285,11 @@ export default function EventDetailScreen() {
                   icon="people-outline"
                   primary={`${event.rsvpCounts.going} going · ${event.rsvpCounts.maybe} maybe`}
                   secondary={
-                    spotsLeft !== null
-                      ? `${spotsLeft} of ${event.capacity} spots left`
-                      : undefined
+                    spotsLeft === null
+                      ? undefined
+                      : spotsLeft === 0
+                        ? `Full · ${event.capacity} spots`
+                        : `${spotsLeft} of ${event.capacity} spots left`
                   }
                   styles={styles}
                   colors={colors}
@@ -345,6 +351,24 @@ export default function EventDetailScreen() {
                 </View>
               </>
             )}
+
+            {/* Rate it, once it's over */}
+            {hasEnded && currentUser ? (
+              <View style={styles.rateSection}>
+                <Text style={styles.sectionTitle}>Rate this event</Text>
+                <View style={styles.rateCard}>
+                  <RateEventRow
+                    eventTitle={event.title}
+                    rating={ratingFor(event.id)}
+                    onRate={(stars, note) => rateEvent(event.id, stars, note)}
+                    onClear={() => rateEvent(event.id, null)}
+                  />
+                </View>
+              </View>
+            ) : null}
+
+            {/* Attendee chat + host announcements */}
+            <EventThread event={event} rsvpStatus={userRSVP} />
           </View>
         </View>
       </ScrollView>
@@ -624,6 +648,15 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
       textTransform: 'uppercase',
       letterSpacing: 0.6,
       marginTop: 22,
+      marginBottom: 8,
+    },
+    rateSection: {
+      marginBottom: 4,
+    },
+    rateCard: {
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: 12,
+      padding: 16,
       marginBottom: 8,
     },
     description: {

@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { EventMessage, MessageKind } from '@/utils/eventMessages';
 import { Event, EventCategory, EventFormData, RSVPStatus } from '@/types/event';
 
 /** Thrown when a network call is attempted without Supabase credentials. */
@@ -195,4 +196,69 @@ export const fetchEventAPI = async (eventId: string): Promise<Event | null> => {
     .maybeSingle();
   if (error) throw error;
   return data ? transformDbEventToEvent(data as Record<string, unknown>) : null;
+};
+
+// ============================================
+// EVENT THREADS (chat + host announcements)
+// ============================================
+
+interface DbEventMessage {
+  id: string;
+  event_id: string;
+  user_id: string;
+  author_name: string;
+  kind: MessageKind;
+  body: string;
+  created_at: string;
+}
+
+const transformDbMessage = (row: DbEventMessage): EventMessage => ({
+  id: row.id,
+  eventId: row.event_id,
+  userId: row.user_id,
+  authorName: row.author_name,
+  kind: row.kind,
+  body: row.body,
+  createdAt: row.created_at,
+});
+
+/** Thread for one event, oldest first. RLS limits this to participants. */
+export const fetchEventMessagesAPI = async (eventId: string): Promise<EventMessage[]> => {
+  requireSupabase();
+  const { data, error } = await supabase
+    .from('event_messages')
+    .select('*')
+    .eq('event_id', eventId)
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map((row) => transformDbMessage(row as DbEventMessage));
+};
+
+export const postEventMessageAPI = async (
+  eventId: string,
+  userId: string,
+  authorName: string,
+  body: string,
+  kind: MessageKind = 'message'
+): Promise<EventMessage> => {
+  requireSupabase();
+  const { data, error } = await supabase
+    .from('event_messages')
+    .insert({
+      event_id: eventId,
+      user_id: userId,
+      author_name: authorName,
+      kind,
+      body,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return transformDbMessage(data as DbEventMessage);
+};
+
+export const deleteEventMessageAPI = async (messageId: string): Promise<void> => {
+  requireSupabase();
+  const { error } = await supabase.from('event_messages').delete().eq('id', messageId);
+  if (error) throw error;
 };

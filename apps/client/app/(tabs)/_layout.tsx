@@ -5,7 +5,9 @@ import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { useAuth } from '@/contexts/AuthContext';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Spacing } from '@/constants/design';
 import { useResponsive } from '@/hooks/useResponsive';
 import { DesktopNav } from '@/components/layout/DesktopNav';
 
@@ -13,6 +15,7 @@ export default function TabLayout() {
   const { colors } = useAppTheme();
   const { isAuthenticated, isLoading } = useAuth();
   const { isDesktop } = useResponsive();
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -41,41 +44,57 @@ export default function TabLayout() {
           tabBarInactiveTintColor: colors.textTertiary,
           headerShown: false,
           tabBarButton: HapticTab,
-          tabBarStyle: isDesktop ? { display: 'none' } : { backgroundColor: colors.surface },
+          tabBarStyle: isDesktop
+            ? { display: 'none' }
+            : {
+                backgroundColor: colors.surface,
+                borderTopColor: colors.border,
+                borderTopWidth: StyleSheet.hairlineWidth,
+                height: 64 + insets.bottom,
+                paddingTop: Spacing.sm,
+                paddingHorizontal: Spacing.sm,
+                paddingBottom: Math.max(insets.bottom, Spacing.sm),
+              },
+          tabBarLabelStyle: {
+            fontSize: 11,
+            fontWeight: '600',
+            letterSpacing: 0.1,
+          },
+          tabBarItemStyle: { paddingVertical: 0 },
         }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="house.fill" color={color} />,
         }}
       />
       <Tabs.Screen
         name="calendar"
         options={{
           title: 'Calendar',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="calendar" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="calendar" color={color} />,
         }}
       />
       <Tabs.Screen
         name="find"
         options={{
           title: 'Find',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="magnifyingglass" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="magnifyingglass" color={color} />,
         }}
       />
       <Tabs.Screen
         name="create"
         options={{
           title: 'Create',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus.circle.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="plus.circle.fill" color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="person.fill" color={color} />,
         }}
       />
     </Tabs>

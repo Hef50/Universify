@@ -37,6 +37,16 @@ A comprehensive cross-platform event aggregation and discovery application built
   - Capacity limits
   - Real-time validation
 
+- **My Events & ratings**
+  - Every event you RSVP'd to, pinned, or host, in one timeline
+  - Opens on past events so you can rate them 1–5 stars with an optional note
+  - "Not yet rated" filter, plus search across past events
+
+- **Event chat & announcements**
+  - Per-event thread for the people going, gated to attendees and the host
+  - Hosts can post announcements, which pin above the conversation
+  - Backed by Supabase (`event_messages` + RLS) with a device-local fallback
+
 - **Recommendations Feed**
   - Personalized based on user interests
   - Random selection from upcoming events
@@ -180,24 +190,45 @@ bundled mock events and keeps all changes in local state.
 
 ## 🎨 Design System
 
+Tokens live in `constants/design.ts` and reach components through
+`useAppTheme()`. Screens compose from the scale rather than inventing values —
+that consistency is what makes unrelated screens read as one product.
+
 ### Colors
 
-- **Primary**: `#FF6B6B` (Coral Red)
-- **Secondary**: `#8B7FFF` (Purple)
-- **Accent**: `#FF6BA8` (Pink)
-- **Background**: `#F8F9FA` (Light Gray)
-- **Text**: `#1F2937` (Dark Gray)
+Semantic roles, not raw hex: `background`, `surface`, `surfaceAlt`, `border`,
+`textPrimary/Secondary/Tertiary`, `primary`, `onPrimary`, plus status colours.
+Every role is defined for light, dark, and both high-contrast variants in
+`constants/theme.ts`. Emphasis comes from the three text roles, so no screen
+needs a bespoke grey.
 
 ### Typography
 
-- **Headers**: Bold, 24-32px
-- **Body**: Regular, 14-16px
-- **Small**: Regular, 12-14px
+A fixed scale modelled on Apple's HIG text styles, each step carrying its own
+weight, line height and tracking, multiplied by the user's font-size setting:
 
-### Spacing
+| Token | Size / line height | Weight | Used for |
+| --- | --- | --- | --- |
+| `display` | 34 / 40 | 800 | Landing hero |
+| `title1` | 28 / 34 | 800 | Screen titles |
+| `title2` | 22 / 28 | 700 | Section titles |
+| `title3` | 20 / 26 | 700 | Card titles, empty states |
+| `headline` | 17 / 23 | 700 | List item titles |
+| `body` | 16 / 24 | 400 | Long-form text |
+| `callout` | 15 / 21 | 400 | Supporting copy |
+| `subhead` | 14 / 20 | 600 | Labels, buttons |
+| `footnote` | 13 / 18 | 400 | Metadata |
+| `caption` | 12 / 16 | 600 | Counts, timestamps |
+| `overline` | 11 / 14 | 700, uppercase | Eyebrows, chips |
 
-- Base unit: 8px
-- Small: 8px, Medium: 16px, Large: 24px, XLarge: 32px
+### Spacing, radius, elevation
+
+- 8pt grid with 4pt half-steps: `xs 4, sm 8, md 12, lg 16, xl 24, xxl 32, xxxl 48`
+- Radii: `sm 8, md 12, lg 16, xl 24, pill`
+- Elevation: a three-step shadow ramp in light mode; dark mode returns flat
+  styles and separates surfaces with stepped backgrounds and hairlines, because
+  shadows read as dirt on dark backgrounds
+- Minimum tap target: 44pt
 
 ## 📱 Responsive Breakpoints
 

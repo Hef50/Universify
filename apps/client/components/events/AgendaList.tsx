@@ -12,6 +12,13 @@ import { Event } from '@/types/event';
 import { formatTimeRange } from '@/utils/dateHelpers';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { AppPalette } from '@/constants/theme';
+import {
+  Elevation,
+  Radii,
+  Spacing,
+  TouchTarget,
+  Typography,
+} from '@/constants/design';
 import { MyEventRelation } from '@/utils/myEvents';
 
 /**
@@ -35,6 +42,8 @@ interface AgendaListProps {
   emptyAction?: { label: string; onPress: () => void };
   /** Sort descending (for "Past" lists) */
   descending?: boolean;
+  /** Extra row rendered inside each card — used for rating past events */
+  renderFooter?: (event: Event) => React.ReactNode;
 }
 
 function dayKey(date: Date): string {
@@ -76,9 +85,13 @@ export const AgendaList: React.FC<AgendaListProps> = ({
   emptyBody = 'Events you add will show up in this timeline.',
   emptyAction,
   descending = false,
+  renderFooter,
 }) => {
-  const { colors, fontScale, reduceMotion } = useAppTheme();
-  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
+  const { colors, type, elevation, reduceMotion } = useAppTheme();
+  const styles = React.useMemo(
+    () => createStyles(colors, type, elevation),
+    [colors, type, elevation]
+  );
 
   const groups = useMemo(() => {
     const sorted = [...events].sort((a, b) => {
@@ -139,6 +152,7 @@ export const AgendaList: React.FC<AgendaListProps> = ({
                   index={itemIndex++}
                   onPress={() => onEventPress(event)}
                   badge={badgeFor?.(event) ?? null}
+                  footer={renderFooter?.(event) ?? null}
                   styles={styles}
                   colors={colors}
                   reduceMotion={reduceMotion}
@@ -157,6 +171,7 @@ function AgendaCard({
   index,
   onPress,
   badge,
+  footer,
   styles,
   colors,
   reduceMotion,
@@ -165,6 +180,7 @@ function AgendaCard({
   index: number;
   onPress: () => void;
   badge: AgendaBadge | null;
+  footer: React.ReactNode;
   styles: ReturnType<typeof createStyles>;
   colors: AppPalette;
   reduceMotion: boolean;
@@ -243,7 +259,7 @@ function AgendaCard({
               </View>
             ) : null}
             {event.rsvpEnabled && going > 0 && (
-              <View style={styles.metaItem}>
+              <View style={[styles.metaItem, styles.metaItemFixed]}>
                 <Ionicons name="people-outline" size={13} color={colors.textTertiary} />
                 <Text style={styles.metaText}>{going} going</Text>
               </View>
@@ -252,28 +268,29 @@ function AgendaCard({
         </View>
         <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
       </Pressable>
+      {footer ? <View style={styles.cardFooter}>{footer}</View> : null}
     </Animated.View>
   );
 }
 
-const createStyles = (colors: AppPalette, fontScale: number) =>
+const createStyles = (colors: AppPalette, type: Typography, elevation: Elevation) =>
   StyleSheet.create({
     container: {
       flex: 1,
     },
     content: {
-      paddingHorizontal: 16,
-      paddingTop: 8,
-      paddingBottom: 32,
+      paddingHorizontal: Spacing.lg,
+      paddingTop: Spacing.sm,
+      paddingBottom: Spacing.xxl,
     },
     group: {
-      marginBottom: 4,
+      marginBottom: Spacing.xs,
     },
     dateRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 10,
-      marginBottom: 10,
+      gap: Spacing.sm,
+      marginBottom: Spacing.md,
     },
     spineDot: {
       width: 8,
@@ -282,8 +299,7 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
       backgroundColor: colors.primary,
     },
     dateLabel: {
-      fontSize: 14 * fontScale,
-      fontWeight: '700',
+      ...type.subhead,
       color: colors.textPrimary,
     },
     dateRule: {
@@ -293,29 +309,30 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
     },
     groupBody: {
       position: 'relative',
-      paddingLeft: 18,
-      paddingBottom: 16,
+      paddingLeft: Spacing.lg + Spacing.xs,
+      paddingBottom: Spacing.lg,
     },
     spineLine: {
       position: 'absolute',
       left: 3.5,
       top: 0,
-      bottom: -10,
+      bottom: -Spacing.md,
       width: 1,
       backgroundColor: colors.border,
     },
     cards: {
-      gap: 10,
+      gap: Spacing.md,
     },
     card: {
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor: colors.surface,
-      borderRadius: 14,
+      borderRadius: Radii.lg,
       borderWidth: 1,
       borderColor: colors.border,
-      paddingRight: 12,
+      paddingRight: Spacing.md,
       overflow: 'hidden',
+      ...elevation.low,
     },
     cardAccent: {
       width: 4,
@@ -323,47 +340,60 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
     },
     cardBody: {
       flex: 1,
-      paddingVertical: 12,
-      paddingHorizontal: 12,
+      paddingVertical: Spacing.md,
+      paddingHorizontal: Spacing.md,
+      gap: Spacing.xs,
     },
     cardTopRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: 3,
-      gap: 8,
+      gap: Spacing.sm,
     },
     cardTime: {
-      fontSize: 12 * fontScale,
-      fontWeight: '600',
+      ...type.caption,
       color: colors.textSecondary,
     },
     cardTitle: {
-      fontSize: 16 * fontScale,
-      fontWeight: '700',
+      ...type.headline,
       color: colors.textPrimary,
-      marginBottom: 5,
     },
     cardMetaRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 12,
+      gap: Spacing.md,
     },
     metaItem: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 4,
+      gap: Spacing.xs,
       flexShrink: 1,
     },
+    metaItemFixed: {
+      flexShrink: 0,
+    },
     metaText: {
-      fontSize: 12 * fontScale,
+      ...type.caption,
+      fontWeight: '500',
       color: colors.textTertiary,
       flexShrink: 1,
     },
+    cardFooter: {
+      marginTop: -Spacing.md,
+      paddingTop: Spacing.lg,
+      paddingBottom: Spacing.md,
+      paddingHorizontal: Spacing.md,
+      backgroundColor: colors.surfaceAlt,
+      borderBottomLeftRadius: Radii.lg,
+      borderBottomRightRadius: Radii.lg,
+      borderWidth: 1,
+      borderTopWidth: 0,
+      borderColor: colors.border,
+    },
     badge: {
-      paddingHorizontal: 8,
-      paddingVertical: 2,
-      borderRadius: 999,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: Spacing.xxs,
+      borderRadius: Radii.pill,
       backgroundColor: colors.surfaceAlt,
     },
     badgeGoing: {
@@ -373,8 +403,7 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
       backgroundColor: 'rgba(139, 92, 246, 0.12)',
     },
     badgeText: {
-      fontSize: 11 * fontScale,
-      fontWeight: '700',
+      ...type.overline,
       color: colors.textSecondary,
     },
     badgeTextGoing: {
@@ -387,40 +416,39 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      padding: 32,
+      padding: Spacing.xxl,
     },
     emptyIconWrap: {
-      width: 52,
-      height: 52,
-      borderRadius: 16,
+      width: 56,
+      height: 56,
+      borderRadius: Radii.lg,
       backgroundColor: colors.surfaceAlt,
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: 14,
+      marginBottom: Spacing.lg,
     },
     emptyTitle: {
-      fontSize: 17 * fontScale,
-      fontWeight: '700',
+      ...type.title3,
       color: colors.textPrimary,
-      marginBottom: 6,
+      marginBottom: Spacing.sm,
     },
     emptyBody: {
-      fontSize: 14 * fontScale,
-      lineHeight: 20 * fontScale,
+      ...type.callout,
       color: colors.textSecondary,
       textAlign: 'center',
-      maxWidth: 300,
-      marginBottom: 18,
+      maxWidth: 320,
+      marginBottom: Spacing.xl,
     },
     emptyButton: {
       backgroundColor: colors.primary,
-      borderRadius: 10,
-      paddingHorizontal: 18,
-      paddingVertical: 10,
+      borderRadius: Radii.md,
+      paddingHorizontal: Spacing.xl,
+      paddingVertical: Spacing.md,
+      minHeight: TouchTarget,
+      justifyContent: 'center',
     },
     emptyButtonText: {
-      fontSize: 14 * fontScale,
-      fontWeight: '600',
+      ...type.subhead,
       color: colors.onPrimary,
     },
   });

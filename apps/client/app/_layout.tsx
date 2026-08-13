@@ -9,6 +9,7 @@ import { DevModeProvider } from '@/contexts/DevModeContext';
 import { GoogleAuthProvider } from '@/contexts/GoogleAuthContext';
 import { GoogleCalendarProvider } from '@/contexts/GoogleCalendarContext';
 import { EventsProvider } from '@/contexts/EventsContext';
+import { RatingsProvider } from '@/contexts/RatingsContext';
 import { SettingsProvider, useSettings } from '@/contexts/SettingsContext';
 import { SlackProvider } from '@/contexts/SlackContext';
 
@@ -48,9 +49,11 @@ export default function RootLayout() {
             <GoogleCalendarProvider>
               <SettingsProvider>
                 <EventsProvider>
-                  <SlackProvider>
-                    <ThemedStack />
-                  </SlackProvider>
+                  <RatingsProvider>
+                    <SlackProvider>
+                      <ThemedStack />
+                    </SlackProvider>
+                  </RatingsProvider>
                 </EventsProvider>
               </SettingsProvider>
             </GoogleCalendarProvider>

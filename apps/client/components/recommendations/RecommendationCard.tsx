@@ -1,125 +1,220 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, Pressable, StyleSheet, Animated, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Event } from '@/types/event';
-import { formatDate } from '@/utils/dateHelpers';
+import { formatTimeRange } from '@/utils/dateHelpers';
+import { getAvailableSpots } from '@/utils/eventHelpers';
 import { CategoryPill } from '@/components/ui/CategoryPill';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { AppPalette } from '@/constants/theme';
+import { Elevation, Motion, Radii, Spacing, Typography } from '@/constants/design';
 
 interface RecommendationCardProps {
   event: Event;
   onPress: () => void;
   reason?: string;
+  index?: number;
 }
 
+/**
+ * Feed card: a date tile anchors the row, the title carries the weight, and
+ * everything else is quiet metadata. One accent colour per card (the event's),
+ * used on the tile only — colour is information here, not decoration.
+ */
 export const RecommendationCard: React.FC<RecommendationCardProps> = ({
   event,
   onPress,
   reason,
+  index = 0,
 }) => {
-  const { colors, fontScale } = useAppTheme();
-  const styles = React.useMemo(() => createStyles(colors, fontScale), [colors, fontScale]);
+  const { colors, type, elevation, reduceMotion } = useAppTheme();
+  const styles = React.useMemo(
+    () => createStyles(colors, type, elevation),
+    [colors, type, elevation]
+  );
+
+  const fade = useRef(new Animated.Value(reduceMotion ? 1 : 0)).current;
+  const slide = useRef(new Animated.Value(reduceMotion ? 0 : 12)).current;
+  const scale = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (reduceMotion) {
+      fade.setValue(1);
+      slide.setValue(0);
+      return;
+    }
+    const delay = Math.min(index, 8) * Motion.stagger;
+    Animated.parallel([
+      Animated.timing(fade, {
+        toValue: 1,
+        duration: Motion.slow,
+        delay,
+        useNativeDriver: true,
+      }),
+      Animated.spring(slide, {
+        toValue: 0,
+        delay,
+        tension: 90,
+        friction: 14,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [fade, slide, index, reduceMotion]);
+
+  const start = new Date(event.startTime);
+  const weekday = start.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+  const day = start.getDate();
+  const spotsLeft = getAvailableSpots(event);
+  const going = event.rsvpCounts.going;
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
-      <View style={[styles.colorBar, { backgroundColor: event.color }]} />
-
-      <View style={styles.content}>
-        {reason && (
-          <View style={styles.reasonBadge}>
-            <Text style={styles.reasonText}>✨ {reason}</Text>
+    <Animated.View style={{ opacity: fade, transform: [{ translateY: slide }, { scale }] }}>
+      <Pressable
+        onPress={onPress}
+        onPressIn={() => {
+          if (!reduceMotion) {
+            Animated.spring(scale, { toValue: 0.985, useNativeDriver: true }).start();
+          }
+        }}
+        onPressOut={() => {
+          if (!reduceMotion) {
+            Animated.spring(scale, { toValue: 1, useNativeDriver: true }).start();
+          }
+        }}
+        style={styles.card}
+        accessibilityRole="button"
+        accessibilityLabel={event.title}
+      >
+        {/* Date tile — image when the event has one, otherwise its colour */}
+        <View style={[styles.tile, { backgroundColor: event.color }]}>
+          {event.imageUrl ? (
+            <Image source={{ uri: event.imageUrl }} style={styles.tileImage} resizeMode="cover" />
+          ) : null}
+          <View style={styles.tileOverlay}>
+            <Text style={styles.tileWeekday}>{weekday}</Text>
+            <Text style={styles.tileDay}>{day}</Text>
           </View>
-        )}
+        </View>
 
-        <Text style={styles.title} numberOfLines={2}>
-          {event.title}
-        </Text>
+        <View style={styles.body}>
+          {reason ? (
+            <Text style={styles.reason} numberOfLines={1}>
+              {reason}
+            </Text>
+          ) : null}
 
-        <View style={styles.infoRow}>
-          <Text style={styles.infoIcon}>🕒</Text>
-          <Text style={styles.infoText} numberOfLines={1}>
-            {formatDate(event.startTime)}
+          <Text style={styles.title} numberOfLines={2}>
+            {event.title}
           </Text>
-        </View>
 
-        <View style={styles.infoRow}>
-          <Text style={styles.infoIcon}>📍</Text>
-          <Text style={styles.infoText} numberOfLines={1}>
-            {event.location}
-          </Text>
-        </View>
+          <View style={styles.metaRow}>
+            <Ionicons name="time-outline" size={13} color={colors.textTertiary} />
+            <Text style={styles.metaText} numberOfLines={1}>
+              {formatTimeRange(event.startTime, event.endTime)}
+              {event.location ? `  ·  ${event.location}` : ''}
+            </Text>
+          </View>
 
-        <View style={styles.categories}>
-          {event.categories.slice(0, 2).map((category) => (
-            <CategoryPill
-              key={category}
-              category={category}
-              size="small"
-              color={event.color}
-            />
-          ))}
+          <View style={styles.footer}>
+            <View style={styles.categories}>
+              {event.categories.slice(0, 2).map((category) => (
+                <CategoryPill
+                  key={category}
+                  category={category}
+                  size="small"
+                  color={event.color}
+                />
+              ))}
+            </View>
+            {going > 0 || spotsLeft === 0 ? (
+              <Text style={styles.attendance}>
+                {spotsLeft === 0 ? 'Full' : `${going} going`}
+              </Text>
+            ) : null}
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
+      </Pressable>
+    </Animated.View>
   );
 };
 
-const createStyles = (colors: AppPalette, fontScale: number) =>
+const createStyles = (colors: AppPalette, type: Typography, elevation: Elevation) =>
   StyleSheet.create({
     card: {
+      flexDirection: 'row',
+      gap: Spacing.lg,
       backgroundColor: colors.surface,
-      borderRadius: 12,
+      borderRadius: Radii.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: Spacing.lg,
+      marginBottom: Spacing.md,
+      ...elevation.low,
+    },
+    tile: {
+      width: 56,
+      height: 56,
+      borderRadius: Radii.md,
       overflow: 'hidden',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.08,
-      shadowRadius: 4,
-      elevation: 2,
-      marginBottom: 12,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
-    colorBar: {
-      height: 3,
+    tileImage: {
+      ...StyleSheet.absoluteFillObject,
     },
-    content: {
-      padding: 14,
+    tileOverlay: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: Spacing.xs,
+      borderRadius: Radii.sm,
+      backgroundColor: 'rgba(0, 0, 0, 0.28)',
     },
-    reasonBadge: {
-      backgroundColor: '#FEF3C7',
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-      borderRadius: 12,
-      alignSelf: 'flex-start',
-      marginBottom: 8,
+    tileWeekday: {
+      ...type.overline,
+      color: '#FFFFFF',
     },
-    reasonText: {
-      fontSize: 11 * fontScale,
-      fontWeight: '600',
-      color: '#92400E',
+    tileDay: {
+      ...type.title3,
+      color: '#FFFFFF',
+    },
+    body: {
+      flex: 1,
+      gap: Spacing.xs,
+    },
+    reason: {
+      ...type.overline,
+      color: colors.textTertiary,
     },
     title: {
-      fontSize: 16 * fontScale,
-      fontWeight: 'bold',
+      ...type.headline,
       color: colors.textPrimary,
-      marginBottom: 8,
     },
-    infoRow: {
+    metaRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 6,
-      gap: 6,
+      gap: Spacing.sm,
     },
-    infoIcon: {
-      fontSize: 12,
-    },
-    infoText: {
+    metaText: {
       flex: 1,
-      fontSize: 13 * fontScale,
+      ...type.footnote,
       color: colors.textSecondary,
+    },
+    footer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: Spacing.sm,
+      marginTop: Spacing.xs,
     },
     categories: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: 6,
-      marginTop: 8,
+      gap: Spacing.sm,
+      flexShrink: 1,
+    },
+    attendance: {
+      ...type.caption,
+      color: colors.textTertiary,
     },
   });

@@ -55,11 +55,7 @@ export const filterEvents = (events: Event[], filters: FilterState): Event[] => 
     }
 
     // Availability filter
-    if (filters.hasAvailability && event.capacity) {
-      const totalRSVPs =
-        event.rsvpCounts.going + event.rsvpCounts.maybe;
-      if (totalRSVPs >= event.capacity) return false;
-    }
+    if (filters.hasAvailability && isEventFull(event)) return false;
 
     return true;
   });
@@ -210,16 +206,24 @@ export const getEventDuration = (event: Event): number => {
   return (end.getTime() - start.getTime()) / (1000 * 60); // Duration in minutes
 };
 
+/** Everyone who has claimed a spot: going plus maybe. */
+export const getClaimedSpots = (event: Event): number =>
+  Math.max(0, event.rsvpCounts.going) + Math.max(0, event.rsvpCounts.maybe);
+
 export const isEventFull = (event: Event): boolean => {
-  if (!event.capacity) return false;
-  const totalRSVPs = event.rsvpCounts.going + event.rsvpCounts.maybe;
-  return totalRSVPs >= event.capacity;
+  if (!event.capacity || event.capacity <= 0) return false;
+  return getClaimedSpots(event) >= event.capacity;
 };
 
+/**
+ * Spots still open, or null when the event has no capacity limit.
+ *
+ * Never negative: an over-subscribed event (imported counts, concurrent RSVPs,
+ * a capacity lowered after the fact) is full, not "-6 spots left".
+ */
 export const getAvailableSpots = (event: Event): number | null => {
-  if (!event.capacity) return null;
-  const totalRSVPs = event.rsvpCounts.going + event.rsvpCounts.maybe;
-  return Math.max(0, event.capacity - totalRSVPs);
+  if (!event.capacity || event.capacity <= 0) return null;
+  return Math.max(0, event.capacity - getClaimedSpots(event));
 };
 
 export const groupEventsByCategory = (

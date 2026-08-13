@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/Button';
 import { CategoryPill } from '@/components/ui/CategoryPill';
 import { Event, RSVPStatus } from '@/types/event';
 import { formatFullDate, formatTimeRange } from '@/utils/dateHelpers';
+import { getAvailableSpots, getClaimedSpots } from '@/utils/eventHelpers';
 import { useResponsive } from '@/hooks/useResponsive';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEvents } from '@/contexts/EventsContext';
@@ -44,6 +45,8 @@ export const EventDetailSidebar: React.FC<EventDetailSidebarProps> = ({
   if (!event) return null;
 
   const userRSVP = currentUser ? getRSVPStatus(event.id, currentUser.id) : null;
+  const claimedSpots = getClaimedSpots(event);
+  const spotsLeft = getAvailableSpots(event);
 
   const handleRSVP = async (status: RSVPStatus) => {
     if (!currentUser) return;
@@ -107,7 +110,7 @@ export const EventDetailSidebar: React.FC<EventDetailSidebarProps> = ({
           {/* Date & Time */}
           <View style={styles.section}>
             <View style={styles.infoRow}>
-              <Text style={styles.infoIcon}>🕒</Text>
+              <Ionicons name="time-outline" size={16} color={colors.textSecondary} style={styles.infoIcon} />
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>Date & Time</Text>
                 <Text style={styles.infoValue}>
@@ -130,7 +133,7 @@ export const EventDetailSidebar: React.FC<EventDetailSidebarProps> = ({
           {/* Location */}
           <View style={styles.section}>
             <View style={styles.infoRow}>
-              <Text style={styles.infoIcon}>📍</Text>
+              <Ionicons name="location-outline" size={16} color={colors.textSecondary} style={styles.infoIcon} />
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>Location</Text>
                 <Text style={styles.infoValue}>{event.location}</Text>
@@ -141,7 +144,7 @@ export const EventDetailSidebar: React.FC<EventDetailSidebarProps> = ({
           {/* Organizer */}
           <View style={styles.section}>
             <View style={styles.infoRow}>
-              <Text style={styles.infoIcon}>👤</Text>
+              <Ionicons name="person-outline" size={16} color={colors.textSecondary} style={styles.infoIcon} />
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>Organized by</Text>
                 <Text style={styles.infoValue}>{event.organizer.name}</Text>
@@ -209,12 +212,14 @@ export const EventDetailSidebar: React.FC<EventDetailSidebarProps> = ({
           </View>
 
           {/* Capacity */}
-          {event.capacity && (
+          {event.capacity ? (
             <View style={styles.section}>
               <View style={styles.capacityInfo}>
                 <Text style={styles.capacityLabel}>Capacity</Text>
                 <Text style={styles.capacityValue}>
-                  {event.rsvpCounts.going + event.rsvpCounts.maybe} / {event.capacity}
+                  {spotsLeft === 0
+                    ? 'Full'
+                    : `${spotsLeft} of ${event.capacity} spots left`}
                 </Text>
               </View>
               <View style={styles.capacityBar}>
@@ -222,19 +227,14 @@ export const EventDetailSidebar: React.FC<EventDetailSidebarProps> = ({
                   style={[
                     styles.capacityFill,
                     {
-                      width: `${Math.min(
-                        100,
-                        ((event.rsvpCounts.going + event.rsvpCounts.maybe) /
-                          event.capacity) *
-                          100
-                      )}%`,
+                      width: `${Math.min(100, (claimedSpots / event.capacity) * 100)}%`,
                       backgroundColor: event.color,
                     },
                   ]}
                 />
               </View>
             </View>
-          )}
+          ) : null}
 
           {/* RSVP Stats */}
           {event.rsvpEnabled && (
@@ -354,7 +354,8 @@ const createStyles = (colors: AppPalette, fontScale: number) =>
       gap: 12,
     },
     infoIcon: {
-      fontSize: 20,
+      width: 20,
+      textAlign: 'center',
     },
     infoContent: {
       flex: 1,

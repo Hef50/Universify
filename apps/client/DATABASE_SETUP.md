@@ -80,6 +80,16 @@ The app currently uses **localStorage** (web) for data persistence. Events are l
    EXPO_PUBLIC_API_URL=https://your-api-url.com
    ```
 
+## Migrations
+
+Run these in the Supabase SQL editor, in order:
+
+1. `supabase/migrations/001_initial_schema.sql` — events, profiles, RLS
+2. `supabase/migrations/002_handle_new_user.sql` — profile row on signup
+3. `supabase/migrations/003_event_rsvps.sql` — per-user RSVPs + aggregate trigger
+4. `supabase/migrations/004_event_messages.sql` — event chat and host
+   announcements, readable and writable only by people going (or the host)
+
 ## Testing Without Database
 
 With no Supabase credentials the app runs in offline demo mode against
